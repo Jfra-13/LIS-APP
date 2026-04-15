@@ -1,1 +1,5 @@
-Un LIS aborda la desorganización, errores y demoras en la gestión de muestras junto con resultados clínicos, automatizando el registro, procesamiento ademas de entrega de información de laboratorio de forma segura, rápida y trazable.
+Este LIS (Laboratory Information System) es una plataforma web especializada en Microbiología diseñada para gestionar el ciclo de vida completo de cultivos y antibiogramas. 
+
+Bajo una Arquitectura de Capas y un modelo Cliente-Servidor, el sistema utiliza un stack moderno con FastAPI (Python) para el backend y PostgreSQL (con soporte JSONB) para el almacenamiento flexible de resultados.
+
+Su funcionamiento permite registrar pacientes, muestras, procesar flujos de trabajo dinámicos (recepción, incubación e identificación) y generar reportes detallados de sensibilidad bacteriana, garantizando integridad de datos además seguridad bajo estándares médicos.
