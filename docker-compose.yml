@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"   # Puerto de comunicación interna
+      - "15672:15672" # Dashboard visual de RabbitMQ (Entra desde tu navegador)
+
+  web:
+    build: .
+    command: python src/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - rabbitmq
+
+  worker_nlp:
+    build: .
+    # Este worker procesará el NLP y los códigos CIE-10
+    command: celery -A config worker -l info
+    volumes:
+      - .:/code
+    env_file:
+      - .env
+    depends_on:
+      - rabbitmq
+      - db
+
+volumes:
+  postgres_data:

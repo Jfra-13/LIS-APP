@@ -1,0 +1,7 @@
+Django>=5.0,<5.1
+psycopg2-binary>=2.9
+celery>=5.3
+redis>=5.0
+spacy>=3.7
+weasyprint>=61.0
+python-dotenv>=1.0
