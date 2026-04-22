@@ -1,0 +1,779 @@
+[
+  {
+    "codigo": "A00",
+    "descripcion_oficial": "Cólera",
+    "capitulo": "I",
+    "bloque": "Enfermedades infecciosas intestinales",
+    "terminos_clave": [
+      "cólera",
+      "infeccion por vibrio cholerae",
+      "diarrea liquida severa",
+      "deshidratacion aguda"
+    ]
+  },
+  {
+    "codigo": "A01",
+    "descripcion_oficial": "Fiebres tifoidea y paratifoidea",
+    "capitulo": "I",
+    "bloque": "Enfermedades infecciosas intestinales",
+    "terminos_clave": [
+      "fiebre tifoidea",
+      "paratifoidea",
+      "infeccion por salmonella typhi",
+      "fiebre entérica"
+    ]
+  },
+  {
+    "codigo": "A02",
+    "descripcion_oficial": "Otras infecciones debidas a Salmonella",
+    "capitulo": "I",
+    "bloque": "Enfermedades infecciosas intestinales",
+    "terminos_clave": [
+      "salmonelosis",
+      "infeccion por salmonella",
+      "gastroenteritis por salmonella",
+      "diarrea bacteriana"
+    ]
+  },
+  {
+    "codigo": "A03",
+    "descripcion_oficial": "Shigelosis",
+    "capitulo": "I",
+    "bloque": "Enfermedades infecciosas intestinales",
+    "terminos_clave": [
+      "shigelosis",
+      "disenteria bacilar",
+      "infeccion por shigella",
+      "diarrea con sangre"
+    ]
+  },
+  {
+    "codigo": "A04",
+    "descripcion_oficial": "Otras infecciones intestinales bacterianas",
+    "capitulo": "I",
+    "bloque": "Enfermedades infecciosas intestinales",
+    "terminos_clave": [
+      "infeccion intestinal bacteriana",
+      "colitis bacteriana",
+      "escherichia coli enteropatogena",
+      "diarrea bacteriana"
+    ]
+  },
+  {
+    "codigo": "A05",
+    "descripcion_oficial": "Otras intoxicaciones alimentarias bacterianas, no clasificadas en otra parte",
+    "capitulo": "I",
+    "bloque": "Enfermedades infecciosas intestinales",
+    "terminos_clave": [
+      "intoxicacion alimentaria bacteriana",
+      "botulismo alimentario",
+      "envenenamiento por alimentos",
+      "toxinfeccion alimentaria"
+    ]
+  },
+  {
+    "codigo": "A06",
+    "descripcion_oficial": "Amebiasis",
+    "capitulo": "I",
+    "bloque": "Enfermedades infecciosas intestinales",
+    "terminos_clave": [
+      "amebiasis",
+      "disenteria amebiana",
+      "infeccion por entamoeba histolytica",
+      "absceso hepatico amebiano"
+    ]
+  },
+  {
+    "codigo": "A07",
+    "descripcion_oficial": "Otras enfermedades intestinales debidas a protozoarios",
+    "capitulo": "I",
+    "bloque": "Enfermedades infecciosas intestinales",
+    "terminos_clave": [
+      "enfermedad intestinal por protozoarios",
+      "giardiasis",
+      "criptosporidiosis",
+      "isosporiasis"
+    ]
+  },
+  {
+    "codigo": "A08",
+    "descripcion_oficial": "Infecciones intestinales debidas a virus y otros organismos especificados",
+    "capitulo": "I",
+    "bloque": "Enfermedades infecciosas intestinales",
+    "terminos_clave": [
+      "gastroenteritis viral",
+      "infeccion intestinal por virus",
+      "rotavirus",
+      "norovirus"
+    ]
+  },
+  {
+    "codigo": "A09",
+    "descripcion_oficial": "Diarrea y gastroenteritis de presunto origen infeccioso",
+    "capitulo": "I",
+    "bloque": "Enfermedades infecciosas intestinales",
+    "terminos_clave": [
+      "diarrea",
+      "gastroenteritis infecciosa",
+      "diarrea aguda",
+      "infeccion estomacal"
+    ]
+  },
+  {
+    "codigo": "A15",
+    "descripcion_oficial": "Tuberculosis respiratoria, confirmada bacteriológica e histológicamente",
+    "capitulo": "I",
+    "bloque": "Tuberculosis",
+    "terminos_clave": [
+      "tuberculosis respiratoria",
+      "tb pulmonar confirmada",
+      "tisis",
+      "tuberculosis pulmonar"
+    ]
+  },
+  {
+    "codigo": "A16",
+    "descripcion_oficial": "Tuberculosis respiratoria, no confirmada bacteriológica o histológicamente",
+    "capitulo": "I",
+    "bloque": "Tuberculosis",
+    "terminos_clave": [
+      "tuberculosis respiratoria",
+      "tb pulmonar no confirmada",
+      "tuberculosis pulmonar sospechosa"
+    ]
+  },
+  {
+    "codigo": "A17",
+    "descripcion_oficial": "Tuberculosis del sistema nervioso",
+    "capitulo": "I",
+    "bloque": "Tuberculosis",
+    "terminos_clave": [
+      "tuberculosis meningea",
+      "tb sistema nervioso",
+      "meningitis tuberculosa"
+    ]
+  },
+  {
+    "codigo": "A18",
+    "descripcion_oficial": "Tuberculosis de otros órganos",
+    "capitulo": "I",
+    "bloque": "Tuberculosis",
+    "terminos_clave": [
+      "tuberculosis extrapulmonar",
+      "tb renal",
+      "tb intestinal",
+      "tuberculosis ósea"
+    ]
+  },
+  {
+    "codigo": "A19",
+    "descripcion_oficial": "Tuberculosis miliar",
+    "capitulo": "I",
+    "bloque": "Tuberculosis",
+    "terminos_clave": [
+      "tuberculosis miliar",
+      "tb diseminada",
+      "tuberculosis generalizada"
+    ]
+  },
+  {
+    "codigo": "A20",
+    "descripcion_oficial": "Peste",
+    "capitulo": "I",
+    "bloque": "Ciertas zoonosis bacterianas",
+    "terminos_clave": [
+      "peste",
+      "peste bubonica",
+      "infeccion por yersinia pestis",
+      "peste neumónica"
+    ]
+  },
+  {
+    "codigo": "A21",
+    "descripcion_oficial": "Tularemia",
+    "capitulo": "I",
+    "bloque": "Ciertas zoonosis bacterianas",
+    "terminos_clave": [
+      "tularemia",
+      "fiebre de conejo",
+      "infeccion por francisella tularensis"
+    ]
+  },
+  {
+    "codigo": "A22",
+    "descripcion_oficial": "Carbunco [ántrax]",
+    "capitulo": "I",
+    "bloque": "Ciertas zoonosis bacterianas",
+    "terminos_clave": [
+      "carbunco",
+      "ántrax",
+      "infeccion por bacillus anthracis",
+      "ántrax cutáneo"
+    ]
+  },
+  {
+    "codigo": "A23",
+    "descripcion_oficial": "Brucelosis",
+    "capitulo": "I",
+    "bloque": "Ciertas zoonosis bacterianas",
+    "terminos_clave": [
+      "brucelosis",
+      "fiebre de malta",
+      "infeccion por brucella",
+      "fiebre ondulante"
+    ]
+  },
+  {
+    "codigo": "A24",
+    "descripcion_oficial": "Muermo y melioidosis",
+    "capitulo": "I",
+    "bloque": "Ciertas zoonosis bacterianas",
+    "terminos_clave": [
+      "melioidosis",
+      "muermo",
+      "infeccion por burkholderia",
+      "pseudoglanders"
+    ]
+  },
+  {
+    "codigo": "A25",
+    "descripcion_oficial": "Fiebres por mordedura de rata",
+    "capitulo": "I",
+    "bloque": "Ciertas zoonosis bacterianas",
+    "terminos_clave": [
+      "fiebre por mordedura de rata",
+      "sodoku",
+      "infeccion por streptobacillus"
+    ]
+  },
+  {
+    "codigo": "A26",
+    "descripcion_oficial": "Erisipeloide",
+    "capitulo": "I",
+    "bloque": "Ciertas zoonosis bacterianas",
+    "terminos_clave": [
+      "erisipeloide",
+      "infeccion por erysipelothrix",
+      "erisipela porcina"
+    ]
+  },
+  {
+    "codigo": "A27",
+    "descripcion_oficial": "Leptospirosis",
+    "capitulo": "I",
+    "bloque": "Ciertas zoonosis bacterianas",
+    "terminos_clave": [
+      "leptospirosis",
+      "enfermedad de weil",
+      "ictericia infecciosa"
+    ]
+  },
+  {
+    "codigo": "A28",
+    "descripcion_oficial": "Otras enfermedades zoonóticas bacterianas, no clasificadas en otra parte",
+    "capitulo": "I",
+    "bloque": "Ciertas zoonosis bacterianas",
+    "terminos_clave": [
+      "enfermedad zoonotica bacteriana",
+      "pasteurelosis",
+      "fiebre por garrapatas"
+    ]
+  },
+  {
+    "codigo": "A30",
+    "descripcion_oficial": "Lepra [enfermedad de Hansen]",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "lepra",
+      "enfermedad de hansen",
+      "infeccion por mycobacterium leprae",
+      "lepra lepromatosa"
+    ]
+  },
+  {
+    "codigo": "A31",
+    "descripcion_oficial": "Infecciones debidas a otras micobacterias",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "micobacteriosis",
+      "infeccion por micobacteria no tuberculosa",
+      "mycobacterium avium"
+    ]
+  },
+  {
+    "codigo": "A32",
+    "descripcion_oficial": "Listeriosis",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "listeriosis",
+      "infeccion por listeria",
+      "listeria monocytogenes"
+    ]
+  },
+  {
+    "codigo": "A33",
+    "descripcion_oficial": "Tétanos neonatal",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "tétanos neonatal",
+      "tétanos del recien nacido"
+    ]
+  },
+  {
+    "codigo": "A34",
+    "descripcion_oficial": "Tétanos obstétrico",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "tétanos obstétrico",
+      "tétanos puerperal"
+    ]
+  },
+  {
+    "codigo": "A35",
+    "descripcion_oficial": "Otros tétanos",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "tétanos",
+      "tétanos generalizado",
+      "infeccion por clostridium tetani"
+    ]
+  },
+  {
+    "codigo": "A36",
+    "descripcion_oficial": "Difteria",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "difteria",
+      "infeccion por corynebacterium diphtheriae",
+      "angina difterica"
+    ]
+  },
+  {
+    "codigo": "A37",
+    "descripcion_oficial": "Tos ferina [tos convulsiva]",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "tos ferina",
+      "tos convulsiva",
+      "infeccion por bordetella pertussis",
+      "coqueluche"
+    ]
+  },
+  {
+    "codigo": "A38",
+    "descripcion_oficial": "Escarlatina",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "escarlatina",
+      "fiebre escarlata",
+      "infeccion estreptocócica"
+    ]
+  },
+  {
+    "codigo": "A39",
+    "descripcion_oficial": "Infección meningocócica",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "meningitis meningocócica",
+      "infeccion meningococica",
+      "meningococcemia"
+    ]
+  },
+  {
+    "codigo": "A40",
+    "descripcion_oficial": "Septicemia estreptocócica",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "septicemia estreptocócica",
+      "infeccion estreptocócica sistemica"
+    ]
+  },
+  {
+    "codigo": "A41",
+    "descripcion_oficial": "Otras septicemias",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "septicemia",
+      "sepsis",
+      "choque séptico",
+      "infeccion sistemica"
+    ]
+  },
+  {
+    "codigo": "A42",
+    "descripcion_oficial": "Actinomicosis",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "actinomicosis",
+      "infeccion por actinomyces"
+    ]
+  },
+  {
+    "codigo": "A43",
+    "descripcion_oficial": "Nocardiosis",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "nocardiosis",
+      "infeccion por nocardia"
+    ]
+  },
+  {
+    "codigo": "A44",
+    "descripcion_oficial": "Bartonelosis",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "bartonelosis",
+      "enfermedad de carrión",
+      "fiebre de oroya"
+    ]
+  },
+  {
+    "codigo": "A46",
+    "descripcion_oficial": "Erisipela",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "erisipela",
+      "infeccion estreptocócica cutanea",
+      "celulitis estreptocócica"
+    ]
+  },
+  {
+    "codigo": "A48",
+    "descripcion_oficial": "Otras enfermedades bacterianas, no clasificadas en otra parte",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "enfermedad bacteriana",
+      "infeccion bacteriana no especificada"
+    ]
+  },
+  {
+    "codigo": "A49",
+    "descripcion_oficial": "Infección bacteriana de sitio no especificado",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades bacterianas",
+    "terminos_clave": [
+      "infeccion bacteriana",
+      "bacteriemia",
+      "infeccion focal bacteriana"
+    ]
+  },
+  {
+    "codigo": "A50",
+    "descripcion_oficial": "Sífilis congénita",
+    "capitulo": "I",
+    "bloque": "Infecciones con modo de transmisión predominantemente sexual",
+    "terminos_clave": [
+      "sífilis congénita",
+      "sífilis neonatal",
+      "infeccion congenita por treponema"
+    ]
+  },
+  {
+    "codigo": "A51",
+    "descripcion_oficial": "Sífilis precoz",
+    "capitulo": "I",
+    "bloque": "Infecciones con modo de transmisión predominantemente sexual",
+    "terminos_clave": [
+      "sífilis primaria",
+      "sífilis secundaria",
+      "sífilis precoz"
+    ]
+  },
+  {
+    "codigo": "A52",
+    "descripcion_oficial": "Sífilis tardía",
+    "capitulo": "I",
+    "bloque": "Infecciones con modo de transmisión predominantemente sexual",
+    "terminos_clave": [
+      "sífilis terciaria",
+      "sífilis tardía",
+      "neurosífilis"
+    ]
+  },
+  {
+    "codigo": "A53",
+    "descripcion_oficial": "Otras sífilis y las no especificadas",
+    "capitulo": "I",
+    "bloque": "Infecciones con modo de transmisión predominantemente sexual",
+    "terminos_clave": [
+      "sífilis latente",
+      "sífilis no especificada"
+    ]
+  },
+  {
+    "codigo": "A54",
+    "descripcion_oficial": "Infección gonocócica",
+    "capitulo": "I",
+    "bloque": "Infecciones con modo de transmisión predominantemente sexual",
+    "terminos_clave": [
+      "gonorrea",
+      "infeccion gonococica",
+      "uretritis gonocócica"
+    ]
+  },
+  {
+    "codigo": "A55",
+    "descripcion_oficial": "Linfogranuloma (venéreo) por clamidias",
+    "capitulo": "I",
+    "bloque": "Infecciones con modo de transmisión predominantemente sexual",
+    "terminos_clave": [
+      "linfogranuloma venereo",
+      "lgv",
+      "infeccion por clamidia trachomatis"
+    ]
+  },
+  {
+    "codigo": "A56",
+    "descripcion_oficial": "Otras enfermedades de transmisión sexual debidas a clamidias",
+    "capitulo": "I",
+    "bloque": "Infecciones con modo de transmisión predominantemente sexual",
+    "terminos_clave": [
+      "clamidiasis",
+      "uretritis no gonocócica",
+      "infeccion clamidial"
+    ]
+  },
+  {
+    "codigo": "A57",
+    "descripcion_oficial": "Chancro blando",
+    "capitulo": "I",
+    "bloque": "Infecciones con modo de transmisión predominantemente sexual",
+    "terminos_clave": [
+      "chancro blando",
+      "chancroide",
+      "infeccion por haemophilus ducreyi"
+    ]
+  },
+  {
+    "codigo": "A58",
+    "descripcion_oficial": "Granuloma inguinal",
+    "capitulo": "I",
+    "bloque": "Infecciones con modo de transmisión predominantemente sexual",
+    "terminos_clave": [
+      "granuloma inguinal",
+      "donovanosis",
+      "infeccion por klebsiella granulomatis"
+    ]
+  },
+  {
+    "codigo": "A59",
+    "descripcion_oficial": "Tricomoniasis",
+    "capitulo": "I",
+    "bloque": "Infecciones con modo de transmisión predominantemente sexual",
+    "terminos_clave": [
+      "tricomoniasis",
+      "infeccion por trichomonas vaginalis",
+      "vaginitis tricomoniasica"
+    ]
+  },
+  {
+    "codigo": "A60",
+    "descripcion_oficial": "Infección anogenital debida a virus del herpes [herpes simple]",
+    "capitulo": "I",
+    "bloque": "Infecciones con modo de transmisión predominantemente sexual",
+    "terminos_clave": [
+      "herpes genital",
+      "herpes simple anogenital",
+      "infeccion por hsv"
+    ]
+  },
+  {
+    "codigo": "A63",
+    "descripcion_oficial": "Otras enfermedades de transmisión predominantemente sexual, no clasificadas en otra parte",
+    "capitulo": "I",
+    "bloque": "Infecciones con modo de transmisión predominantemente sexual",
+    "terminos_clave": [
+      "ets no especificada",
+      "enfermedad de transmision sexual"
+    ]
+  },
+  {
+    "codigo": "A64",
+    "descripcion_oficial": "Enfermedad de transmisión sexual no especificada",
+    "capitulo": "I",
+    "bloque": "Infecciones con modo de transmisión predominantemente sexual",
+    "terminos_clave": [
+      "enfermedad venerea",
+      "ets no especificada"
+    ]
+  },
+  {
+    "codigo": "A65",
+    "descripcion_oficial": "Sífilis no venérea",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades debidas a espiroquetas",
+    "terminos_clave": [
+      "sífilis endémica",
+      "bejel",
+      "sífilis no venerea"
+    ]
+  },
+  {
+    "codigo": "A66",
+    "descripcion_oficial": "Frambesia",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades debidas a espiroquetas",
+    "terminos_clave": [
+      "frambesia",
+      "yaws",
+      "infeccion por treponema pertenue"
+    ]
+  },
+  {
+    "codigo": "A67",
+    "descripcion_oficial": "Pinta [carate]",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades debidas a espiroquetas",
+    "terminos_clave": [
+      "pinta",
+      "carate",
+      "mal del pinto"
+    ]
+  },
+  {
+    "codigo": "A68",
+    "descripcion_oficial": "Fiebres recurrentes",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades debidas a espiroquetas",
+    "terminos_clave": [
+      "fiebre recurrente",
+      "borreliosis",
+      "fiebre por garrapatas"
+    ]
+  },
+  {
+    "codigo": "A69",
+    "descripcion_oficial": "Otras infecciones causadas por espiroquetas",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades debidas a espiroquetas",
+    "terminos_clave": [
+      "espiroquetosis",
+      "infeccion por espiroqueta"
+    ]
+  },
+  {
+    "codigo": "A70",
+    "descripcion_oficial": "Infección debida a Chlamydia psittaci",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades causadas por clamidias",
+    "terminos_clave": [
+      "psitacosis",
+      "fiebre de los loros",
+      "infeccion por chlamydia psittaci"
+    ]
+  },
+  {
+    "codigo": "A71",
+    "descripcion_oficial": "Tracoma",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades causadas por clamidias",
+    "terminos_clave": [
+      "tracoma",
+      "queratoconjuntivitis tracomatosa",
+      "ceguera por tracoma"
+    ]
+  },
+  {
+    "codigo": "A74",
+    "descripcion_oficial": "Otras enfermedades causadas por clamidias",
+    "capitulo": "I",
+    "bloque": "Otras enfermedades causadas por clamidias",
+    "terminos_clave": [
+      "clamidiasis respiratoria",
+      "neumonia por clamidia"
+    ]
+  },
+  {
+    "codigo": "A75",
+    "descripcion_oficial": "Tifus",
+    "capitulo": "I",
+    "bloque": "Rickettsiosis",
+    "terminos_clave": [
+      "tifus",
+      "tifus exantematico",
+      "infeccion por rickettsia"
+    ]
+  },
+  {
+    "codigo": "A77",
+    "descripcion_oficial": "Fiebre maculosa [rickettsiosis transmitida por garrapatas]",
+    "capitulo": "I",
+    "bloque": "Rickettsiosis",
+    "terminos_clave": [
+      "fiebre maculosa",
+      "fiebre de las montañas rocosas",
+      "rickettsiosis por garrapatas"
+    ]
+  },
+  {
+    "codigo": "A78",
+    "descripcion_oficial": "Fiebre Q",
+    "capitulo": "I",
+    "bloque": "Rickettsiosis",
+    "terminos_clave": [
+      "fiebre q",
+      "infeccion por coxiella burnetii"
+    ]
+  },
+  {
+    "codigo": "A79",
+    "descripcion_oficial": "Otras rickettsiosis",
+    "capitulo": "I",
+    "bloque": "Rickettsiosis",
+    "terminos_clave": [
+      "rickettsiosis",
+      "ehrlichiosis",
+      "anaplasmosis"
+    ]
+  },
+  {
+    "codigo": "A80",
+    "descripcion_oficial": "Poliomielitis aguda",
+    "capitulo": "I",
+    "bloque": "Infecciones virales del sistema nervioso central",
+    "terminos_clave": [
+      "poliomielitis",
+      "polio",
+      "parálisis infantil"
+    ]
+  },
+  {
+    "codigo": "A81",
+    "descripcion_oficial": "Infecciones del sistema nervioso central por virus atípico",
+    "capitulo": "I",
+    "bloque": "Infecciones virales del sistema nervioso central",
+    "terminos_clave": [
+      "encefalitis por virus atípico",
+      "enfermedad de creutzfeldt-jakob",
+      "prion"
+    ]
+  },
+  {
+    "codigo": "A82",
+    "descripcion_oficial": "Rabia",
+    "capitulo": "I",
+    "bloque": "Infecciones virales del sistema nervioso central",
+    "terminos_clave": [
+      "rabia",
+      "hidrofobia",
+      "infeccion por virus de la rabia"
+    ]
+  }
+]

@@ -30,7 +30,7 @@ services:
   worker_nlp:
     build: .
     # Este worker procesará el NLP y los códigos CIE-10
-    command: celery -A config worker -l info
+    command: bash -c "cd src && celery -A config worker -l info"
     volumes:
       - .:/code
     env_file:
