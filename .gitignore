@@ -4,4 +4,4 @@ __pycache__/
 *.pyc
 db.sqlite3
 /src/media/
-/src/static/
+/src/triage/static/

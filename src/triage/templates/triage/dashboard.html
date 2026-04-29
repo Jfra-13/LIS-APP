@@ -1,0 +1,54 @@
+{% extends 'triage/base.html' %}
+
+{% block title %}Dashboard - SmartEmergency LIS{% endblock %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-12 text-center mb-5">
+        <h1 class="fw-bold text-primary">Bienvenido a SmartEmergency LIS</h1>
+        <p class="text-muted lead">Seleccione el módulo al que desea ingresar según su rol.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm border-0 text-center p-4 hover-card">
+            <div class="card-body">
+                <i class="bi bi-person-vcard text-primary" style="font-size: 3rem;"></i>
+                <h4 class="card-title mt-3 fw-bold">Módulo de Admisión</h4>
+                <p class="card-text text-muted">Registro de pacientes, validación de seguro (SIS) y generación de tickets.</p>
+                <a href="{% url 'lista_pacientes' %}" class="btn btn-outline-primary mt-2">Ir a Admisión</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm border-0 text-center p-4">
+            <div class="card-body">
+                <i class="bi bi-clipboard2-pulse text-success" style="font-size: 3rem;"></i>
+                <h4 class="card-title mt-3 fw-bold">Módulo de Triaje</h4>
+                <p class="card-text text-muted">Captura de signos vitales y cálculo algorítmico (Mánchester).</p>
+                <a href="{% url 'cola_triaje' %}" class="btn btn-outline-success mt-2">Ir a Triaje</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm border-0 text-center p-4">
+            <div class="card-body">
+                <i class="bi bi-heart-pulse text-danger" style="font-size: 3rem;"></i>
+                <h4 class="card-title mt-3 fw-bold">Módulo Médico</h4>
+                <p class="card-text text-muted">Cola dinámica de atención y diagnóstico inteligente (NLP).</p>
+                <a href="{% url 'cola_medica' %}" class="btn btn-outline-danger mt-2">Ir a Tópico</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .card { transition: transform 0.2s ease-in-out; }
+    .card:hover { transform: translateY(-5px); }
+</style>
+{% endblock %}

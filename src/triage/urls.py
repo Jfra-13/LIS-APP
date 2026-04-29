@@ -13,8 +13,8 @@ urlpatterns = [
     path('admision/ticket/nuevo/', views.GenerarTicketView.as_view(), name='generar_ticket'),
 
     # Triaje
-    path('triaje/cola/', views.ColaTriajeListView.as_view(), name='cola_triaje'),
-    path('triaje/evaluar/<int:pk>/', views.EvaluacionTriajeUpdateView.as_view(), name='evaluar_paciente'),
+    path('triage/cola/', views.ColaTriajeListView.as_view(), name='cola_triaje'),
+    path('triage/evaluar/<int:pk>/', views.EvaluacionTriajeUpdateView.as_view(), name='evaluar_paciente'),
 
     # Médico
     path('medico/cola/', views.ColaMedicaListView.as_view(), name='cola_medica'),
