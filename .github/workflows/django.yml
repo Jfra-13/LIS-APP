@@ -12,25 +12,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout del codigo
+      uses: actions/checkout@v4
     
     - name: Set up Python Interpreter
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5
       with:
         python-version: 3.12
 
     - name: Build and Push Docker Image
       uses: mr-smithers-excellent/docker-build-push@v6
       with:
-        image: jjfrallj/lis-states-app-image
+        image: jfrallj/lis-states-app-image
         tags: latest
         registry: docker.io
         dockerfile: Dockerfile
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        
-        
-    - name: Build image web Django
-      run: docker build -t smartemergency-web:latest .
-      
-
