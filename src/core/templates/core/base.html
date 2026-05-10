@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}MVP0 base{% endblock %}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f5f7fb; color: #1f2937; }
+    header, main { max-width: 960px; margin: 0 auto; padding: 1.25rem; }
+    header { display: flex; justify-content: space-between; align-items: center; }
+    nav a { margin-left: 1rem; }
+    .card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08); }
+    .muted { color: #6b7280; }
+    .button { display: inline-block; padding: .7rem 1rem; border-radius: 8px; background: #1d4ed8; color: white; text-decoration: none; }
+    .button.secondary { background: #475569; }
+    form p { margin-bottom: 1rem; }
+    input { width: 100%; box-sizing: border-box; padding: .65rem .75rem; border: 1px solid #cbd5e1; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>MVP0 base</strong>
+    <nav>
+      {% if user.is_authenticated %}
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'logout' %}">Salir</a>
+      {% else %}
+        <a href="{% url 'landing' %}">Inicio</a>
+        <a href="{% url 'login' %}">Ingresar</a>
+      {% endif %}
+    </nav>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
+

@@ -1,0 +1,28 @@
+@media (min-width: 992px) {
+    .collapse-items {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important; /* Esto centra verticalmente ambos elementos */
+        margin-left: auto;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center; /* Alinea el contenido interno de cada LI */
+    }
+
+    /* Quitamos el margen superior que Bootstrap pone a veces en botones pequeños */
+    .collapse-item-logout .btn {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Aseguramos que el formulario no aporte altura extra */
+    .collapse-item-logout form {
+        display: flex;
+        align-items: center;
+        margin: 0;
+    }
+}

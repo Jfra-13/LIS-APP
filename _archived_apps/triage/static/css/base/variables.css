@@ -1,0 +1,23 @@
+:root {
+
+  --font-primary: 'Open Sans', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+
+  --font-headers: 'Montserrat', 'Segoe UI', Tahoma, Geneva, sans-serif;
+
+  --font-serif: 'Georgia', 'Times New Roman', serif;
+
+  --font-size-base: 16px;
+  --line-height-body: 1.6;
+}
+
+body {
+    font-family: var(--font-primary);
+    /*font-size: var(--font-size-base);*/
+    /*line-height: var(--line-height-body);*/
+    /*color: #333;*/
+}
+
+h1, h2, h3 {
+      font-family: var(--font-headers);
+      font-weight: 700;
+}
