@@ -16,4 +16,4 @@ COPY . /code/
 
 EXPOSE 8000
 
-CMD ["bash", "-c", "cd src && python manage.py runserver 0.0.0.0:8000"]
+CMD ["sh", "-c", "python src/manage.py migrate --noinput && python src/manage.py runserver 0.0.0.0:8000"]

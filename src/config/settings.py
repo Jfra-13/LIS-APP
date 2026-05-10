@@ -10,6 +10,26 @@ def env(name, default=None):
     return os.environ.get(name, default)
 
 
+def env_any(*names, default=None):
+    for name in names:
+        value = os.environ.get(name)
+        if value not in (None, ''):
+            return value
+    return default
+
+
+def db_env(name, default=None):
+    alias_map = {
+        'DB_NAME': 'POSTGRES_DB',
+        'DB_USER': 'POSTGRES_USER',
+        'DB_PASSWORD': 'POSTGRES_PASSWORD',
+        'DB_HOST': 'POSTGRES_HOST',
+        'DB_PORT': 'POSTGRES_PORT',
+    }
+    legacy_name = alias_map.get(name, name.replace('DB_', 'POSTGRES_'))
+    return env_any(name, legacy_name, default=default)
+
+
 SECRET_KEY = env('SECRET_KEY', 'django-insecure-dev-key-change-me')
 DEBUG = env('DEBUG', '1') == '1'
 ALLOWED_HOSTS = [
@@ -61,15 +81,31 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-if env('DB_ENGINE', 'django.db.backends.sqlite3') == 'django.db.backends.postgresql':
+db_engine = env('DB_ENGINE')
+if not db_engine:
+    db_engine = 'django.db.backends.postgresql' if any(
+        os.environ.get(name)
+        for name in (
+            'DB_NAME',
+            'POSTGRES_DB',
+            'DB_USER',
+            'POSTGRES_USER',
+            'DB_PASSWORD',
+            'POSTGRES_PASSWORD',
+            'DB_HOST',
+            'POSTGRES_HOST',
+        )
+    ) else 'django.db.backends.sqlite3'
+
+if db_engine == 'django.db.backends.postgresql':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': env('DB_NAME', 'app_lis'),
-            'USER': env('DB_USER', 'app_lis'),
-            'PASSWORD': env('DB_PASSWORD', 'app_lis'),
-            'HOST': env('DB_HOST', 'db'),
-            'PORT': env('DB_PORT', '5432'),
+            'NAME': db_env('DB_NAME', 'app_lis'),
+            'USER': db_env('DB_USER', 'app_lis'),
+            'PASSWORD': db_env('DB_PASSWORD', 'app_lis'),
+            'HOST': db_env('DB_HOST', 'db'),
+            'PORT': db_env('DB_PORT', '5432'),
         }
     }
 else:
