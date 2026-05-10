@@ -1,25 +1,45 @@
-# MicroLIS: Laboratory Information System especializado en Microbiología
+# app-LIS MVP0 base técnica
 
-## Descripcion del Proyecto
-MicroLIS es una plataforma de gestion hospitalaria diseñada para automatizar el flujo de trabajo de un laboratorio de microbiologia. El sistema gestiona procesos criticos de incubacion, identificacion de microorganismos y pruebas de susceptibilidad (antibiogramas), asegurando la trazabilidad desde la recepcion de la muestra hasta la emision del informe final bajo estandares de privacidad medica.
+Este repositorio quedó reducido a una base Django mínima para el MVP0:
 
-## Arquitectura de Software
-El sistema emplea un Patron de Capas (Layered Architecture) bajo un modelo Cliente-Servidor. Esta estructura separa la logica de negocio, el acceso a datos y la interfaz de usuario, facilitando el mantenimiento y la escalabilidad del sistema.
+- `core` como app activa principal.
+- `triage` y `nlp_engine` archivadas en `_archived_apps/`.
+- usuario personalizado con PK UUID.
+- login, home protegida y landing pública.
+- Docker con Django + PostgreSQL 15.
 
-## Stack Tecnologico
-- Lenguaje: Python 3.10+
-- Backend Framework: FastAPI (Asincrono)
-- Base de Datos: PostgreSQL (Soporte para JSONB en resultados dinamicos)
-- Validacion de Datos: Pydantic
-- Autenticacion: OAuth2 + JWT (JSON Web Tokens)
-- Gestion de Entorno: Virtualenv / Pip
+## Estructura actual
 
-## Areas y Modulos del Sistema
-1. Recepcion y Pre-analitica: Registro de pacientes, ordenes medicas y etiquetado de muestras.
-2. Gestion de Incubacion: Seguimiento de tiempos de cultivo y alertas de revision.
-3. Identificacion Microbiologica: Registro de hallazgos y clasificacion de microorganismos.
-4. Modulo de Antibiograma: Matriz dinamica de sensibilidad antibiotica (Sensible, Intermedio, Resistente).
-5. Post-analitica y Reportes: Validacion clinica y generacion de informes PDF.
+- `src/config/settings.py`: configuración del proyecto.
+- `src/config/urls.py`: ruteo principal.
+- `src/core/`: app activa del MVP0.
+- `_archived_apps/triage/`: flujo clínico anterior archivado.
+- `_archived_apps/nlp_engine/`: procesamiento NLP anterior archivado.
 
-## Seguridad y Cumplimiento
-El diseño contempla controles de acceso basados en roles (RBAC) y protocolos de cifrado para cumplir con normativas de proteccion de datos de salud como HIPAA.
+## Ejecución local
+
+### 1. Instalar dependencias
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Ejecutar migraciones
+```bash
+python src/manage.py makemigrations
+python src/manage.py migrate
+```
+
+### 3. Levantar el servidor
+```bash
+python src/manage.py runserver
+```
+
+## Contenedores
+
+```bash
+docker compose up --build
+```
+
+## Nota sobre CI/CD
+
+La configuración de Jenkins, protección de rama en GitHub y el flujo final de GitHub Actions deben hacerse fuera del código del proyecto, en la plataforma correspondiente.

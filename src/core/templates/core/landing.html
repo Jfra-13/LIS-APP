@@ -1,0 +1,14 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Inicio | MVP0 base{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h1>MVP0 base técnica</h1>
+    <p class="muted">La aplicación quedó reducida a un núcleo mínimo con autenticación, usuario personalizado y base limpia para crecer por fases.</p>
+    <p>
+      <a class="button" href="{% url 'login' %}">Ingresar</a>
+    </p>
+  </section>
+{% endblock %}
+

@@ -1,0 +1,12 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Home | MVP0 base{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h1>Home protegida</h1>
+    <p>Bienvenido, {{ user.username }}.</p>
+    <p class="muted">Este es el punto de entrada autenticado del MVP0 antes de reintroducir módulos clínicos.</p>
+  </section>
+{% endblock %}
+
