@@ -1,9 +1,9 @@
 FROM python:3.12-slim
 
 # Evita que Python genere archivos temporales .pyc
-ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONDONTWRITEBYTECODE=1
 # Asegura que los logs salgan en la terminal en tiempo real
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /code
 
