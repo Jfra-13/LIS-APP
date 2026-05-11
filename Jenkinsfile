@@ -1,46 +1,20 @@
 pipeline {
+    agent any
 
     stages {
-        stage('Checkout') {
+        stage('Validar Conexión Git') {
             steps {
-                checkout scm
+                echo "✅ Jenkins logró leer el Jenkinsfile sin errores de sintaxis."
             }
         }
 
-        stage('Preparar Entorno') {
+        stage('Validar Entorno del Servidor') {
             steps {
-                sh '''
-                    python3 -m venv venv
-                    . venv/bin/activate
-                    pip install -r requirements.txt
-                '''
+                echo "Verificando qué herramientas tiene instaladas Jenkins por dentro..."
+                sh "git --version"
+                sh "python3 --version || echo 'ALERTA: Python3 NO está instalado'"
+                sh "docker --version || echo 'ALERTA: Docker NO está instalado'"
             }
-        }
-
-            steps {
-                sh '''
-                    . venv/bin/activate
-                    flake8 src/
-                    black --check src/
-                '''
-            }
-        }
-
-            steps {
-                sh '''
-                    . venv/bin/activate
-                    cd src
-                '''
-            }
-        }
-    }
-
-    post {
-        always {
-        }
-        success {
-        }
-        failure {
         }
     }
 }
