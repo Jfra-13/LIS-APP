@@ -8,12 +8,13 @@ pipeline {
             }
         }
 
-        stage('Validar Entorno del Servidor') {
+        stage('Validar Entorno del Servidor (Windows)') {
             steps {
                 echo "Verificando qué herramientas tiene instaladas Jenkins por dentro..."
-                sh "git --version"
-                sh "python3 --version || echo 'ALERTA: Python3 NO está instalado'"
-                sh "docker --version || echo 'ALERTA: Docker NO está instalado'"
+                // Usamos 'bat' en lugar de 'sh' para sistemas Windows
+                bat "git --version"
+                bat "python --version"
+                bat "docker --version"
             }
         }
     }
