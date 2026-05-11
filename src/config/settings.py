@@ -1,4 +1,3 @@
-
 import os
 from pathlib import Path
 
@@ -6,20 +5,41 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
+def env(name, default=None):
+    return os.environ.get(name, default)
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-dr0-3&jrk=xt38v&2%@^+od-yxaps-dy4^nbpq%5!4!sr#ny#e'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+def env_any(*names, default=None):
+    for name in names:
+        value = os.environ.get(name)
+        if value not in (None, ''):
+            return value
+    return default
 
-ALLOWED_HOSTS = []
+
+def db_env(name, default=None):
+    alias_map = {
+        'DB_NAME': 'POSTGRES_DB',
+        'DB_USER': 'POSTGRES_USER',
+        'DB_PASSWORD': 'POSTGRES_PASSWORD',
+        'DB_HOST': 'POSTGRES_HOST',
+        'DB_PORT': 'POSTGRES_PORT',
+    }
+    legacy_name = alias_map.get(name, name.replace('DB_', 'POSTGRES_'))
+    return env_any(name, legacy_name, default=default)
+
+
+# SECURITY
+SECRET_KEY = env('SECRET_KEY', 'django-insecure-dev-key-change-me')
+DEBUG = env('DEBUG', '1') == '1'
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in env('ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver').split(',')
+    if host.strip()
+]
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -27,8 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'triage',
-    'nlp_engine',
+    'core.apps.CoreConfig',
 ]
 
 MIDDLEWARE = [
@@ -42,6 +61,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
+AUTH_USER_MODEL = 'core.User'
 
 TEMPLATES = [
     {
@@ -62,19 +82,42 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+# Database selection: prefer explicit DB_ENGINE, otherwise detect DB envs for Postgres
+db_engine = env('DB_ENGINE')
+if not db_engine:
+    db_engine = 'django.db.backends.postgresql' if any(
+        os.environ.get(name)
+        for name in (
+            'DB_NAME',
+            'POSTGRES_DB',
+            'DB_USER',
+            'POSTGRES_USER',
+            'DB_PASSWORD',
+            'POSTGRES_PASSWORD',
+            'DB_HOST',
+            'POSTGRES_HOST',
+        )
+    ) else 'django.db.backends.sqlite3'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if db_engine == 'django.db.backends.postgresql':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': db_env('DB_NAME', 'app_lis'),
+            'USER': db_env('DB_USER', 'app_lis'),
+            'PASSWORD': db_env('DB_PASSWORD', 'app_lis'),
+            'HOST': db_env('DB_HOST', 'db'),
+            'PORT': db_env('DB_PORT', '5432'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -91,34 +134,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Celery Settings
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "amqp://guest:guest@rabbitmq:5672//")
-CELERY_RESULT_BACKEND = 'rpc://'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
-
+LANGUAGE_CODE = 'es'
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
+STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-STATIC_URL = 'static/'
-
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'landing'

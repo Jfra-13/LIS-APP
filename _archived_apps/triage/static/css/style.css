@@ -1,9 +1,0 @@
-/* static/css/main.css */
-
-@import url('base/variables.css');
-@import url('base/layout.css');
-
-/* Las páginas */
-@import url('pages/home.css');
-@import url('pages/login.css');
-@import url('pages/dashboard.css');
