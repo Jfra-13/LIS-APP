@@ -19,7 +19,6 @@ class ColaEstado(models.Model):
         "triage.Triaje",
         on_delete=models.PROTECT,
         related_name="cola_estado",
-        null=True,
         blank=True,
     )
     estado = models.CharField(
