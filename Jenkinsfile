@@ -37,8 +37,9 @@ pipeline {
         stage('Validar Código (Lint)') {
             steps {
                 echo "🔍 Ejecutando validación de código con Flake8..."
+                // Se agregó la nueva app 'medico' al escaneo
                 bat """
-                    flake8 src/admision src/core src/triage --max-line-length=120 --statistics
+                    flake8 src/admision src/core src/triage src/medico --max-line-length=120 --statistics
                 """
             }
         }
@@ -46,18 +47,20 @@ pipeline {
         stage('Formateo de Código (Black)') {
             steps {
                 echo "🎨 Verificando formateo de código con Black..."
+                // Ahora revisa todo el directorio src/ para garantizar que tu limpieza global se mantenga
                 bat """
-                    black --check --line-length=120 src/admision src/core src/triage
+                    black --check --line-length=120 src/
                 """
             }
         }
 
-        stage('Ejecutar Tests + Cobertura') {
+        stage('Ejecutar Tests Unitarios + Cobertura') {
             steps {
                 echo "🧪 Ejecutando suite de tests con pytest + cobertura..."
+                // Se excluye 'e2e' aquí para que no falle por falta de RabbitMQ, y se añade 'medico' a la cobertura
                 bat """
                     cd src
-                    pytest --cov=admision --cov=core --cov=triage --cov-report=html --cov-report=term-missing --cov-fail-under=80 -v
+                    pytest -k "not e2e" --cov=admision --cov=core --cov=triage --cov=medico --cov-report=html --cov-report=term-missing --cov-fail-under=80 -v
                     cd ..
                 """
             }
@@ -88,10 +91,32 @@ pipeline {
                 """
             }
         }
+
+        stage('Pruebas E2E (EDA con RabbitMQ)') {
+            // Jenkins inyecta esta variable de entorno solo durante esta etapa
+            environment {
+                CELERY_BROKER_URL = "amqp://guest:guest@localhost:5672//"
+            }
+            steps {
+                echo "🐇 Levantando RabbitMQ temporal en Docker..."
+                bat "docker run -d --rm --name rabbitmq-temp -p 5672:5672 rabbitmq:3-management"
+
+                echo "🔗 Ejecutando prueba de flujo asíncrono (Triaje -> Celery -> ColaEstado)..."
+                bat """
+                    cd src
+                    pytest tests/e2e/test_triaje_queue.py::test_triaje_flow_with_real_rabbitmq -v
+                    cd ..
+                """
+            }
+        }
     }
 
     post {
         always {
+            echo "🧹 Apagando infraestructura de pruebas..."
+            // Usamos || echo ... para que Jenkins no falle si el contenedor ya había sido destruido
+            bat "docker stop rabbitmq-temp || echo 'El contenedor rabbitmq-temp ya estaba detenido'"
+
             echo "📊 Generando reporte HTML de cobertura..."
             publishHTML([
                 reportDir: 'src/htmlcov',
@@ -105,8 +130,8 @@ pipeline {
         success {
             echo "✅ BUILD EXITOSO"
             echo "  ✓ Cobertura ≥ 80%"
-            echo "  ✓ Todos los tests pasaron"
-            echo "  ✓ Performance validado (< 1.5s)"
+            echo "  ✓ Todos los tests unitarios y E2E pasaron"
+            echo "  ✓ Flujo asíncrono validado"
         }
 
         failure {
@@ -115,9 +140,8 @@ pipeline {
             echo "  Posibles causas:"
             echo "    - Tests fallaron"
             echo "    - Cobertura < 80%"
-            echo "    - Performance > 1.5s"
-            echo "    - Errores de linting (Flake8)"
-            echo "    - Errores de formateo (Black)"
+            echo "    - RabbitMQ no pudo iniciar"
+            echo "    - Errores de linting/formateo"
         }
 
         unstable {
