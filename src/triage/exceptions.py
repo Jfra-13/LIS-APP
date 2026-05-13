@@ -10,5 +10,7 @@ class RN03MissingCriticalDataError(ValueError):
 
     def __init__(self, missing_fields):
         self.missing_fields = missing_fields
-        fields = ', '.join(missing_fields)
-        super().__init__(f'RN-03: Faltan datos criticos para calcular triaje: {fields}.')
+        fields = ", ".join(missing_fields)
+        super().__init__(
+            f"RN-03: Faltan datos criticos para calcular triaje: {fields}."
+        )

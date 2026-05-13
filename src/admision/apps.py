@@ -2,7 +2,6 @@ from django.apps import AppConfig
 
 
 class AdmisionConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'admision'
-    verbose_name = 'Módulo de Admisión'
-
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "admision"
+    verbose_name = "Módulo de Admisión"

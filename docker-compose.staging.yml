@@ -24,6 +24,30 @@ services:
       db:
         condition: service_healthy
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    env_file:
+      - .env.staging
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  worker:
+    image: ${DOCKERHUB_USERNAME}/app-lis-worker:${IMAGE_TAG:-staging-latest}
+    env_file:
+      - .env.staging
+    command: sh -c "celery -A config worker --loglevel=info --concurrency=1"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+
 volumes:
   postgres_data_staging:
 

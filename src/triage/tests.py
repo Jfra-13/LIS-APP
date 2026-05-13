@@ -17,7 +17,7 @@ class TriageCalculatorServiceTests(SimpleTestCase):
     def setUp(self):
         self.service = TriageCalculatorService()
 
-    def _input(self, spo2=97, fc=80, temp='36.8', red_flag=Triaje.RedFlagChoices.NONE):
+    def _input(self, spo2=97, fc=80, temp="36.8", red_flag=Triaje.RedFlagChoices.NONE):
         return TriageInput(
             spo2=spo2,
             frecuencia_cardiaca=fc,
@@ -61,16 +61,16 @@ class TriageCalculatorServiceTests(SimpleTestCase):
 
     def test_temperature_boundaries(self):
         cases = [
-            ('34.9', 1),
-            ('35.0', 2),
-            ('35.9', 2),
-            ('36.0', 5),
-            ('37.9', 5),
-            ('38.0', 3),
-            ('38.9', 3),
-            ('39.0', 2),
-            ('40.9', 2),
-            ('41.0', 1),
+            ("34.9", 1),
+            ("35.0", 2),
+            ("35.9", 2),
+            ("36.0", 5),
+            ("37.9", 5),
+            ("38.0", 3),
+            ("38.9", 3),
+            ("39.0", 2),
+            ("40.9", 2),
+            ("41.0", 1),
         ]
         for temp, expected in cases:
             with self.subTest(temperatura=temp):
@@ -91,48 +91,58 @@ class TriageCalculatorServiceTests(SimpleTestCase):
 
     def test_rn03_raises_for_missing_critical_fields(self):
         with self.assertRaises(RN03MissingCriticalDataError):
-            self.service.calculate(TriageInput(spo2=None, frecuencia_cardiaca=80, temperatura=Decimal('36.8')))
+            self.service.calculate(
+                TriageInput(
+                    spo2=None, frecuencia_cardiaca=80, temperatura=Decimal("36.8")
+                )
+            )
 
         with self.assertRaises(RN03MissingCriticalDataError):
-            self.service.calculate(TriageInput(spo2=97, frecuencia_cardiaca=None, temperatura=Decimal('36.8')))
+            self.service.calculate(
+                TriageInput(
+                    spo2=97, frecuencia_cardiaca=None, temperatura=Decimal("36.8")
+                )
+            )
 
         with self.assertRaises(RN03MissingCriticalDataError):
-            self.service.calculate(TriageInput(spo2=97, frecuencia_cardiaca=80, temperatura=None))
+            self.service.calculate(
+                TriageInput(spo2=97, frecuencia_cardiaca=80, temperatura=None)
+            )
 
 
 class TriajeModelAndViewTests(TestCase):
     def setUp(self):
         self.client.force_login(self._create_enfermeria_user())
-        self.enfermeria_user = User.objects.get(username='enfermero')
+        self.enfermeria_user = User.objects.get(username="enfermero")
 
-        self.other_user = User.objects.create_user(username='otro', password='pass123')
+        self.other_user = User.objects.create_user(username="otro", password="pass123")
         self.paciente = Paciente.objects.create(
-            dni='55667788',
-            nombres='Ana',
-            apellidos='Lopez',
+            dni="55667788",
+            nombres="Ana",
+            apellidos="Lopez",
             fecha_nacimiento=date(1992, 2, 10),
-            sexo='F',
+            sexo="F",
             usuario_creador=self.other_user,
         )
 
     @staticmethod
     def _create_enfermeria_user():
-        user = User.objects.create_user(username='enfermero', password='pass123')
-        group, _ = Group.objects.get_or_create(name='Enfermeria')
+        user = User.objects.create_user(username="enfermero", password="pass123")
+        group, _ = Group.objects.get_or_create(name="Enfermeria")
         user.groups.add(group)
         return user
 
     def test_create_triaje_success(self):
         payload = {
-            'spo2': 98,
-            'frecuencia_cardiaca': 82,
-            'temperatura': '36.7',
-            'red_flag': Triaje.RedFlagChoices.NONE,
-            'observaciones': 'Paciente estable.',
+            "spo2": 98,
+            "frecuencia_cardiaca": 82,
+            "temperatura": "36.7",
+            "red_flag": Triaje.RedFlagChoices.NONE,
+            "observaciones": "Paciente estable.",
         }
 
         response = self.client.post(
-            reverse('triage:triage_create', kwargs={'paciente_pk': self.paciente.pk}),
+            reverse("triage:triage_create", kwargs={"paciente_pk": self.paciente.pk}),
             payload,
             follow=True,
         )
@@ -143,27 +153,34 @@ class TriajeModelAndViewTests(TestCase):
         self.assertEqual(triaje.paciente, self.paciente)
         self.assertEqual(triaje.usuario_enfermeria, self.enfermeria_user)
         self.assertEqual(triaje.nivel_prioridad, 5)
-        self.assertEqual(triaje.color_manchester, 'Azul')
+        self.assertEqual(triaje.color_manchester, "Azul")
 
     def test_form_renders_priority_readonly(self):
-        response = self.client.get(reverse('triage:triage_create', kwargs={'paciente_pk': self.paciente.pk}))
+        response = self.client.get(
+            reverse("triage:triage_create", kwargs={"paciente_pk": self.paciente.pk})
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'readonly')
+        self.assertContains(response, "readonly")
 
     def test_create_triaje_missing_critical_data_returns_400(self):
         payload = {
-            'spo2': '',
-            'frecuencia_cardiaca': 82,
-            'temperatura': '36.7',
-            'red_flag': Triaje.RedFlagChoices.NONE,
+            "spo2": "",
+            "frecuencia_cardiaca": 82,
+            "temperatura": "36.7",
+            "red_flag": Triaje.RedFlagChoices.NONE,
         }
-        response = self.client.post(reverse('triage:triage_create', kwargs={'paciente_pk': self.paciente.pk}), payload)
+        response = self.client.post(
+            reverse("triage:triage_create", kwargs={"paciente_pk": self.paciente.pk}),
+            payload,
+        )
         self.assertEqual(response.status_code, 400)
-        self.assertContains(response, 'RN-03', status_code=400)
+        self.assertContains(response, "RN-03", status_code=400)
 
     def test_non_enfermeria_user_cannot_access_triaje(self):
         self.client.force_login(self.other_user)
-        response = self.client.get(reverse('triage:triage_create', kwargs={'paciente_pk': self.paciente.pk}))
+        response = self.client.get(
+            reverse("triage:triage_create", kwargs={"paciente_pk": self.paciente.pk})
+        )
         self.assertEqual(response.status_code, 302)
 
     def test_model_is_immutable_after_creation(self):
@@ -171,12 +188,12 @@ class TriajeModelAndViewTests(TestCase):
             paciente=self.paciente,
             spo2=95,
             frecuencia_cardiaca=100,
-            temperatura=Decimal('36.5'),
+            temperatura=Decimal("36.5"),
             red_flag=Triaje.RedFlagChoices.NONE,
             nivel_prioridad=5,
             usuario_enfermeria=self.enfermeria_user,
         )
 
-        triaje.temperatura = Decimal('39.0')
+        triaje.temperatura = Decimal("39.0")
         with self.assertRaises(RN01ImmutableTriageError):
             triaje.save()

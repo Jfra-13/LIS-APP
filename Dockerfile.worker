@@ -1,0 +1,27 @@
+FROM python:3.12-slim
+
+# Evita que Python genere archivos temporales .pyc
+ENV PYTHONDONTWRITEBYTECODE=1
+# Asegura que los logs salgan en la terminal en tiempo real
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /code
+
+# Instalamos dependencias del sistema operativo necesarias para Postgres y compilaciones
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiamos e instalamos dependencias de Python
+COPY requirements.txt /code/
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiamos el resto del proyecto
+COPY . /code/
+
+# No ejecutamos collectstatic en la imagen worker para mantenerla ligera
+
+# Default command is not set; docker-compose will pass the celery worker command
+

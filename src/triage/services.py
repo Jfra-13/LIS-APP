@@ -28,9 +28,9 @@ class RedFlagRule(RuleEngine):
     """Aplica prioridad urgente por sintomas de alto riesgo."""
 
     CRITICAL_FLAGS = {
-        'DOLOR_TORACICO',
-        'DIFICULTAD_RESPIRATORIA',
-        'HEMORRAGIA_ACTIVA',
+        "DOLOR_TORACICO",
+        "DIFICULTAD_RESPIRATORIA",
+        "HEMORRAGIA_ACTIVA",
     }
 
     def evaluate(self, triage_input: TriageInput) -> int | None:
@@ -76,11 +76,13 @@ class BasicVitalSignsRule(RuleEngine):
     def _priority_by_temperature(temperature: Decimal | None) -> int:
         if temperature is None:
             return 5
-        if temperature < Decimal('35.0') or temperature >= Decimal('41.0'):
+        if temperature < Decimal("35.0") or temperature >= Decimal("41.0"):
             return 1
-        if Decimal('35.0') <= temperature < Decimal('36.0') or Decimal('39.0') <= temperature < Decimal('41.0'):
+        if Decimal("35.0") <= temperature < Decimal("36.0") or Decimal(
+            "39.0"
+        ) <= temperature < Decimal("41.0"):
             return 2
-        if Decimal('38.0') <= temperature < Decimal('39.0'):
+        if Decimal("38.0") <= temperature < Decimal("39.0"):
             return 3
         return 5
 
@@ -106,10 +108,10 @@ class TriageCalculatorService:
     def _validate_required_input(triage_input: TriageInput) -> None:
         missing_fields = []
         if triage_input.spo2 is None:
-            missing_fields.append('spo2')
+            missing_fields.append("spo2")
         if triage_input.frecuencia_cardiaca is None:
-            missing_fields.append('frecuencia_cardiaca')
+            missing_fields.append("frecuencia_cardiaca")
         if triage_input.temperatura is None:
-            missing_fields.append('temperatura')
+            missing_fields.append("temperatura")
         if missing_fields:
             raise RN03MissingCriticalDataError(missing_fields)

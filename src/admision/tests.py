@@ -13,22 +13,23 @@ from .models import Paciente, PacienteManager
 
 # ===== PRUEBAS UNITARIAS DEL MODELO =====
 
+
 class PacienteModelTests(TestCase):
     """Pruebas unitarias para el modelo Paciente."""
 
     def setUp(self):
         """Configurar datos de prueba."""
-        self.user = User.objects.create_user(username='testadmin', password='test123')
+        self.user = User.objects.create_user(username="testadmin", password="test123")
         self.paciente_data = {
-            'dni': '12345678',
-            'nombres': 'Juan',
-            'apellidos': 'Pérez',
-            'fecha_nacimiento': date(1990, 1, 15),
-            'sexo': 'M',
-            'telefono': '+34 612 345 678',
-            'email': 'juan@example.com',
-            'direccion': 'Calle Principal 123, Madrid',
-            'usuario_creador': self.user,
+            "dni": "12345678",
+            "nombres": "Juan",
+            "apellidos": "Pérez",
+            "fecha_nacimiento": date(1990, 1, 15),
+            "sexo": "M",
+            "telefono": "+34 612 345 678",
+            "email": "juan@example.com",
+            "direccion": "Calle Principal 123, Madrid",
+            "usuario_creador": self.user,
         }
 
     def test_paciente_creacion_exitosa(self):
@@ -36,9 +37,9 @@ class PacienteModelTests(TestCase):
         paciente = Paciente.objects.create(**self.paciente_data)
         self.assertIsNotNone(paciente.id)
         self.assertIsInstance(paciente.id, uuid.UUID)
-        self.assertEqual(paciente.dni, '12345678')
-        self.assertEqual(paciente.nombres, 'Juan')
-        self.assertEqual(paciente.estado, 'activo')
+        self.assertEqual(paciente.dni, "12345678")
+        self.assertEqual(paciente.nombres, "Juan")
+        self.assertEqual(paciente.estado, "activo")
 
     def test_dni_unico(self):
         """Verificar que DNI es único."""
@@ -51,23 +52,23 @@ class PacienteModelTests(TestCase):
     def test_dni_validacion_formato(self):
         """Probar validador de DNI con diferentes formatos."""
         # DNI válido
-        es_valido, msg = PacienteManager.validar_dni('12345678')
+        es_valido, msg = PacienteManager.validar_dni("12345678")
         self.assertTrue(es_valido)
 
         # DNI muy corto
-        es_valido, msg = PacienteManager.validar_dni('1234567')
+        es_valido, msg = PacienteManager.validar_dni("1234567")
         self.assertFalse(es_valido)
 
         # DNI vacío
-        es_valido, msg = PacienteManager.validar_dni('')
+        es_valido, msg = PacienteManager.validar_dni("")
         self.assertFalse(es_valido)
 
         # DNI con caracteres especiales inválidos
-        es_valido, msg = PacienteManager.validar_dni('12345678#')
+        es_valido, msg = PacienteManager.validar_dni("12345678#")
         self.assertFalse(es_valido)
 
         # DNI válido con letra
-        es_valido, msg = PacienteManager.validar_dni('12345678A')
+        es_valido, msg = PacienteManager.validar_dni("12345678A")
         self.assertTrue(es_valido)
 
     def test_campos_requeridos(self):
@@ -76,10 +77,10 @@ class PacienteModelTests(TestCase):
 
         # Falta DNI
         paciente = Paciente(
-            nombres='Juan',
-            apellidos='Pérez',
+            nombres="Juan",
+            apellidos="Pérez",
             fecha_nacimiento=date(1990, 1, 15),
-            sexo='M',
+            sexo="M",
             usuario_creador=self.user,
         )
         with self.assertRaises(ValidationError):
@@ -105,13 +106,21 @@ class PacienteModelTests(TestCase):
 
         # Paciente de 30 años cumplidos
         paciente = Paciente.objects.create(
-            **{**self.paciente_data, 'dni': '87654321', 'fecha_nacimiento': hoy.replace(year=hoy.year - 30)}
+            **{
+                **self.paciente_data,
+                "dni": "87654321",
+                "fecha_nacimiento": hoy.replace(year=hoy.year - 30),
+            }
         )
         self.assertEqual(paciente.get_edad(), 30)
 
         # Paciente que cumple años hoy
         paciente2 = Paciente.objects.create(
-            **{**self.paciente_data, 'dni': '11111111', 'fecha_nacimiento': hoy.replace(year=hoy.year - 25)}
+            **{
+                **self.paciente_data,
+                "dni": "11111111",
+                "fecha_nacimiento": hoy.replace(year=hoy.year - 25),
+            }
         )
         self.assertEqual(paciente2.get_edad(), 25)
 
@@ -121,13 +130,13 @@ class PacienteManagerTests(TestCase):
 
     def setUp(self):
         """Configurar datos de prueba."""
-        self.user = User.objects.create_user(username='testadmin', password='test123')
+        self.user = User.objects.create_user(username="testadmin", password="test123")
         self.paciente_data = {
-            'nombres': 'Juan',
-            'apellidos': 'Pérez',
-            'fecha_nacimiento': date(1990, 1, 15),
-            'sexo': 'M',
-            'usuario_creador': self.user,
+            "nombres": "Juan",
+            "apellidos": "Pérez",
+            "fecha_nacimiento": date(1990, 1, 15),
+            "sexo": "M",
+            "usuario_creador": self.user,
         }
 
     def test_get_activos_filtra_inactivos(self):
@@ -136,27 +145,27 @@ class PacienteManagerTests(TestCase):
         pacientes_activos = []
         for i in range(3):
             p = Paciente.objects.create(
-                **{**self.paciente_data, 'dni': f'1234567{i}', 'estado': 'activo'}
+                **{**self.paciente_data, "dni": f"1234567{i}", "estado": "activo"}
             )
             pacientes_activos.append(p)
 
         for i in range(3, 5):
             Paciente.objects.create(
-                **{**self.paciente_data, 'dni': f'1234567{i}', 'estado': 'inactivo'}
+                **{**self.paciente_data, "dni": f"1234567{i}", "estado": "inactivo"}
             )
 
         # Verificar que get_activos retorna solo 3
         activos = list(Paciente.objects.get_activos())
         self.assertEqual(len(activos), 3)
         for p in activos:
-            self.assertEqual(p.estado, 'activo')
+            self.assertEqual(p.estado, "activo")
 
     def test_select_related_usuario_creador(self):
         """Verificar que get_activos usa select_related sin N+1."""
         # Crear varios pacientes
         for i in range(5):
             Paciente.objects.create(
-                **{**self.paciente_data, 'dni': f'1234567{i}', 'estado': 'activo'}
+                **{**self.paciente_data, "dni": f"1234567{i}", "estado": "activo"}
             )
 
         # Contar queries con select_related
@@ -175,69 +184,76 @@ class PacienteManagerTests(TestCase):
 
 # ===== PRUEBAS DE VISTAS (CBV) =====
 
+
 class PacienteListViewTests(TestCase):
     """Pruebas para PacienteListView."""
 
     def setUp(self):
         """Configurar datos de prueba."""
         self.client = Client()
-        self.user_admin = User.objects.create_user(username='admin', password='pass123')
-        self.user_normal = User.objects.create_user(username='user', password='pass123')
+        self.user_admin = User.objects.create_user(username="admin", password="pass123")
+        self.user_normal = User.objects.create_user(username="user", password="pass123")
 
         # Crear grupo de Técnicos Administrativos
-        self.grupo_admin, _ = Group.objects.get_or_create(name='Tecnicos_Administrativos')
+        self.grupo_admin, _ = Group.objects.get_or_create(
+            name="Tecnicos_Administrativos"
+        )
         self.user_admin.groups.add(self.grupo_admin)
 
         # Crear pacientes
         self.paciente_data = {
-            'nombres': 'Juan',
-            'apellidos': 'Pérez',
-            'fecha_nacimiento': date(1990, 1, 15),
-            'sexo': 'M',
-            'usuario_creador': self.user_admin,
+            "nombres": "Juan",
+            "apellidos": "Pérez",
+            "fecha_nacimiento": date(1990, 1, 15),
+            "sexo": "M",
+            "usuario_creador": self.user_admin,
         }
 
         for i in range(5):
             Paciente.objects.create(
-                **{**self.paciente_data, 'dni': f'1234567{i}', 'estado': 'activo'}
+                **{**self.paciente_data, "dni": f"1234567{i}", "estado": "activo"}
             )
 
         for i in range(5, 7):
             Paciente.objects.create(
-                **{**self.paciente_data, 'dni': f'1234567{i}', 'estado': 'inactivo'}
+                **{**self.paciente_data, "dni": f"1234567{i}", "estado": "inactivo"}
             )
 
     def test_lista_requiere_login(self):
         """Verificar que listado requiere autenticación."""
-        response = self.client.get(reverse('admision:paciente_list'))
+        response = self.client.get(reverse("admision:paciente_list"))
         self.assertNotEqual(response.status_code, 200)  # No debe ser 200 sin login
 
     def test_lista_requiere_grupo_admin(self):
         """Verificar que listado requiere grupo Técnicos Administrativos."""
         self.client.force_login(self.user_normal)
-        response = self.client.get(reverse('admision:paciente_list'))
+        response = self.client.get(reverse("admision:paciente_list"))
         self.assertNotEqual(response.status_code, 200)  # Debe rechazar
 
     def test_lista_solo_muestra_activos(self):
         """Verificar que solo muestra pacientes activos."""
         self.client.force_login(self.user_admin)
-        response = self.client.get(reverse('admision:paciente_list'))
+        response = self.client.get(reverse("admision:paciente_list"))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context['pacientes']), 5)
+        self.assertEqual(len(response.context["pacientes"]), 5)
 
     def test_busqueda_por_dni(self):
         """Verificar búsqueda por DNI."""
         self.client.force_login(self.user_admin)
-        response = self.client.get(reverse('admision:paciente_list'), {'search': '12345670'})
+        response = self.client.get(
+            reverse("admision:paciente_list"), {"search": "12345670"}
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context['pacientes']), 1)
+        self.assertEqual(len(response.context["pacientes"]), 1)
 
     def test_busqueda_por_nombres(self):
         """Verificar búsqueda por nombres."""
         self.client.force_login(self.user_admin)
-        response = self.client.get(reverse('admision:paciente_list'), {'search': 'Juan'})
+        response = self.client.get(
+            reverse("admision:paciente_list"), {"search": "Juan"}
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context['pacientes']), 5)
+        self.assertEqual(len(response.context["pacientes"]), 5)
 
     def test_paginacion_50_elementos(self):
         """Verificar paginación."""
@@ -246,12 +262,12 @@ class PacienteListViewTests(TestCase):
         # Crear 55 pacientes activos
         for i in range(100, 155):
             Paciente.objects.create(
-                **{**self.paciente_data, 'dni': f'{i:08d}', 'estado': 'activo'}
+                **{**self.paciente_data, "dni": f"{i:08d}", "estado": "activo"}
             )
 
-        response = self.client.get(reverse('admision:paciente_list'))
+        response = self.client.get(reverse("admision:paciente_list"))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context['pacientes']), 50)
+        self.assertEqual(len(response.context["pacientes"]), 50)
 
 
 class PacienteCreateViewTests(TestCase):
@@ -260,40 +276,42 @@ class PacienteCreateViewTests(TestCase):
     def setUp(self):
         """Configurar datos de prueba."""
         self.client = Client()
-        self.user_admin = User.objects.create_user(username='admin', password='pass123')
-        self.user_normal = User.objects.create_user(username='user', password='pass123')
+        self.user_admin = User.objects.create_user(username="admin", password="pass123")
+        self.user_normal = User.objects.create_user(username="user", password="pass123")
 
-        self.grupo_admin, _ = Group.objects.get_or_create(name='Tecnicos_Administrativos')
+        self.grupo_admin, _ = Group.objects.get_or_create(
+            name="Tecnicos_Administrativos"
+        )
         self.user_admin.groups.add(self.grupo_admin)
 
         self.form_data = {
-            'dni': '12345678',
-            'nombres': 'Juan',
-            'apellidos': 'Pérez',
-            'fecha_nacimiento': '1990-01-15',
-            'sexo': 'M',
-            'telefono': '+34 612 345 678',
-            'email': 'juan@example.com',
-            'direccion': 'Calle Principal 123',
+            "dni": "12345678",
+            "nombres": "Juan",
+            "apellidos": "Pérez",
+            "fecha_nacimiento": "1990-01-15",
+            "sexo": "M",
+            "telefono": "+34 612 345 678",
+            "email": "juan@example.com",
+            "direccion": "Calle Principal 123",
         }
 
     def test_crear_sin_grupo_admin(self):
         """Verificar que solo admins pueden crear."""
         self.client.force_login(self.user_normal)
-        response = self.client.post(reverse('admision:paciente_create'), self.form_data)
+        response = self.client.post(reverse("admision:paciente_create"), self.form_data)
         self.assertNotEqual(response.status_code, 200)
 
     def test_crear_con_datos_validos(self):
         """Verificar creación con datos válidos."""
         self.client.force_login(self.user_admin)
-        response = self.client.post(reverse('admision:paciente_create'), self.form_data)
+        response = self.client.post(reverse("admision:paciente_create"), self.form_data)
         self.assertEqual(response.status_code, 302)  # Redirect
         self.assertEqual(Paciente.objects.count(), 1)
 
     def test_crear_asigna_usuario_creador(self):
         """Verificar que se asigna usuario_creador."""
         self.client.force_login(self.user_admin)
-        self.client.post(reverse('admision:paciente_create'), self.form_data)
+        self.client.post(reverse("admision:paciente_create"), self.form_data)
         paciente = Paciente.objects.first()
         self.assertEqual(paciente.usuario_creador, self.user_admin)
 
@@ -301,26 +319,26 @@ class PacienteCreateViewTests(TestCase):
         """Verificar que DNI duplicado falla."""
         # Crear primer paciente
         Paciente.objects.create(
-            dni='12345678',
-            nombres='Juan',
-            apellidos='Pérez',
+            dni="12345678",
+            nombres="Juan",
+            apellidos="Pérez",
             fecha_nacimiento=date(1990, 1, 15),
-            sexo='M',
+            sexo="M",
             usuario_creador=self.user_admin,
         )
 
         # Intentar crear otro con mismo DNI
         self.client.force_login(self.user_admin)
-        response = self.client.post(reverse('admision:paciente_create'), self.form_data)
+        response = self.client.post(reverse("admision:paciente_create"), self.form_data)
         self.assertEqual(response.status_code, 200)  # Re-render del formulario
-        self.assertContains(response, 'Ya existe un paciente con este DNI.')
+        self.assertContains(response, "Ya existe un paciente con este DNI.")
 
     def test_response_time_menor_1_5_segundos(self):
         """Verificar que tiempo de respuesta < 1.5 segundos."""
         self.client.force_login(self.user_admin)
 
         inicio = time.perf_counter()
-        response = self.client.post(reverse('admision:paciente_create'), self.form_data)
+        response = self.client.post(reverse("admision:paciente_create"), self.form_data)
         tiempo_total = time.perf_counter() - inicio
 
         self.assertLess(tiempo_total, 1.5, f"Tiempo: {tiempo_total:.3f}s > 1.5s")
@@ -332,26 +350,30 @@ class PacienteDetailViewTests(TestCase):
     def setUp(self):
         """Configurar datos de prueba."""
         self.client = Client()
-        self.user_admin = User.objects.create_user(username='admin', password='pass123')
+        self.user_admin = User.objects.create_user(username="admin", password="pass123")
 
-        self.grupo_admin, _ = Group.objects.get_or_create(name='Tecnicos_Administrativos')
+        self.grupo_admin, _ = Group.objects.get_or_create(
+            name="Tecnicos_Administrativos"
+        )
         self.user_admin.groups.add(self.grupo_admin)
 
         self.paciente = Paciente.objects.create(
-            dni='12345678',
-            nombres='Juan',
-            apellidos='Pérez',
+            dni="12345678",
+            nombres="Juan",
+            apellidos="Pérez",
             fecha_nacimiento=date(1990, 1, 15),
-            sexo='M',
+            sexo="M",
             usuario_creador=self.user_admin,
         )
 
     def test_ver_detalles_paciente(self):
         """Verificar que se pueden ver detalles."""
         self.client.force_login(self.user_admin)
-        response = self.client.get(reverse('admision:paciente_detail', kwargs={'pk': self.paciente.pk}))
+        response = self.client.get(
+            reverse("admision:paciente_detail", kwargs={"pk": self.paciente.pk})
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['paciente'], self.paciente)
+        self.assertEqual(response.context["paciente"], self.paciente)
 
 
 class PacienteUpdateViewTests(TestCase):
@@ -360,35 +382,37 @@ class PacienteUpdateViewTests(TestCase):
     def setUp(self):
         """Configurar datos de prueba."""
         self.client = Client()
-        self.user_admin = User.objects.create_user(username='admin', password='pass123')
-        self.user_normal = User.objects.create_user(username='user', password='pass123')
+        self.user_admin = User.objects.create_user(username="admin", password="pass123")
+        self.user_normal = User.objects.create_user(username="user", password="pass123")
 
-        self.grupo_admin, _ = Group.objects.get_or_create(name='Tecnicos_Administrativos')
+        self.grupo_admin, _ = Group.objects.get_or_create(
+            name="Tecnicos_Administrativos"
+        )
         self.user_admin.groups.add(self.grupo_admin)
 
         self.paciente = Paciente.objects.create(
-            dni='12345678',
-            nombres='Juan',
-            apellidos='Pérez',
+            dni="12345678",
+            nombres="Juan",
+            apellidos="Pérez",
             fecha_nacimiento=date(1990, 1, 15),
-            sexo='M',
+            sexo="M",
             usuario_creador=self.user_admin,
         )
 
         self.form_data = {
-            'dni': '12345678',
-            'nombres': 'Juan',
-            'apellidos': 'García',  # Cambio
-            'fecha_nacimiento': '1990-01-15',
-            'sexo': 'M',
+            "dni": "12345678",
+            "nombres": "Juan",
+            "apellidos": "García",  # Cambio
+            "fecha_nacimiento": "1990-01-15",
+            "sexo": "M",
         }
 
     def test_actualizar_sin_grupo_admin(self):
         """Verificar que solo admins pueden actualizar."""
         self.client.force_login(self.user_normal)
         response = self.client.post(
-            reverse('admision:paciente_update', kwargs={'pk': self.paciente.pk}),
-            self.form_data
+            reverse("admision:paciente_update", kwargs={"pk": self.paciente.pk}),
+            self.form_data,
         )
         self.assertNotEqual(response.status_code, 200)
 
@@ -396,13 +420,13 @@ class PacienteUpdateViewTests(TestCase):
         """Verificar actualización exitosa."""
         self.client.force_login(self.user_admin)
         response = self.client.post(
-            reverse('admision:paciente_update', kwargs={'pk': self.paciente.pk}),
-            self.form_data
+            reverse("admision:paciente_update", kwargs={"pk": self.paciente.pk}),
+            self.form_data,
         )
         self.assertEqual(response.status_code, 302)  # Redirect
 
         self.paciente.refresh_from_db()
-        self.assertEqual(self.paciente.apellidos, 'García')
+        self.assertEqual(self.paciente.apellidos, "García")
 
 
 class PacienteDeleteViewTests(TestCase):
@@ -411,18 +435,20 @@ class PacienteDeleteViewTests(TestCase):
     def setUp(self):
         """Configurar datos de prueba."""
         self.client = Client()
-        self.user_admin = User.objects.create_user(username='admin', password='pass123')
-        self.user_normal = User.objects.create_user(username='user', password='pass123')
+        self.user_admin = User.objects.create_user(username="admin", password="pass123")
+        self.user_normal = User.objects.create_user(username="user", password="pass123")
 
-        self.grupo_admin, _ = Group.objects.get_or_create(name='Tecnicos_Administrativos')
+        self.grupo_admin, _ = Group.objects.get_or_create(
+            name="Tecnicos_Administrativos"
+        )
         self.user_admin.groups.add(self.grupo_admin)
 
         self.paciente = Paciente.objects.create(
-            dni='12345678',
-            nombres='Juan',
-            apellidos='Pérez',
+            dni="12345678",
+            nombres="Juan",
+            apellidos="Pérez",
             fecha_nacimiento=date(1990, 1, 15),
-            sexo='M',
+            sexo="M",
             usuario_creador=self.user_admin,
         )
 
@@ -432,7 +458,7 @@ class PacienteDeleteViewTests(TestCase):
 
         self.client.force_login(self.user_admin)
         response = self.client.post(
-            reverse('admision:paciente_delete', kwargs={'pk': self.paciente.pk})
+            reverse("admision:paciente_delete", kwargs={"pk": self.paciente.pk})
         )
         self.assertEqual(response.status_code, 302)
 
@@ -441,10 +467,11 @@ class PacienteDeleteViewTests(TestCase):
 
         # Verificar que estado cambió a inactivo
         paciente_actualizado = Paciente.objects.get(pk=paciente_id)
-        self.assertEqual(paciente_actualizado.estado, 'inactivo')
+        self.assertEqual(paciente_actualizado.estado, "inactivo")
 
 
 # ===== PRUEBAS DE FORMULARIOS =====
+
 
 class PacienteFormTests(TestCase):
     """Pruebas para PacienteForm."""
@@ -452,11 +479,11 @@ class PacienteFormTests(TestCase):
     def setUp(self):
         """Configurar datos de prueba."""
         self.form_data = {
-            'dni': '12345678',
-            'nombres': 'Juan',
-            'apellidos': 'Pérez',
-            'fecha_nacimiento': '1990-01-15',
-            'sexo': 'M',
+            "dni": "12345678",
+            "nombres": "Juan",
+            "apellidos": "Pérez",
+            "fecha_nacimiento": "1990-01-15",
+            "sexo": "M",
         }
 
     def test_form_campos_requeridos(self):
@@ -465,10 +492,10 @@ class PacienteFormTests(TestCase):
 
         # Sin DNI
         data = {**self.form_data}
-        del data['dni']
+        del data["dni"]
         form = PacienteForm(data)
         self.assertFalse(form.is_valid())
-        self.assertIn('dni', form.errors)
+        self.assertIn("dni", form.errors)
 
     def test_form_limpia_dni_valido(self):
         """Verificar que DNI válido pasa validación."""
@@ -481,8 +508,7 @@ class PacienteFormTests(TestCase):
         """Verificar que DNI inválido falla."""
         from .forms import PacienteForm
 
-        data = {**self.form_data, 'dni': '123'}  # Muy corto
+        data = {**self.form_data, "dni": "123"}  # Muy corto
         form = PacienteForm(data)
         self.assertFalse(form.is_valid())
-        self.assertIn('dni', form.errors)
-
+        self.assertIn("dni", form.errors)
