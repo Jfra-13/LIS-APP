@@ -36,5 +36,5 @@ jobs:
       - name: Django checks
         run: |
           python src/manage.py check
-          python src/manage.py test
+          cd src && pytest --cov=admision --cov=core --cov-fail-under=80
 

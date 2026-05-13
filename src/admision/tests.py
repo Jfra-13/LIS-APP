@@ -1,6 +1,6 @@
 import time
 import uuid
-from datetime import date, timedelta
+from datetime import date
 
 from django.contrib.auth.models import Group
 from django.test import TestCase, Client
@@ -246,7 +246,7 @@ class PacienteListViewTests(TestCase):
         # Crear 55 pacientes activos
         for i in range(100, 155):
             Paciente.objects.create(
-                **{**self.paciente_data, 'dni': f'{i}', 'estado': 'activo'}
+                **{**self.paciente_data, 'dni': f'{i:08d}', 'estado': 'activo'}
             )
 
         response = self.client.get(reverse('admision:paciente_list'))
@@ -313,7 +313,7 @@ class PacienteCreateViewTests(TestCase):
         self.client.force_login(self.user_admin)
         response = self.client.post(reverse('admision:paciente_create'), self.form_data)
         self.assertEqual(response.status_code, 200)  # Re-render del formulario
-        self.assertFormError(response, 'form', 'dni', 'Ya existe un paciente con este DNI.')
+        self.assertContains(response, 'Ya existe un paciente con este DNI.')
 
     def test_response_time_menor_1_5_segundos(self):
         """Verificar que tiempo de respuesta < 1.5 segundos."""
@@ -434,6 +434,7 @@ class PacienteDeleteViewTests(TestCase):
         response = self.client.post(
             reverse('admision:paciente_delete', kwargs={'pk': self.paciente.pk})
         )
+        self.assertEqual(response.status_code, 302)
 
         # Verificar que fila aún existe
         self.assertTrue(Paciente.objects.filter(pk=paciente_id).exists())

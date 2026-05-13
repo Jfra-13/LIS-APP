@@ -1,10 +1,9 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.db.models import Q
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
-from django.db.models import Q
-from django.contrib import messages
-import time
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
 from .models import Paciente
 from .forms import PacienteForm
@@ -129,7 +128,7 @@ class PacienteDeleteView(AdmisionRequiredMixin, DeleteView):
     template_name = 'admision/paciente_confirm_delete.html'
     success_url = reverse_lazy('admision:paciente_list')
     
-    def delete(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         """Realizar soft delete en lugar de eliminar fila."""
         self.object = self.get_object()
         paciente_str = f"{self.object.nombres} {self.object.apellidos}"

@@ -25,3 +25,6 @@ RUN python -m spacy download es_core_news_md
 
 # Copiamos el resto del proyecto
 COPY . /code/
+
+# Generamos los archivos estáticos para despliegue
+RUN python src/manage.py collectstatic --noinput

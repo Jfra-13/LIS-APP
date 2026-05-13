@@ -14,7 +14,7 @@ class PacienteForm(forms.ModelForm):
             'dni': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ej. 12345678 o 12345678-A',
-                'pattern': '[0-9A-Za-z\-\.]{8,20}',
+                'pattern': r'[0-9A-Za-z.-]{8,20}',
                 'required': True,
                 'aria-label': 'DNI o Documento de Identidad',
                 'data-testid': 'dni-input',
