@@ -1,0 +1,97 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Registro de Triaje - MVP2{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 720px; margin: 0 auto;">
+    <h1>{{ title }}</h1>
+    <p class="muted">Paciente: <strong>{{ paciente.nombres }} {{ paciente.apellidos }}</strong> ({{ paciente.dni }})</p>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-error">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <fieldset>
+            <legend>Signos vitales</legend>
+
+            <div class="form-group {% if form.spo2.errors %}error{% endif %}">
+                <label for="{{ form.spo2.id_for_label }}">{{ form.spo2.label }} (%) <span style="color: red;">*</span></label>
+                {{ form.spo2 }}
+                {% if form.spo2.errors %}<ul class="errorlist">{% for error in form.spo2.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+
+            <div class="form-group {% if form.frecuencia_cardiaca.errors %}error{% endif %}">
+                <label for="{{ form.frecuencia_cardiaca.id_for_label }}">{{ form.frecuencia_cardiaca.label }} (lpm) <span style="color: red;">*</span></label>
+                {{ form.frecuencia_cardiaca }}
+                {% if form.frecuencia_cardiaca.errors %}<ul class="errorlist">{% for error in form.frecuencia_cardiaca.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+
+            <div class="form-group {% if form.temperatura.errors %}error{% endif %}">
+                <label for="{{ form.temperatura.id_for_label }}">{{ form.temperatura.label }} (C) <span style="color: red;">*</span></label>
+                {{ form.temperatura }}
+                {% if form.temperatura.errors %}<ul class="errorlist">{% for error in form.temperatura.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </fieldset>
+
+        <fieldset style="margin-top: 1rem;">
+            <legend>Sintomas de alto riesgo</legend>
+
+            <div class="form-group {% if form.red_flag.errors %}error{% endif %}">
+                <label for="{{ form.red_flag.id_for_label }}">{{ form.red_flag.label }}</label>
+                {{ form.red_flag }}
+                {% if form.red_flag.errors %}<ul class="errorlist">{% for error in form.red_flag.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+
+            <div class="form-group {% if form.observaciones.errors %}error{% endif %}">
+                <label for="{{ form.observaciones.id_for_label }}">{{ form.observaciones.label }}</label>
+                {{ form.observaciones }}
+                {% if form.observaciones.errors %}<ul class="errorlist">{% for error in form.observaciones.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.nivel_prioridad.id_for_label }}">{{ form.nivel_prioridad.label }}</label>
+                {{ form.nivel_prioridad }}
+                <small class="muted">Campo bloqueado (RN-01). Se calcula automaticamente por el motor de reglas.</small>
+            </div>
+        </fieldset>
+
+        <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+            <button type="submit" class="button" style="cursor: pointer; flex: 1;">Guardar triaje</button>
+            <a href="{% url 'admision:paciente_detail' paciente.id %}" class="button secondary" style="flex: 1; text-align: center; text-decoration: none;">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .messages { margin-bottom: 1rem; }
+    .alert { padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; }
+    .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+    .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+    fieldset { border: 1px solid #e5e7eb; padding: 1rem; border-radius: 8px; }
+    legend { font-weight: 600; }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.4rem; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea {
+        width: 100%; box-sizing: border-box; padding: 0.65rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+        outline: none; border-color: #1d4ed8; box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+    }
+    .form-group.error { background: #fef2f2; padding: 0.5rem; border-radius: 4px; }
+    .errorlist { list-style: none; margin: 0.5rem 0 0 0; padding: 0; color: #991b1b; font-size: 0.875rem; }
+</style>
+{% endblock %}
+

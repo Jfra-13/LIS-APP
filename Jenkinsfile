@@ -38,7 +38,7 @@ pipeline {
             steps {
                 echo "🔍 Ejecutando validación de código con Flake8..."
                 bat """
-                    flake8 src/admision src/core --max-line-length=120 --statistics
+                    flake8 src/admision src/core src/triage --max-line-length=120 --statistics
                 """
             }
         }
@@ -47,7 +47,7 @@ pipeline {
             steps {
                 echo "🎨 Verificando formateo de código con Black..."
                 bat """
-                    black --check --line-length=120 src/admision src/core
+                    black --check --line-length=120 src/admision src/core src/triage
                 """
             }
         }
@@ -57,7 +57,7 @@ pipeline {
                 echo "🧪 Ejecutando suite de tests con pytest + cobertura..."
                 bat """
                     cd src
-                    pytest --cov=admision --cov=core --cov-report=html --cov-report=term-missing --cov-fail-under=80 -v
+                    pytest --cov=admision --cov=core --cov=triage --cov-report=html --cov-report=term-missing --cov-fail-under=80 -v
                     cd ..
                 """
             }
@@ -83,6 +83,7 @@ pipeline {
                     pytest admision/tests.py::PacienteCreateViewTests -v
                     pytest admision/tests.py::PacienteUpdateViewTests -v
                     pytest admision/tests.py::PacienteDeleteViewTests -v
+                    pytest triage/tests.py::TriajeModelAndViewTests -v
                     cd ..
                 """
             }

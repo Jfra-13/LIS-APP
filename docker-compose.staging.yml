@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    env_file:
+      - .env.staging
+    volumes:
+      - postgres_data_staging:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  web:
+    image: ${DOCKERHUB_USERNAME}/app-lis:${IMAGE_TAG:-staging-latest}
+    env_file:
+      - .env.staging
+    command: sh -c "python src/manage.py migrate --noinput && python src/manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data_staging:
+

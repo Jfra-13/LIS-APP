@@ -81,7 +81,10 @@
         </table>
     </div>
 
-    <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+    <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="{% url 'triage:triage_create' paciente.id %}" class="button" style="text-decoration: none;">
+            Registrar Triaje
+        </a>
         <a href="{% url 'admision:paciente_update' paciente.id %}" class="button" style="text-decoration: none;">
             ✏️ Editar Paciente (E)
         </a>
@@ -110,4 +113,3 @@
     });
 </script>
 {% endblock %}
-

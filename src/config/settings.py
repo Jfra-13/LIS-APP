@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core.apps.CoreConfig',
     'admision.apps.AdmisionConfig',
+    'triage.apps.TriageConfig',
 ]
 
 MIDDLEWARE = [
