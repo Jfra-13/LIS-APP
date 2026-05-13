@@ -1,0 +1,113 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Detalles de Paciente - MVP1{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <h1>Detalles del Paciente</h1>
+
+    <div style="margin: 2rem 0;">
+        <table style="width: 100%;">
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 0.75rem; font-weight: bold; background: #f3f4f6; width: 30%;">DNI:</td>
+                <td style="padding: 0.75rem;">{{ paciente.dni }}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 0.75rem; font-weight: bold; background: #f3f4f6;">Nombres:</td>
+                <td style="padding: 0.75rem;">{{ paciente.nombres }}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 0.75rem; font-weight: bold; background: #f3f4f6;">Apellidos:</td>
+                <td style="padding: 0.75rem;">{{ paciente.apellidos }}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 0.75rem; font-weight: bold; background: #f3f4f6;">Fecha de Nacimiento:</td>
+                <td style="padding: 0.75rem;">
+                    {{ paciente.fecha_nacimiento|date:"d/m/Y" }}
+                    <span class="muted">({{ paciente.get_edad }} años)</span>
+                </td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 0.75rem; font-weight: bold; background: #f3f4f6;">Sexo:</td>
+                <td style="padding: 0.75rem;">
+                    {% if paciente.sexo == 'M' %}Masculino
+                    {% elif paciente.sexo == 'F' %}Femenino
+                    {% else %}Otro{% endif %}
+                </td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 0.75rem; font-weight: bold; background: #f3f4f6;">Teléfono:</td>
+                <td style="padding: 0.75rem;">
+                    {% if paciente.telefono %}{{ paciente.telefono }}{% else %}<span class="muted">No registrado</span>{% endif %}
+                </td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 0.75rem; font-weight: bold; background: #f3f4f6;">Email:</td>
+                <td style="padding: 0.75rem;">
+                    {% if paciente.email %}{{ paciente.email }}{% else %}<span class="muted">No registrado</span>{% endif %}
+                </td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 0.75rem; font-weight: bold; background: #f3f4f6;">Dirección:</td>
+                <td style="padding: 0.75rem;">
+                    {% if paciente.direccion %}{{ paciente.direccion }}{% else %}<span class="muted">No registrada</span>{% endif %}
+                </td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 0.75rem; font-weight: bold; background: #f3f4f6;">Estado:</td>
+                <td style="padding: 0.75rem;">
+                    <span style="
+                        padding: 0.25rem 0.75rem;
+                        border-radius: 12px;
+                        background: {% if paciente.estado == 'activo' %}#d1fae5{% else %}#fee2e2{% endif %};
+                        color: {% if paciente.estado == 'activo' %}#065f46{% else %}#991b1b{% endif %};
+                    ">
+                        {{ paciente.get_estado_display }}
+                    </span>
+                </td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 0.75rem; font-weight: bold; background: #f3f4f6;">Creado por:</td>
+                <td style="padding: 0.75rem;">{{ paciente.usuario_creador.username }}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 0.75rem; font-weight: bold; background: #f3f4f6;">Fecha de Creación:</td>
+                <td style="padding: 0.75rem;">{{ paciente.created_at|date:"d/m/Y H:i" }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 0.75rem; font-weight: bold; background: #f3f4f6;">Última Actualización:</td>
+                <td style="padding: 0.75rem;">{{ paciente.updated_at|date:"d/m/Y H:i" }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+        <a href="{% url 'admision:paciente_update' paciente.id %}" class="button" style="text-decoration: none;">
+            ✏️ Editar Paciente (E)
+        </a>
+        <a href="{% url 'admision:paciente_delete' paciente.id %}" class="button secondary" style="text-decoration: none;">
+            🗑️ Eliminar/Desactivar
+        </a>
+        <a href="{% url 'admision:paciente_list' %}" class="button secondary" style="text-decoration: none;">
+            ← Volver a Listado (V)
+        </a>
+    </div>
+</div>
+
+<style>
+    table { background: white; border-radius: 8px; overflow: hidden; }
+    td { vertical-align: middle; }
+</style>
+
+<script>
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'e' || event.key === 'E') {
+            document.querySelector('a[href*="editar"]').click();
+        }
+        if (event.key === 'v' || event.key === 'V') {
+            document.querySelector('a[href*="pacientes"]').click();
+        }
+    });
+</script>
+{% endblock %}
+

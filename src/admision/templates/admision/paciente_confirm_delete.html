@@ -1,0 +1,60 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Confirmar Eliminación de Paciente - MVP1{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h1 style="color: #991b1b;">⚠️ Confirmar Desactivación de Paciente</h1>
+
+    <div style="background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; padding: 1rem; margin: 1.5rem 0;">
+        <p style="margin: 0; color: #991b1b;">
+            <strong>Esta acción NO eliminará el registro del paciente</strong>, solo lo marcará como inactivo.
+            El paciente no aparecerá en el listado principal pero sus datos se mantendrán en la base de datos
+            para auditoría y registro histórico.
+        </p>
+    </div>
+
+    <div style="background: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem; margin: 1.5rem 0;">
+        <p style="margin: 0.5rem 0;"><strong>Paciente a desactivar:</strong></p>
+        <table style="width: 100%; margin-top: 1rem;">
+            <tr>
+                <td style="padding: 0.5rem; font-weight: bold; width: 30%;">DNI:</td>
+                <td style="padding: 0.5rem;">{{ object.dni }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 0.5rem; font-weight: bold;">Nombres:</td>
+                <td style="padding: 0.5rem;">{{ object.nombres }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 0.5rem; font-weight: bold;">Apellidos:</td>
+                <td style="padding: 0.5rem;">{{ object.apellidos }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 0.5rem; font-weight: bold;">Fecha de Nacimiento:</td>
+                <td style="padding: 0.5rem;">{{ object.fecha_nacimiento|date:"d/m/Y" }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <form method="post" style="margin-top: 2rem;">
+        {% csrf_token %}
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="button secondary" style="cursor: pointer; flex: 1; background: #7f1d1d; color: white;">
+                ✓ Sí, Desactivar Paciente
+            </button>
+            <a href="{% url 'admision:paciente_detail' object.id %}" class="button" style="flex: 1; text-align: center; text-decoration: none;">
+                ✗ Cancelar (ESC)
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            window.history.back();
+        }
+    });
+</script>
+{% endblock %}
+
