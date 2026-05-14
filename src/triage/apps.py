@@ -1,4 +1,9 @@
+import logging
+
 from django.apps import AppConfig
+
+
+logger = logging.getLogger(__name__)
 
 
 class TriageConfig(AppConfig):
@@ -11,4 +16,4 @@ class TriageConfig(AppConfig):
         try:
             from . import signals  # noqa: F401
         except Exception:
-            pass
+            logger.exception("Failed to import triage signals")

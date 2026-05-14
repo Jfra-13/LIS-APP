@@ -1,17 +1,41 @@
-name: MVP0 CI
+name: CI
 
 on:
   pull_request:
   push:
     branches:
       - master
+      - main
+  schedule:
+    - cron: "0 2 * * *"
 
 jobs:
-  test:
+  unit:
     runs-on: ubuntu-latest
 
     env:
-      DB_ENGINE: django.db.backends.sqlite3
+      DB_ENGINE: django.db.backends.postgresql
+      DB_NAME: app_lis
+      DB_USER: app_lis
+      DB_PASSWORD: app_lis
+      DB_HOST: localhost
+      DB_PORT: "5432"
+      CELERY_TASK_ALWAYS_EAGER: "1"
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: app_lis
+          POSTGRES_USER: app_lis
+          POSTGRES_PASSWORD: app_lis
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app_lis"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout
@@ -37,4 +61,55 @@ jobs:
         run: |
           python src/manage.py check
           cd src && pytest --cov=admision --cov=core --cov-fail-under=80
+
+  e2e:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'))
+
+    env:
+      DB_ENGINE: django.db.backends.postgresql
+      DB_NAME: app_lis
+      DB_USER: app_lis
+      DB_PASSWORD: app_lis
+      DB_HOST: localhost
+      DB_PORT: "5432"
+      CELERY_TASK_ALWAYS_EAGER: "0"
+      CELERY_BROKER_URL: amqp://guest:guest@localhost:5672//
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: app_lis
+          POSTGRES_USER: app_lis
+          POSTGRES_PASSWORD: app_lis
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app_lis"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      rabbitmq:
+        image: rabbitmq:3-management
+        ports:
+          - 5672:5672
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: E2E tests
+        run: |
+          cd src && pytest tests/e2e/test_triaje_queue.py
 

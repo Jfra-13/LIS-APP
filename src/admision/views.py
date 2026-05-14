@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.db import IntegrityError
 from django.db.models import Q
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -44,19 +45,9 @@ class PacienteListView(AdmisionRequiredMixin, ListView):
         Retorna pacientes activos con select_related.
         Permite búsqueda por DNI o nombres.
         """
-        queryset = Paciente.objects.select_related("usuario_creador").filter(
-            estado="activo"
-        )
-
+        # Delegar búsqueda al manager para consistencia
         search = self.request.GET.get("search", "").strip()
-        if search:
-            queryset = queryset.filter(
-                Q(dni__icontains=search)
-                | Q(nombres__icontains=search)
-                | Q(apellidos__icontains=search)
-            )
-
-        return queryset.order_by("-created_at")
+        return Paciente.objects.search(search)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -74,7 +65,13 @@ class PacienteCreateView(AdmisionRequiredMixin, CreateView):
     def form_valid(self, form):
         """Asignar usuario_creador antes de guardar."""
         form.instance.usuario_creador = self.request.user
-        response = super().form_valid(form)
+        try:
+            response = super().form_valid(form)
+        except IntegrityError:
+            # Capturar race condition sobre unique DNI y transformar a error de formulario
+            form.add_error("dni", "Ya existe un paciente con este DNI.")
+            return self.form_invalid(form)
+
         messages.success(
             self.request,
             f"Paciente {form.instance.nombres} {form.instance.apellidos} creado exitosamente.",
@@ -112,7 +109,12 @@ class PacienteUpdateView(AdmisionRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         """No permitir cambiar usuario_creador."""
-        response = super().form_valid(form)
+        try:
+            response = super().form_valid(form)
+        except IntegrityError:
+            form.add_error("dni", "Ya existe un paciente con este DNI.")
+            return self.form_invalid(form)
+
         messages.success(
             self.request,
             f"Paciente {form.instance.nombres} {form.instance.apellidos} actualizado exitosamente.",
@@ -143,9 +145,12 @@ class PacienteDeleteView(AdmisionRequiredMixin, DeleteView):
         self.object = self.get_object()
         paciente_str = f"{self.object.nombres} {self.object.apellidos}"
 
-        # Soft delete: marcar como inactivo
-        self.object.estado = "inactivo"
-        self.object.save()
+        # Soft delete delegado al modelo
+        try:
+            self.object.soft_delete()
+        except Exception:
+            messages.error(request, "No se pudo eliminar el paciente. Intente de nuevo.")
+            return redirect(self.success_url)
 
         messages.success(
             request, f"Paciente {paciente_str} marcado como inactivo correctamente."

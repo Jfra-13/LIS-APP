@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "admision.apps.AdmisionConfig",
     "triage.apps.TriageConfig",
     "medico.apps.MedicoConfig",
+    "consulta.apps.ConsultaConfig",
 ]
 
 MIDDLEWARE = [

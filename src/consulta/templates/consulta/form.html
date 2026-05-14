@@ -1,0 +1,176 @@
+{% extends "core/base.html" %}
+
+{% block title %}Nueva nota médica{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h1>Nueva nota médica</h1>
+  <p class="muted">Registra la ficha clínica narrativa del paciente.</p>
+
+  <form method="post" id="nota-form" data-cie-suggest-url="{% url 'consulta:cie_suggest' %}">
+    {% csrf_token %}
+
+    <!-- Campos visibles del formulario -->
+    <div class="form-section">
+      <h3>Datos de la nota</h3>
+      {% for field in form %}
+        {% if field.name != 'cie_code' and field.name != 'cie_short_description' and field.name != 'cie_accepted' %}
+          <div class="form-group">
+            {{ field.label_tag }}
+            {% if field.field.widget.input_type == 'textarea' %}
+              {{ field }}
+            {% elif field.field.widget.input_type == 'checkbox' %}
+              <label>
+                {{ field }}
+                {% if field.label %}{{ field.label }}{% endif %}
+              </label>
+            {% else %}
+              {{ field }}
+            {% endif %}
+            {% if field.errors %}
+              <div class="errors">{{ field.errors }}</div>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <!-- Sección de Sugerencias CIE-10 -->
+    <div class="cie-section" style="margin-bottom: 1.5rem; padding: 1rem; background-color: #f9f9f9; border-radius: 4px;">
+      <h3>Sugerencias CIE-10 (opcional)</h3>
+      <p class="muted">
+        Esta sección consulta en tiempo real <code>/consulta/api/cie-suggest/</code> para buscar códigos CIE-10 locales.
+      </p>
+      <label for="cie-query"><strong>Busca síntomas o diagnóstico presuntivo</strong></label>
+      <input
+        id="cie-query"
+        type="text"
+        placeholder="Escribe síntomas o diagnóstico presuntivo"
+        style="width: 100%; padding: 0.5rem; margin-bottom: 0.5rem;"
+      >
+      <ul id="cie-results" class="muted" style="padding-left: 1.25rem; list-style: none;"></ul>
+
+      <!-- Campos ocultos para CIE-10 -->
+      <div id="cie-selected" style="margin-top: 1rem; padding: 0.75rem; background-color: #e8f5e9; border-radius: 4px; display: none;">
+        <strong>Seleccionado:</strong> <span id="cie-selected-text"></span>
+        <button type="button" id="cie-clear-btn" style="margin-left: 1rem; padding: 0.25rem 0.5rem;">Descartar</button>
+      </div>
+    </div>
+
+    <!-- Campos ocultos para enviar datos CIE -->
+    {{ form.cie_code }}
+    {{ form.cie_short_description }}
+    {{ form.cie_accepted }}
+
+    <!-- Botones de envío -->
+    <div style="margin-top: 1.5rem;">
+      <button type="submit" class="button">Guardar nota</button>
+      <a href="{% url 'consulta:nota_list' %}" class="button secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<script>
+(function () {
+  const input = document.getElementById('cie-query');
+  const results = document.getElementById('cie-results');
+  const selectedDiv = document.getElementById('cie-selected');
+  const selectedText = document.getElementById('cie-selected-text');
+  const clearBtn = document.getElementById('cie-clear-btn');
+  const suggestUrl = document.getElementById('nota-form').dataset.cieSuggestUrl;
+  const cieCodeField = document.getElementById('id_cie_code');
+  const cieDescField = document.getElementById('id_cie_short_description');
+  const cieAcceptedField = document.getElementById('id_cie_accepted');
+  let timer = null;
+
+  function clearSelection() {
+    cieCodeField.value = '';
+    cieDescField.value = '';
+    cieAcceptedField.value = 'false';
+    selectedDiv.style.display = 'none';
+    selectedText.textContent = '';
+  }
+
+  function render(items) {
+    results.innerHTML = '';
+    if (!items.length) {
+      const li = document.createElement('li');
+      li.textContent = 'Sin sugerencias todavía.';
+      results.appendChild(li);
+      return;
+    }
+
+    items.forEach((item) => {
+      const li = document.createElement('li');
+      li.style.cursor = 'pointer';
+      li.style.padding = '0.5rem';
+      li.style.marginBottom = '0.25rem';
+      li.style.backgroundColor = '#f5f5f5';
+      li.style.borderRadius = '4px';
+      li.style.transition = 'background-color 0.2s';
+      li.innerHTML = `<strong>${item.code}</strong> — ${item.short_description} <span class="muted">(${item.group})</span>`;
+
+      li.addEventListener('mouseover', () => {
+        li.style.backgroundColor = '#e3f2fd';
+      });
+      li.addEventListener('mouseout', () => {
+        li.style.backgroundColor = '#f5f5f5';
+      });
+
+      li.addEventListener('click', () => {
+        // Llenar campos ocultos
+        cieCodeField.value = item.code;
+        cieDescField.value = item.short_description;
+        cieAcceptedField.value = 'true';
+
+        // Mostrar confirmación
+        selectedText.textContent = `${item.code} — ${item.short_description}`;
+        selectedDiv.style.display = 'block';
+
+        // Limpiar input y resultados
+        input.value = '';
+        results.innerHTML = '';
+      });
+
+      results.appendChild(li);
+    });
+  }
+
+  async function fetchSuggestions(q) {
+    if (!q.trim()) {
+      results.innerHTML = '';
+      return;
+    }
+    try {
+      const response = await fetch(`${suggestUrl}?q=${encodeURIComponent(q)}`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+      const payload = await response.json();
+      render(payload.results || []);
+    } catch (error) {
+      console.error('Error fetching CIE suggestions:', error);
+      const li = document.createElement('li');
+      li.textContent = 'Error al buscar sugerencias.';
+      results.appendChild(li);
+    }
+  }
+
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fetchSuggestions(input.value), 250);
+  });
+
+  clearBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    clearSelection();
+  });
+
+  // Si carga la página con datos CIE ya seleccionados, mostrar el estado
+  if (cieCodeField.value) {
+    selectedText.textContent = `${cieCodeField.value} — ${cieDescField.value}`;
+    selectedDiv.style.display = 'block';
+  }
+})();
+</script>
+{% endblock %}
+

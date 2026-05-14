@@ -38,6 +38,33 @@ class PacienteManager(models.Manager):
 
         return True, "DNI válido."
 
+    @staticmethod
+    def normalizar_dni(dni):
+        """Normaliza un DNI para comparaciones: strip y upper."""
+        if dni is None:
+            return dni
+        return dni.strip().upper()
+
+    def search(self, q=None):
+        """Busqueda sencilla sobre pacientes activos por dni, nombres o apellidos.
+
+        Retorna queryset ordenado por created_at descendente y con usuario_creador
+        seleccionado para evitar N+1.
+        """
+        qs = self.get_activos()
+        if not q:
+            return qs.order_by("-created_at")
+
+        q = q.strip()
+        return (
+            qs.filter(
+                models.Q(dni__icontains=q)
+                | models.Q(nombres__icontains=q)
+                | models.Q(apellidos__icontains=q)
+            )
+            .order_by("-created_at")
+        )
+
 
 class Paciente(AbstractBaseModel):
     """Modelo de Paciente para el módulo de Admisión."""
@@ -145,6 +172,12 @@ class Paciente(AbstractBaseModel):
         """Ejecutar validaciones antes de guardar."""
         self.full_clean()
         super().save(*args, **kwargs)
+
+    def soft_delete(self):
+        """Marcar paciente como inactivo sin eliminar la fila."""
+        self.estado = "inactivo"
+        # actualizar timestamps mediante save normal
+        self.save()
 
     def get_edad(self):
         """Calcula la edad actual del paciente."""

@@ -1,0 +1,32 @@
+{% extends "core/base.html" %}
+
+{% block title %}Nota médica{% endblock %}
+
+{% block content %}
+<div class="card">
+  <p><a href="{% url 'consulta:nota_list' %}">&larr; Volver al listado</a></p>
+  <h1>Nota médica</h1>
+
+  <dl>
+    <dt>Paciente</dt>
+    <dd>{{ nota.paciente }}</dd>
+
+    <dt>Médico</dt>
+    <dd>{{ nota.medico|default:"Sin asignar" }}</dd>
+
+    <dt>Triaje</dt>
+    <dd>{{ nota.triaje|default:"Sin triaje" }}</dd>
+
+    <dt>Motivo</dt>
+    <dd>{{ nota.motivo_consulta|default:"Sin motivo" }}</dd>
+  </dl>
+
+  <h2>Contenido</h2>
+  <p>{{ nota.contenido|linebreaks }}</p>
+
+  {% if nota.is_privada %}
+    <p class="muted"><strong>Nota privada</strong></p>
+  {% endif %}
+</div>
+{% endblock %}
+

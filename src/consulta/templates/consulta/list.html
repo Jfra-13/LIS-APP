@@ -1,0 +1,33 @@
+{% extends "core/base.html" %}
+
+{% block title %}Notas médicas{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div style="display:flex; justify-content: space-between; align-items: center; gap: 1rem;">
+    <div>
+      <h1>Notas médicas</h1>
+      <p class="muted">Listado de fichas clínicas narrativas.</p>
+    </div>
+    <a href="{% url 'consulta:nota_create' %}" class="button">Nueva nota</a>
+  </div>
+
+  <form method="get" style="margin: 1rem 0;">
+    <input type="search" name="q" value="{{ request.GET.q }}" placeholder="Buscar por paciente o contenido">
+  </form>
+
+  <ul>
+    {% for nota in notas %}
+      <li>
+        <a href="{% url 'consulta:nota_detail' nota.pk %}">
+          {{ nota.paciente }} — {{ nota.motivo_consulta|default:"Sin motivo" }}
+        </a>
+        <span class="muted">({{ nota.created_at }})</span>
+      </li>
+    {% empty %}
+      <li class="muted">No hay notas médicas registradas.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
+

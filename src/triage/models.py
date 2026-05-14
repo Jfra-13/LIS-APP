@@ -6,6 +6,7 @@ from admision.models import Paciente
 from core.models import AbstractBaseModel
 
 from .exceptions import RN01ImmutableTriageError
+from .services import TriageCalculatorService, TriageInput
 
 User = get_user_model()
 
@@ -79,8 +80,23 @@ class Triaje(AbstractBaseModel):
         return colores.get(self.nivel_prioridad, "Desconocido")
 
     def save(self, *args, **kwargs):
+        # Inmutabilidad estricta: no permitir actualizaciones
         if not self._state.adding:
             raise RN01ImmutableTriageError(
                 "RN-01: El triaje es inmutable. Debe registrar un re-triaje nuevo."
             )
+
+        # Calcular nivel_prioridad automáticamente si no fue establecido por la capa superior
+        if not self.nivel_prioridad:
+            # Construir entrada para calculadora
+            triage_input = TriageInput(
+                spo2=self.spo2,
+                frecuencia_cardiaca=self.frecuencia_cardiaca,
+                temperatura=self.temperatura,
+                red_flag=self.red_flag or self.RedFlagChoices.NONE,
+            )
+            # Esto puede lanzar RN03MissingCriticalDataError si faltan datos críticos;
+            # preferimos que falle temprano y no cree triajes incompletos.
+            self.nivel_prioridad = TriageCalculatorService().calculate(triage_input)
+
         super().save(*args, **kwargs)

@@ -95,6 +95,8 @@ class PacienteForm(forms.ModelForm):
     def clean_dni(self):
         """Validar DNI usando el manager."""
         dni = self.cleaned_data.get("dni")
+        # Normalizar formato para comparaciones y limpieza
+        dni = PacienteManager.normalizar_dni(dni)
         es_valido, mensaje = PacienteManager.validar_dni(dni)
 
         if not es_valido:
