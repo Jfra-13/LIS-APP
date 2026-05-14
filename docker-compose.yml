@@ -45,6 +45,8 @@ services:
       dockerfile: Dockerfile.worker
     env_file:
       - .env
+    environment:
+      - PYTHONPATH=src
     command: sh -c "celery -A config worker --loglevel=info --concurrency=1"
     volumes:
       - .:/code
