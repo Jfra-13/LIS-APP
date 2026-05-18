@@ -85,14 +85,5 @@ La configuración de Jenkins, protección de rama en GitHub y el flujo final de 
     - `red_flag` definido con `TextChoices` (`DOLOR_TORACICO`, `DIFICULTAD_RESPIRATORIA`, `HEMORRAGIA_ACTIVA`).
     - Persistencia solo de `nivel_prioridad` (1..5); el color Manchester se deriva por `@property`.
     - Inmutabilidad estricta: cualquier update de `Triaje` lanza `RN01ImmutableTriageError`.
-- **Frontend:**
-    - Formulario de enfermeria con validaciones visuales y campo `nivel_prioridad` bloqueado (`readonly`).
-- **QA:**
-    - Pruebas unitarias de limites para SpO2, frecuencia cardiaca y temperatura.
-    - Validacion RN-03 con excepcion de dominio por falta de datos criticos.
-- **DevOps (CI/CD):**
-    - Jenkins valida lint/formato/tests/cobertura incluyendo `triage`.
-    - GitHub Actions despliega a `staging` via SSH en servidor Docker/Compose, usando secretos:
-      `SERVER_IP`, `SSH_USER`, `SSH_PRIVATE_KEY`, `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`.
         
 
