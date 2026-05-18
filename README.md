@@ -43,15 +43,3 @@ docker compose up --build
 ## Nota sobre CI/CD
 
 La configuración de Jenkins, protección de rama en GitHub y el flujo final de GitHub Actions deben hacerse fuera del código del proyecto, en la plataforma correspondiente.
-
-## Siguiente paso ...
-
-#### MVP 1: Módulo de Admisión Transaccional
-
-**Objetivo:** Digitalizar el primer paso del flujo hospitalario asegurando tiempos de respuesta óptimos.
-
-- **Requerimientos Cubiertos:** RF-01, RNF-02.
-    
-- **Backend:**
-    
-    - Crear la app `admision` y el modelo `Paciente`.
