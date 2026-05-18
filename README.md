@@ -73,17 +73,5 @@ La configuración de Jenkins, protección de rama en GitHub y el flujo final de 
 - **DevOps (CI/CD):**
     
     - **Jenkins:** Se añaden reportes de cobertura de código (ej. `pytest-cov`). Jenkins falla el _build_ si la cobertura baja del 80%.
-
-#### MVP 2: Motor Logico de Triaje (Sincrono)
-
-**Objetivo:** Captura de biometria y calculo algoritmico inmutable de la prioridad clinica.
-
-- **Requerimientos cubiertos:** RF-02, RF-03, RN-01, RN-03.
-- **Backend:**
-    - App `triage` con modelo `Triaje` relacionado a `Paciente`.
-    - `TriageCalculatorService` con arquitectura OCP (`RuleEngine`, `BasicVitalSignsRule`, `RedFlagRule`).
-    - `red_flag` definido con `TextChoices` (`DOLOR_TORACICO`, `DIFICULTAD_RESPIRATORIA`, `HEMORRAGIA_ACTIVA`).
-    - Persistencia solo de `nivel_prioridad` (1..5); el color Manchester se deriva por `@property`.
-    - Inmutabilidad estricta: cualquier update de `Triaje` lanza `RN01ImmutableTriageError`.
         
 
