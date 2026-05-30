@@ -1,155 +1,98 @@
-# Proyecto LIS (Sistema de Información Clínica y Laboratorio)
+# app-LIS MVP0 base técnica
 
-Este proyecto es un sistema de gestión clínica desarrollado en **Python con Django**, diseñado para manejar la admisión de pacientes, triaje, consultas médicas, notas narrativas y prescripción de medicamentos. Todo el entorno está contenedorizado utilizando **Docker** para facilitar su despliegue y desarrollo.
+Este repositorio quedó reducido a una base Django mínima para el MVP0:
 
----
+- `core` como app activa principal.
+- `triage` y `nlp_engine` archivadas en `_archived_apps/`.
+- usuario personalizado con PK UUID.
+- login, home protegida y landing pública.
+- Docker con Django + PostgreSQL 15.
 
-## 🛠️ Tecnologías Utilizadas
+## Estructura actual
 
-- **Backend Framework:** Django (Python)
-- **Base de Datos:** SQLite / PostgreSQL (según entorno)
-- **Contenedores:** Docker & Docker Compose
-- **Arquitectura:** Monolito modular basado en aplicaciones de Django (Apps).
+- `src/config/settings.py`: configuración del proyecto.
+- `src/config/urls.py`: ruteo principal.
+- `src/core/`: app activa del MVP0.
+- `_archived_apps/triage/`: flujo clínico anterior archivado.
+- `_archived_apps/nlp_engine/`: procesamiento NLP anterior archivado.
 
----
+## Ejecución local
 
-## 🚀 Comandos de Docker (Gestión del Servidor)
-
-El proyecto utiliza Docker Compose para orquestar los servicios. Ejecuta estos comandos desde la raíz del proyecto (donde se encuentra el archivo `docker-compose.yml`).
-
-| Acción | Comando | Descripción |
-|---|---|---|
-| **Levantar Servidor** | `docker compose up -d` | Inicia los contenedores en segundo plano (modo detached). |
-| **Forzar Reconstrucción** | `docker compose up --build` | Útil si agregaste nuevas dependencias (`requirements.txt`) o cambiaste el `Dockerfile`. |
-| **Ver Logs en vivo** | `docker compose logs -f` | Muestra la consola del servidor en tiempo real. Usa `Ctrl + C` para salir de los logs. |
-| **Detener Servidor** | `docker compose stop` | Detiene los contenedores sin eliminarlos. |
-| **Apagar y Limpiar** | `docker compose down` | Detiene y elimina los contenedores de la sesión actual (recomendado para reiniciar limpio). |
-
----
-
-## 🔐 Gestión de Usuarios y Administrador (Modo Interactivo)
-
-Para ejecutar comandos administrativos dentro de Django (como crear usuarios o resetear bases de datos), la mejor forma es ingresar directamente a la terminal del contenedor de Docker.
-
-### 1. Entrar al contenedor web
-Asegúrate de que el contenedor esté corriendo (`docker compose up -d`), luego ejecuta:
+### 1. Instalar dependencias
 ```bash
-docker compose exec web bash
-```
-*Una vez dentro, navega a la carpeta principal del código fuente:*
-```bash
-cd src
+pip install -r requirements.txt
 ```
 
-### 2. Crear un nuevo Superadministrador
-Dentro de la carpeta `src` en el contenedor, ejecuta:
+### 2. Ejecutar migraciones
 ```bash
-python manage.py createsuperuser
-```
-*(Te pedirá ingresar el Username, Email y el Password dos veces).*
-
-### 3. Cambiar / Recuperar Contraseña de un usuario
-Si el usuario ya existe pero olvidaste la contraseña, no es necesario borrar la base de datos, simplemente ejecuta:
-```bash
-python manage.py changepassword nombre_del_usuario
-```
-*(Ejemplo: `python manage.py changepassword admin`)*.
-
-### 4. Salir del contenedor
-Cuando termines, simplemente escribe:
-```bash
-exit
+python src/manage.py makemigrations
+python src/manage.py migrate
 ```
 
----
+### 3. Levantar el servidor
+```bash
+python src/manage.py runserver
+```
 
-## 📦 Carga de Datos Iniciales (Seeders)
-
-El proyecto cuenta con comandos personalizados para poblar la base de datos con información base (catálogos).
-
-Para cargar el catálogo de **Medicamentos** desde el archivo JSON (`medicamentos.json`), entra al contenedor (ver paso 1 de Gestión de Usuarios) y ejecuta:
+## Contenedores
 
 ```bash
-python manage.py cargar_medicamentos
+docker compose up --build
 ```
-*Nota: Este comando limpia la tabla actual y vuelve a insertar los medicamentos para evitar duplicados.*
 
----
+## Nota sobre CI/CD
 
-## 📂 Estructura del Proyecto y Rutas (Paths)
+La configuración de Jenkins, protección de rama en GitHub y el flujo final de GitHub Actions deben hacerse fuera del código del proyecto, en la plataforma correspondiente.
 
-El proyecto está dividido en aplicaciones modulares para separar la lógica de negocio.
+## Siguiente paso ...
 
-| Path / Directorio | Uso / Propósito |
-|---|---|
-| `/docker-compose.yml` | Archivo principal de orquestación de Docker. Define los servicios (web, db, etc.). |
-| `/src/` | Carpeta raíz del backend de Django. Aquí reside `manage.py`. |
-| `/src/core/` | Configuraciones globales de Django, utilidades compartidas y el modelo base (`AbstractBaseModel`). |
-| `/src/admision/` | App responsable del registro y gestión de la información demográfica de los `Pacientes`. |
-| `/src/triage/` | App para la toma de signos vitales, evaluación inicial y clasificación del paciente (`Triaje`). |
-| `/src/consulta/` | App para la atención médica. Incluye `NotaMedica`, Catálogo de `Medicamento` y `Prescripcion`. |
-| `/src/consulta/data/` | Directorio que almacena los archivos estáticos de datos semilla (ej. `medicamentos.json`). |
-| `/src/consulta/management/`| Comandos de consola personalizados (`cargar_medicamentos.py`). |
+#### MVP 1: Módulo de Admisión Transaccional
 
----
+**Objetivo:** Digitalizar el primer paso del flujo hospitalario asegurando tiempos de respuesta óptimos.
 
-## 🌐 URLs y Endpoints Principales
+- **Requerimientos Cubiertos:** RF-01, RNF-02.
+    
+- **Backend:**
+    
+    - Crear la app `admision` y el modelo `Paciente`.
+        
+    - Implementar Class-Based Views (CBV) para el CRUD del paciente.
+        
+    - _Clean Code:_ Optimizar las consultas usando `select_related` o `prefetch_related` desde el principio para garantizar que las operaciones se rendericen en menos de 1.5 segundos.
+        
+- **Frontend:**
+    
+    - Construir un formulario ágil para el Técnico Administrativo, optimizado para navegación por teclado.
+        
+- **QA:**
+    
+    - Pruebas de integración para la creación de pacientes y validación de DNI.
+        
+    - _Performance testing_ inicial en QA local para validar el RNF-02 (< 1.5s).
+        
+- **DevOps (CI/CD):**
+    
+    - **Jenkins:** Se añaden reportes de cobertura de código (ej. `pytest-cov`). Jenkins falla el _build_ si la cobertura baja del 80%.
 
-Una vez levantado el servidor (`http://localhost:8000`), puedes acceder a las siguientes rutas:
+#### MVP 2: Motor Logico de Triaje (Sincrono)
 
-| URL | Descripción |
-|---|---|
-| `/admin/` | Panel de superadministrador de Django. Permite crear y gestionar todos los registros de la DB. |
-| `/login/` | Pantalla de inicio de sesión para el personal médico/administrativo. |
-| `/home/` | Dashboard principal con acceso rápido según rol de usuario. |
-| `/admision/pacientes/` | Listado de pacientes para técnicos administrativos. |
-| `/triage/` | Registro de triaje para enfermería. |
-| `/consulta/` | Gestión de notas médicas y recetas. |
-| `/medico/cola/` | Cola de atención para médicos. |
-| `/paciente/dashboard/` | Portal del paciente para ver sus recetas. |
+**Objetivo:** Captura de biometria y calculo algoritmico inmutable de la prioridad clinica.
 
-*(Agrega aquí más rutas conforme el frontend o la API vaya creciendo)*.
+- **Requerimientos cubiertos:** RF-02, RF-03, RN-01, RN-03.
+- **Backend:**
+    - App `triage` con modelo `Triaje` relacionado a `Paciente`.
+    - `TriageCalculatorService` con arquitectura OCP (`RuleEngine`, `BasicVitalSignsRule`, `RedFlagRule`).
+    - `red_flag` definido con `TextChoices` (`DOLOR_TORACICO`, `DIFICULTAD_RESPIRATORIA`, `HEMORRAGIA_ACTIVA`).
+    - Persistencia solo de `nivel_prioridad` (1..5); el color Manchester se deriva por `@property`.
+    - Inmutabilidad estricta: cualquier update de `Triaje` lanza `RN01ImmutableTriageError`.
+- **Frontend:**
+    - Formulario de enfermeria con validaciones visuales y campo `nivel_prioridad` bloqueado (`readonly`).
+- **QA:**
+    - Pruebas unitarias de limites para SpO2, frecuencia cardiaca y temperatura.
+    - Validacion RN-03 con excepcion de dominio por falta de datos criticos.
+- **DevOps (CI/CD):**
+    - Jenkins valida lint/formato/tests/cobertura incluyendo `triage`.
+    - GitHub Actions despliega a `staging` via SSH en servidor Docker/Compose, usando secretos:
+      `SERVER_IP`, `SSH_USER`, `SSH_PRIVATE_KEY`, `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`.
+        
 
----
-
-## 🎨 Mejoras de Frontend (v1.0)
-
-### Stack de Tecnologías Frontend Implementado
-
-✅ **Bootstrap 5.3.3** - Framework CSS moderno  
-✅ **Bootstrap Icons 1.11.3** - Librería de iconos  
-✅ **HTMX 1.9.11** - Interactividad sin JavaScript vanilla  
-✅ **Alpine.js 3.x** - Reactividad ligera en el navegador  
-
-### Cambios Implementados
-
-1. **Login Mejorado** - Validación en vivo, mostrar/ocultar contraseña
-2. **Dashboard Home** - Tarjetas interactivas por rol, diseño moderno
-3. **Lista de Pacientes** - Búsqueda en tiempo real, tablas responsivas
-4. **Formulario de Triaje** - Validación visual de signos vitales, alertas automáticas
-5. **Diseño Responsivo** - Funciona perfecto en móvil, tablet y desktop
-
-### Características Principales
-
-- 🎯 **Validación Reactiva**: Feedback visual mientras escribes
-- 🎨 **Diseño Bootstrap**: Moderno y profesional
-- ⚡ **Performance**: Debounce en búsquedas, lazy loading
-- 🔔 **Alertas Inteligentes**: Mostradas según valores críticos
-- 📱 **Mobile First**: Totalmente responsivo
-
-### Documentación
-
-Para detalles completos sobre las mejoras implementadas, ver:
-- 📖 [`FRONTEND_IMPROVEMENTS.md`](./FRONTEND_IMPROVEMENTS.md) - Documentación técnica
-- 📚 [`FRONTEND_TUTORIALS.md`](./FRONTEND_TUTORIALS.md) - Tutoriales con ejemplos
-
-### Cómo Extender
-
-Consulta [`FRONTEND_TUTORIALS.md`](./FRONTEND_TUTORIALS.md) para:
-- Crear modales con Alpine.js
-- Implementar búsquedas en tiempo real con HTMX
-- Hacer tabs/acordeones interactivos
-- Validar formularios progresivamente
-- Cargar contenido dinámico sin recargar
-
----
