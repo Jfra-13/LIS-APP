@@ -46,89 +46,90 @@
     </div>
     {% endif %}
 
-    <!-- TÉCNICOS ADMINISTRATIVOS -->
-    {% if user.groups.all|dictsort:"name"|length > 0 %}
-      {% if "Tecnicos_Administrativos" in user.groups.values_list %}
-      <div class="col-md-6 col-lg-3">
-        <div class="card h-100 border-0 shadow-sm hover-lift" style="cursor: pointer;" @click="navigate('/admision/pacientes/')">
-          <div class="card-body text-center">
-            <div class="display-5 text-info mb-3">
-              <i class="bi bi-person-check-fill"></i>
-            </div>
-            <h5 class="card-title">Admisión</h5>
-            <p class="card-text small text-muted">Registro de pacientes</p>
+    <!-- Módulo de Admisión -->
+    {% if perms.admision.view_paciente %}
+    <div class="col-md-6 col-lg-3">
+      <div class="card h-100 border-0 shadow-sm hover-lift" style="cursor: pointer;" @click="navigate('{% url 'admision:paciente_list' %}')">
+        <div class="card-body text-center">
+          <div class="display-5 text-info mb-3">
+            <i class="bi bi-person-check-fill"></i>
           </div>
-          <div class="card-footer bg-transparent border-0 text-center pb-3">
-            <small class="text-primary fw-bold">
-              Gestionar <i class="bi bi-arrow-right ms-1"></i>
-            </small>
-          </div>
+          <h5 class="card-title">Admisión</h5>
+          <p class="card-text small text-muted">Registro y gestión de pacientes</p>
+        </div>
+        <div class="card-footer bg-transparent border-0 text-center pb-3">
+          <small class="text-primary fw-bold">
+            Gestionar <i class="bi bi-arrow-right ms-1"></i>
+          </small>
         </div>
       </div>
-      {% endif %}
+    </div>
+    {% endif %}
 
-      <!-- ENFERMERÍA -->
-      {% if "Enfermeria" in user.groups.values_list %}
-      <div class="col-md-6 col-lg-3">
-        <div class="card h-100 border-0 shadow-sm hover-lift" style="cursor: pointer;" @click="navigate('/triage/')">
-          <div class="card-body text-center">
-            <div class="display-5 text-warning mb-3">
-              <i class="bi bi-heartbeat"></i>
-            </div>
-            <h5 class="card-title">Triaje</h5>
-            <p class="card-text small text-muted">Signos vitales y prioridad</p>
+    <!-- Módulo de Triaje -->
+    {% if perms.triage.view_triaje %}
+    <div class="col-md-6 col-lg-3">
+      <div class="card h-100 border-0 shadow-sm hover-lift" style="cursor: pointer;" @click="navigate('{% url 'triage:triage_list' %}')">
+        <div class="card-body text-center">
+          <div class="display-5 text-warning mb-3">
+            <i class="bi bi-heart-pulse"></i>
           </div>
-          <div class="card-footer bg-transparent border-0 text-center pb-3">
-            <small class="text-primary fw-bold">
-              Registrar <i class="bi bi-arrow-right ms-1"></i>
-            </small>
-          </div>
+          <h5 class="card-title">Triaje</h5>
+          <p class="card-text small text-muted">Signos vitales y prioridad</p>
+        </div>
+        <div class="card-footer bg-transparent border-0 text-center pb-3">
+          <small class="text-primary fw-bold">
+            Registrar <i class="bi bi-arrow-right ms-1"></i>
+          </small>
         </div>
       </div>
-      {% endif %}
+    </div>
+    {% endif %}
 
-      <!-- MÉDICOS -->
-      {% if "medico" in user.groups.values_list or user.is_staff %}
-      <div class="col-md-6 col-lg-3">
-        <div class="card h-100 border-0 shadow-sm hover-lift" style="cursor: pointer;" @click="navigate('/consulta/')">
-          <div class="card-body text-center">
-            <div class="display-5 text-success mb-3">
-              <i class="bi bi-file-medical"></i>
-            </div>
-            <h5 class="card-title">Consultas Médicas</h5>
-            <p class="card-text small text-muted">Notas médicas y recetas</p>
+    <!-- Módulo de Consulta Médica -->
+    {% if perms.consulta.view_notamedica %}
+    <div class="col-md-6 col-lg-3">
+      <div class="card h-100 border-0 shadow-sm hover-lift" style="cursor: pointer;" @click="navigate('{% url 'consulta:nota_list' %}')">
+        <div class="card-body text-center">
+          <div class="display-5 text-success mb-3">
+            <i class="bi bi-file-medical"></i>
           </div>
-          <div class="card-footer bg-transparent border-0 text-center pb-3">
-            <small class="text-primary fw-bold">
-              Atender <i class="bi bi-arrow-right ms-1"></i>
-            </small>
-          </div>
+          <h5 class="card-title">Consultas Médicas</h5>
+          <p class="card-text small text-muted">Notas médicas y recetas</p>
+        </div>
+        <div class="card-footer bg-transparent border-0 text-center pb-3">
+          <small class="text-primary fw-bold">
+            Atender <i class="bi bi-arrow-right ms-1"></i>
+          </small>
         </div>
       </div>
+    </div>
+    {% endif %}
 
-      <div class="col-md-6 col-lg-3">
-        <div class="card h-100 border-0 shadow-sm hover-lift" style="cursor: pointer;" @click="navigate('/medico/cola/')">
-          <div class="card-body text-center">
-            <div class="display-5 text-secondary mb-3">
-              <i class="bi bi-list-ul"></i>
-            </div>
-            <h5 class="card-title">Cola de Atención</h5>
-            <p class="card-text small text-muted">Pacientes en espera</p>
+    <!-- Módulo de Cola de Atención (Médicos) -->
+    {% if perms.medico.view_colaestado %}
+    <div class="col-md-6 col-lg-3">
+      <div class="card h-100 border-0 shadow-sm hover-lift" style="cursor: pointer;" @click="navigate('{% url 'medico:cola_atencion' %}')">
+        <div class="card-body text-center">
+          <div class="display-5 text-secondary mb-3">
+            <i class="bi bi-list-ul"></i>
           </div>
-          <div class="card-footer bg-transparent border-0 text-center pb-3">
-            <small class="text-primary fw-bold">
-              Ver Cola <i class="bi bi-arrow-right ms-1"></i>
-            </small>
-          </div>
+          <h5 class="card-title">Cola de Atención</h5>
+          <p class="card-text small text-muted">Pacientes en espera</p>
+        </div>
+        <div class="card-footer bg-transparent border-0 text-center pb-3">
+          <small class="text-primary fw-bold">
+            Ver Cola <i class="bi bi-arrow-right ms-1"></i>
+          </small>
         </div>
       </div>
-      {% endif %}
+    </div>
     {% endif %}
 
     <!-- PACIENTES (Portal de Paciente) -->
-    {% if "Paciente" in user.groups.values_list %}
+    {% if perms.portal_paciente.view_receta %}
     <div class="col-md-6 col-lg-3">
-      <div class="card h-100 border-0 shadow-sm hover-lift" style="cursor: pointer;" @click="navigate('/paciente/dashboard/')">
+      <div class="card h-100 border-0 shadow-sm hover-lift" style="cursor: pointer;" @click="navigate('{% url 'portal_paciente:dashboard' %}')">
         <div class="card-body text-center">
           <div class="display-5 text-primary mb-3">
             <i class="bi bi-file-earmark-text-fill"></i>
@@ -191,4 +192,3 @@
   }
 </script>
 {% endblock %}
-

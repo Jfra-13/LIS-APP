@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import IntegrityError
 from django.db.models import Q
 from django.shortcuts import redirect
@@ -12,30 +12,30 @@ from django.views.generic import (
     UpdateView,
 )
 
-from .models import Paciente
 from .forms import PacienteForm
+from .models import Paciente
 
 
-class AdmisionRequiredMixin(UserPassesTestMixin):
-    """Mixin que verifica que el usuario pertenece al grupo Técnicos Administrativos."""
-
-    def test_func(self):
-        """Verificar que el usuario está en el grupo requerido."""
-        return self.request.user.groups.filter(name="Tecnicos_Administrativos").exists()
+class AdmisionPermissionMixin(PermissionRequiredMixin):
+    """
+    Verifica los permisos para el módulo de admisión.
+    Redirige a 'home' con un mensaje de error si no tiene permisos.
+    """
 
     def handle_no_permission(self):
         """Redirigir si el usuario no tiene permisos."""
         messages.error(
             self.request,
-            "No tiene permisos para acceder a esta sección. Solo usuarios del grupo Técnicos Administrativos pueden acceder.",
+            "No tiene los permisos necesarios para acceder a esta función de admisión.",
         )
         return redirect("home")
 
 
-class PacienteListView(AdmisionRequiredMixin, ListView):
+class PacienteListView(AdmisionPermissionMixin, ListView):
     """Vista para listar pacientes activos."""
 
     model = Paciente
+    permission_required = "admision.view_paciente"
     template_name = "admision/paciente_list.html"
     context_object_name = "pacientes"
     paginate_by = 50
@@ -55,11 +55,12 @@ class PacienteListView(AdmisionRequiredMixin, ListView):
         return context
 
 
-class PacienteCreateView(AdmisionRequiredMixin, CreateView):
+class PacienteCreateView(AdmisionPermissionMixin, CreateView):
     """Vista para crear un nuevo paciente."""
 
     model = Paciente
     form_class = PacienteForm
+    permission_required = "admision.add_paciente"
     template_name = "admision/paciente_form.html"
 
     def form_valid(self, form):
@@ -88,10 +89,11 @@ class PacienteCreateView(AdmisionRequiredMixin, CreateView):
         return context
 
 
-class PacienteDetailView(AdmisionRequiredMixin, DetailView):
+class PacienteDetailView(AdmisionPermissionMixin, DetailView):
     """Vista para ver detalles de un paciente."""
 
     model = Paciente
+    permission_required = "admision.view_paciente"
     template_name = "admision/paciente_detail.html"
     context_object_name = "paciente"
 
@@ -100,11 +102,12 @@ class PacienteDetailView(AdmisionRequiredMixin, DetailView):
         return Paciente.objects.select_related("usuario_creador")
 
 
-class PacienteUpdateView(AdmisionRequiredMixin, UpdateView):
+class PacienteUpdateView(AdmisionPermissionMixin, UpdateView):
     """Vista para editar un paciente existente."""
 
     model = Paciente
     form_class = PacienteForm
+    permission_required = "admision.change_paciente"
     template_name = "admision/paciente_form.html"
 
     def form_valid(self, form):
@@ -133,10 +136,11 @@ class PacienteUpdateView(AdmisionRequiredMixin, UpdateView):
         return context
 
 
-class PacienteDeleteView(AdmisionRequiredMixin, DeleteView):
+class PacienteDeleteView(AdmisionPermissionMixin, DeleteView):
     """Vista para eliminar un paciente (soft delete)."""
 
     model = Paciente
+    permission_required = "admision.delete_paciente"
     template_name = "admision/paciente_confirm_delete.html"
     success_url = reverse_lazy("admision:paciente_list")
 

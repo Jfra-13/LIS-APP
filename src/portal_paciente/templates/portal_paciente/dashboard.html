@@ -1,0 +1,47 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Mi Historial Clínico{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end;">
+    <div>
+        <h2 style="margin: 0;">Bienvenido, {{ paciente.nombres }}</h2>
+        <p class="muted" style="margin: 0.2rem 0 0 0;">DNI: {{ paciente.dni }} | Edad: {{ paciente.get_edad }} años</p>
+    </div>
+    <a href="{% url 'portal_paciente:logout' %}" class="button secondary" style="padding: 0.5rem 0.8rem; font-size: 0.9rem;">Cerrar Sesión</a>
+</div>
+
+<div class="card">
+    <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">Mi Línea de Tiempo</h3>
+    
+    {% if notas %}
+        <div style="position: relative; padding-left: 2rem; border-left: 2px solid #e2e8f0; margin-left: 0.5rem; margin-top: 1.5rem;">
+            {% for nota in notas %}
+                <div style="margin-bottom: 2rem; position: relative;">
+                    <!-- Punto de la línea de tiempo -->
+                    <div style="position: absolute; left: -2.4rem; top: 0.2rem; width: 12px; height: 12px; border-radius: 50%; background: #1d4ed8; border: 4px solid white; box-shadow: 0 0 0 2px #1d4ed8;"></div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <span style="font-size: 0.85rem; font-weight: bold; color: #64748b;">{{ nota.created_at|date:"d M Y, h:i a" }}</span>
+                            <h4 style="margin: 0.2rem 0;">Consulta Médica</h4>
+                            <p style="margin: 0.3rem 0; font-size: 0.95rem;">
+                                <strong>Médico:</strong> Dr. {{ nota.medico.first_name }} {{ nota.medico.last_name }}<br>
+                                <strong>Diagnóstico:</strong> 
+                                {% if nota.cie_code %}
+                                    {{ nota.cie_code }} - {{ nota.cie_short_description }}
+                                {% else %}
+                                    <span class="muted">Pendiente de codificación</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <a href="{% url 'portal_paciente:receta_detail' nota.receta_id %}" class="button" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Ver Receta</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="muted" style="text-align: center; padding: 2rem;">Aún no tienes atenciones registradas.</p>
+    {% endif %}
+</div>
+{% endblock %}

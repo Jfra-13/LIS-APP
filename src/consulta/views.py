@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import JsonResponse
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.http import JsonResponse, HttpResponse
 from django.db import models
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView
@@ -9,10 +9,17 @@ from django.db.models import Avg, Count
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 from django.views import View
+from django.core.cache import cache
+from django.shortcuts import redirect
+from django.contrib import messages
+
+
+# from .tasks import process_clinical_note
 
 from .forms import NotaMedicaForm
 from .models import NotaMedica
 from .services.cie_lookup import search as cie_search
+from .services.med_lookup import search as med_search
 from triage.models import Triaje
 
 
@@ -21,14 +28,23 @@ def consulta_health(request):
     return JsonResponse({"app": "consulta", "status": "ok"})
 
 
-class MedicoRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    def test_func(self):
-        user = self.request.user
-        return user.is_staff or user.groups.filter(name="medico").exists()
+class ConsultaPermissionMixin(PermissionRequiredMixin):
+    """
+    Verifica los permisos para el módulo de consulta.
+    Redirige a 'home' con un mensaje de error si no tiene permisos.
+    """
+
+    def handle_no_permission(self):
+        messages.error(
+            self.request,
+            "No tiene los permisos necesarios para acceder a esta función de consulta.",
+        )
+        return redirect("home")
 
 
-class NotaMedicaListView(MedicoRequiredMixin, ListView):
+class NotaMedicaListView(ConsultaPermissionMixin, ListView):
     model = NotaMedica
+    permission_required = "consulta.view_notamedica"
     template_name = "consulta/list.html"
     context_object_name = "notas"
     paginate_by = 20
@@ -47,28 +63,56 @@ class NotaMedicaListView(MedicoRequiredMixin, ListView):
         return queryset.order_by("-created_at")
 
 
-class NotaMedicaCreateView(MedicoRequiredMixin, CreateView):
+class NotaMedicaCreateView(ConsultaPermissionMixin, CreateView):
     model = NotaMedica
     form_class = NotaMedicaForm
+    permission_required = "consulta.add_notamedica"
     template_name = "consulta/form.html"
     success_url = reverse_lazy("consulta:nota_list")
 
     def form_valid(self, form):
         form.instance.medico = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        # Disparar procesamiento asíncrono de IA si la tarea existe
+        try:
+            from .tasks import process_clinical_note
+            process_clinical_note.delay(self.object.id)
+        except (ImportError, ModuleNotFoundError):
+            pass
+        return response
 
 
-class NotaMedicaDetailView(MedicoRequiredMixin, DetailView):
+class NotaMedicaDetailView(ConsultaPermissionMixin, DetailView):
     model = NotaMedica
+    permission_required = "consulta.view_notamedica"
     template_name = "consulta/detail.html"
     context_object_name = "nota"
 
 
 @login_required
 def cie_suggest(request):
-    """Endpoint JSON para sugerencias CIE-10 rule-based."""
+    """Endpoint JSON para sugerencias CIE-10. Soporta HTMX."""
     q = request.GET.get("q", "")
     results = cie_search(q, limit=5)
+    
+    if request.headers.get('HX-Request'):
+        html = ""
+        for item in results:
+            html += f"""
+            <button type="button" class="list-group-item list-group-item-action cie-item border-0 small" 
+                    data-code="{item.get('code')}" 
+                    data-description="{item.get('short_description')}">
+                <div class="d-flex justify-content-between">
+                    <span class="fw-bold">{item.get('code')}</span>
+                    <span class="badge bg-light text-muted small">{item.get('group')}</span>
+                </div>
+                <div class="text-truncate">{item.get('short_description')}</div>
+            </button>
+            """
+        if not html:
+            html = '<div class="p-3 text-muted small">Sin sugerencias.</div>'
+        return HttpResponse(html)
+
     payload = [
         {
             "code": item.get("code"),
@@ -81,6 +125,52 @@ def cie_suggest(request):
         for item in results
     ]
     return JsonResponse({"query": q, "count": len(payload), "results": payload})
+
+
+@login_required
+def med_suggest(request):
+    """Endpoint JSON para búsqueda de medicamentos. Soporta HTMX."""
+    q = request.GET.get("q", "")
+    results = med_search(q, limit=10)
+
+    if request.headers.get('HX-Request'):
+        html = ""
+        for item in results:
+            html += f"""
+            <button type="button" class="list-group-item list-group-item-action med-item border-0 small" 
+                    data-id="{item.get('id')}" 
+                    data-nombre="{item.get('nombre')}">
+                <div class="fw-bold">{item.get('nombre')}</div>
+                <div class="text-muted small">{item.get('presentacion')} - {item.get('concentracion')}</div>
+            </button>
+            """
+        if not html:
+            html = '<div class="p-3 text-muted small">No se encontraron medicamentos.</div>'
+        return HttpResponse(html)
+
+    payload = [
+        {
+            "id": item.get("id"),
+            "nombre": item.get("nombre"),
+            "presentacion": item.get("presentacion"),
+            "concentracion": item.get("concentracion"),
+            "label": f"{item.get('nombre')} ({item.get('presentacion')} - {item.get('concentracion')})"
+        }
+        for item in results
+    ]
+    return JsonResponse({"query": q, "count": len(payload), "results": payload})
+
+
+@login_required
+def get_ai_suggestions(request, pk):
+    """Obtiene las sugerencias generadas por el worker de IA desde el cache."""
+    cache_key = f"suggestions_nota_{pk}"
+    suggestions = cache.get(cache_key)
+    
+    if suggestions:
+        return JsonResponse({"status": "ready", "suggestions": suggestions})
+    
+    return JsonResponse({"status": "processing", "suggestions": None}, status=202)
 
 
 def _parse_date_param(value: str | None):
@@ -98,7 +188,9 @@ def _make_aware(dt: datetime):
     return timezone.make_aware(dt, timezone.get_current_timezone())
 
 
-class ConsultaReportView(MedicoRequiredMixin, View):
+class ConsultaReportView(ConsultaPermissionMixin, View):
+    permission_required = "consulta.view_notamedica"
+
     def get(self, request, *args, **kwargs):
         start_param = request.GET.get("start_date")
         end_param = request.GET.get("end_date")

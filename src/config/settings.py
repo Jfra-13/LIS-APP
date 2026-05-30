@@ -37,6 +37,11 @@ ALLOWED_HOSTS = [
     for host in env("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver").split(",")
     if host.strip()
 ]
+CSRF_TRUSTED_ORIGINS = [
+    host.strip()
+    for host in env("CSRF_TRUSTED_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000").split(",")
+    if host.strip()
+]
 
 
 # Application definition
@@ -52,6 +57,9 @@ INSTALLED_APPS = [
     "triage.apps.TriageConfig",
     "medico.apps.MedicoConfig",
     "consulta.apps.ConsultaConfig",
+    "portal_paciente.apps.PortalPacienteConfig",
+    "simple_history",
+    "django_htmx",
 ]
 
 MIDDLEWARE = [
@@ -62,6 +70,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -165,7 +175,7 @@ CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", "")
 # Serialization settings to avoid Decimal/UUID issues
 CELERY_TASK_SERIALIZER = env("CELERY_TASK_SERIALIZER", "json")
 CELERY_RESULT_SERIALIZER = env("CELERY_RESULT_SERIALIZER", "json")
-CELERY_ACCEPT_CONTENT = ["json"]
+CELCELERY_ACCEPT_CONTENT = ["json"]
 
 # For local testing you can enable eager mode by setting CELERY_TASK_ALWAYS_EAGER=1 in env
 CELERY_TASK_ALWAYS_EAGER = env("CELERY_TASK_ALWAYS_EAGER", "0") == "1"

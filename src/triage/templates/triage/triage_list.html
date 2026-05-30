@@ -1,0 +1,77 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Panel de Triage | LIS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Panel de Control de Triage</h1>
+    <div class="text-muted small">Actualización automática activada (HTMX)</div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" 
+                   hx-get="{% url 'triage:triage_list' %}" 
+                   hx-trigger="every 10s" 
+                   hx-select="#triage-table-body" 
+                   hx-target="#triage-table-body">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Prioridad</th>
+                        <th>Paciente</th>
+                        <th>DNI</th>
+                        <th>Signos Vitales</th>
+                        <th>Estado</th>
+                        <th class="text-end pe-4">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="triage-table-body">
+                    {% for triaje in triajes %}
+                    <tr>
+                        <td class="ps-4">
+                            <span class="badge rounded-pill manchester-{{ triaje.nivel_prioridad }} px-3 py-2">
+                                Nivel {{ triaje.nivel_prioridad }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="fw-bold">{{ triaje.paciente.nombres }} {{ triaje.paciente.apellidos }}</div>
+                            <div class="text-muted small">Registrado: {{ triaje.created_at|date:"H:i" }}</div>
+                        </td>
+                        <td>{{ triaje.paciente.dni }}</td>
+                        <td>
+                            <small class="d-block text-muted">SpO2: <span class="fw-bold">{{ triaje.spo2 }}%</span></small>
+                            <small class="d-block text-muted">FC: <span class="fw-bold">{{ triaje.frecuencia_cardiaca }}</span></small>
+                            <small class="d-block text-muted">Temp: <span class="fw-bold">{{ triaje.temperatura }}°C</span></small>
+                        </td>
+                        <td>
+                            {% if triaje.cola_estado.estado == 'EN_ESPERA' %}
+                                <span class="text-warning"><i class="bi bi-clock me-1"></i>En espera</span>
+                            {% elif triaje.cola_estado.estado == 'EN_CONSULTORIO' %}
+                                <span class="text-primary"><i class="bi bi-person-workspace me-1"></i>En consulta</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'admision:paciente_detail' triaje.paciente.pk %}" class="btn btn-sm btn-outline-secondary">Ver Historia</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            No hay pacientes en cola de espera.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if any_critical %}
+<audio autoplay>
+    <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
+</audio>
+{% endif %}
+{% endblock %}

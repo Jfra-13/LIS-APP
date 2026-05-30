@@ -1,8 +1,8 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic import CreateView
+from django.views.generic import CreateView, ListView
 
 from admision.models import Paciente
 
@@ -11,22 +11,49 @@ from .forms import TriajeForm
 from .models import Triaje
 
 
-class EnfermeriaRequiredMixin(UserPassesTestMixin):
-    """Restringe el modulo de triaje al grupo Enfermeria."""
-
-    def test_func(self):
-        return self.request.user.groups.filter(name="Enfermeria").exists()
+class TriagePermissionMixin(PermissionRequiredMixin):
+    """
+    Verifica los permisos para el módulo de triage.
+    Redirige a 'home' con un mensaje de error si no tiene permisos.
+    """
 
     def handle_no_permission(self):
         messages.error(
-            self.request, "Solo el personal de Enfermeria puede registrar triajes."
+            self.request,
+            "No tiene los permisos necesarios para acceder a esta función de triaje.",
         )
         return redirect("home")
 
 
-class TriajeCreateView(EnfermeriaRequiredMixin, CreateView):
+class TriajeListView(TriagePermissionMixin, ListView):
+    model = Triaje
+    permission_required = "triage.view_triaje"
+    template_name = "triage/triage_list.html"
+    context_object_name = "triajes"
+
+    def get_queryset(self):
+        # Mostrar triajes recientes que aún están en espera o consulta
+        return (
+            Triaje.objects.select_related("paciente", "cola_estado")
+            .filter(cola_estado__estado__in=["EN_ESPERA", "EN_CONSULTORIO"])
+            .order_by("nivel_prioridad", "created_at")
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Verificar si hay pacientes críticos (Nivel 1 o 2) para alerta sonora
+        context["any_critical"] = (
+            self.get_queryset()
+            .filter(nivel_prioridad__in=[1, 2], cola_estado__estado="EN_ESPERA")
+            .exists()
+        )
+        return context
+
+
+class TriajeCreateView(TriagePermissionMixin, CreateView):
     model = Triaje
     form_class = TriajeForm
+    permission_required = "triage.add_triaje"
     template_name = "triage/triage_form.html"
 
     def dispatch(self, request, *args, **kwargs):

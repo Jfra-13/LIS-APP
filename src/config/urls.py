@@ -7,4 +7,6 @@ urlpatterns = [
     path("admision/", include("admision.urls")),
     path("triage/", include("triage.urls")),
     path("consulta/", include("consulta.urls")),
+    path("paciente/", include("portal_paciente.urls", namespace="portal_paciente")),
+    path("medico/", include("medico.urls")),
 ]

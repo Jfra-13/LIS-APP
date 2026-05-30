@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "nombre": "Paracetamol",
+    "presentacion": "Tabletas",
+    "concentracion": "500mg",
+    "keywords": ["fiebre", "dolor", "analgesico", "antipiretico", "acetaminofen"]
+  },
+  {
+    "id": 2,
+    "nombre": "Ibuprofeno",
+    "presentacion": "Tabletas",
+    "concentracion": "400mg",
+    "keywords": ["inflamacion", "dolor", "analgesico", "antiinflamatorio"]
+  },
+  {
+    "id": 3,
+    "nombre": "Amoxicilina",
+    "presentacion": "Capsulas",
+    "concentracion": "500mg",
+    "keywords": ["antibiotico", "infeccion", "bacterias"]
+  },
+  {
+    "id": 4,
+    "nombre": "Salbutamol",
+    "presentacion": "Inhalador",
+    "concentracion": "100mcg/dosis",
+    "keywords": ["asma", "broncodilatador", "respiracion", "sibilancias"]
+  },
+  {
+    "id": 5,
+    "nombre": "Loratadina",
+    "presentacion": "Tabletas",
+    "concentracion": "10mg",
+    "keywords": ["alergia", "antihistaminico", "picazon", "estornudos"]
+  },
+  {
+    "id": 6,
+    "nombre": "Omeprazol",
+    "presentacion": "Capsulas",
+    "concentracion": "20mg",
+    "keywords": ["gastritis", "reflujo", "acidez", "estomago"]
+  },
+  {
+    "id": 7,
+    "nombre": "Metformina",
+    "presentacion": "Tabletas",
+    "concentracion": "850mg",
+    "keywords": ["diabetes", "glucosa", "azucar"]
+  },
+  {
+    "id": 8,
+    "nombre": "Enalapril",
+    "presentacion": "Tabletas",
+    "concentracion": "10mg",
+    "keywords": ["hipertension", "presion alta", "corazon"]
+  }
+]

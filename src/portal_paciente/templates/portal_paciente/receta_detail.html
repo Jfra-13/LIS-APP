@@ -1,0 +1,84 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Detalle de Receta{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'portal_paciente:dashboard' %}" style="text-decoration: none; color: #1d4ed8;">&larr; Volver a mi historial</a>
+</div>
+
+<div class="card" style="border: 2px solid #e2e8f0;">
+    <div style="text-align: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 1rem; margin-bottom: 1.5rem;">
+        <h2 style="margin: 0; color: #0f172a;">Receta Médica Electrónica</h2>
+        <p class="muted">ID: {{ nota.receta_id }}</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; font-size: 0.95rem;">
+        <div>
+            <strong>Paciente:</strong> {{ nota.paciente.nombres }} {{ nota.paciente.apellidos }}<br>
+            <strong>DNI:</strong> {{ nota.paciente.dni }}
+        </div>
+        <div style="text-align: right;">
+            <strong>Fecha:</strong> {{ nota.created_at|date:"d/m/Y" }}<br>
+            <strong>Médico:</strong> Dr. {{ nota.medico.first_name }} {{ nota.medico.last_name }}
+        </div>
+    </div>
+
+    <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+        <h4 style="margin: 0 0 0.5rem 0;">Diagnóstico</h4>
+        <p style="margin: 0;">
+            {% if nota.cie_code %}
+                <strong>{{ nota.cie_code }}</strong> - {{ nota.cie_short_description }}
+            {% else %}
+                <span class="muted">Sin diagnóstico codificado</span>
+            {% endif %}
+        </p>
+    </div>
+
+    <h4 style="margin: 0 0 1rem 0; border-bottom: 1px solid #eee; padding-bottom: 0.3rem;">Prescripciones</h4>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
+        <thead>
+            <tr style="background: #f1f5f9; text-align: left;">
+                <th style="padding: 0.75rem; border: 1px solid #e2e8f0;">Medicamento</th>
+                <th style="padding: 0.75rem; border: 1px solid #e2e8f0;">Dosis</th>
+                <th style="padding: 0.75rem; border: 1px solid #e2e8f0;">Frecuencia</th>
+                <th style="padding: 0.75rem; border: 1px solid #e2e8f0;">Duración</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for prescripcion in nota.prescripciones.all %}
+                <tr>
+                    <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">
+                        <strong>{{ prescripcion.medicamento.nombre }}</strong><br>
+                        <small class="muted">{{ prescripcion.medicamento.presentacion }} - {{ prescripcion.medicamento.concentracion }}</small>
+                    </td>
+                    <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">{{ prescripcion.dosis }}</td>
+                    <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">{{ prescripcion.frecuencia }}</td>
+                    <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">{{ prescripcion.duracion }}</td>
+                </tr>
+                {% if prescripcion.instrucciones_adicionales %}
+                    <tr style="background: #fffbeb;">
+                        <td colspan="4" style="padding: 0.5rem 0.75rem; border: 1px solid #e2e8f0; font-size: 0.85rem;">
+                            <strong>Instrucciones:</strong> {{ prescripcion.instrucciones_adicionales }}
+                        </td>
+                    </tr>
+                {% endif %}
+            {% empty %}
+                <tr>
+                    <td colspan="4" style="padding: 1.5rem; text-align: center;" class="muted">No hay medicamentos registrados en esta receta.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="margin-top: 3rem; border-top: 1px solid #eee; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="text-align: center; width: 200px;">
+            <div style="border-bottom: 1px solid #333; height: 40px; margin-bottom: 5px;"></div>
+            <small>Firma del Médico</small>
+        </div>
+        <div style="text-align: right;">
+            <button onclick="window.print()" class="button secondary" style="padding: 0.5rem 1rem;">Imprimir Receta</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
