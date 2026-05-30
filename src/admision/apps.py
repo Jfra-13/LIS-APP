@@ -5,3 +5,6 @@ class AdmisionConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "admision"
     verbose_name = "Módulo de Admisión"
+
+    def ready(self):
+        from . import signals
