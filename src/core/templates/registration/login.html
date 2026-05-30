@@ -93,9 +93,16 @@
         <hr class="my-4">
 
         <!-- Info Footer -->
-        <div class="alert alert-info small mb-0">
+        <div class="alert alert-info small mb-3">
           <i class="bi bi-shield-exclamation me-2"></i>
           Este sistema es confidencial. Acceso restringido a personal autorizado.
+        </div>
+
+        <div class="text-center">
+            <p class="mb-0">¿Eres un paciente?</p>
+            <a href="{% url 'autenticacion_paciente:request_link' %}" class="btn btn-outline-primary w-100 mt-2">
+                <i class="bi bi-magic me-2"></i>Acceder al portal aquí
+            </a>
         </div>
       </div>
     </div>

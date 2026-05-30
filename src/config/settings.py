@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "medico.apps.MedicoConfig",
     "consulta.apps.ConsultaConfig",
     "portal_paciente.apps.PortalPacienteConfig",
+    "autenticacion_paciente.apps.AutenticacionPacienteConfig",
     "simple_history",
     "django_htmx",
 ]
@@ -179,3 +180,17 @@ CELCELERY_ACCEPT_CONTENT = ["json"]
 
 # For local testing you can enable eager mode by setting CELERY_TASK_ALWAYS_EAGER=1 in env
 CELERY_TASK_ALWAYS_EAGER = env("CELERY_TASK_ALWAYS_EAGER", "0") == "1"
+
+# Email Configuration
+# if DEBUG:
+#    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+#else:
+    # Configuración para producción (ejemplo)
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_PORT = env("EMAIL_PORT", 587)
+EMAIL_USE_TLS = env("EMAIL_USE_TLS", "1") == "1"
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "noreply@applis.com")

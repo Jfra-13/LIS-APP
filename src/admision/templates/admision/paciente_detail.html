@@ -85,6 +85,9 @@
         <a href="{% url 'triage:triage_create' paciente.id %}" class="button" style="text-decoration: none;">
             Registrar Triaje
         </a>
+        <a href="{% url 'consulta:nota_create' %}?paciente={{ paciente.id }}" class="button" style="text-decoration: none; background-color: #0d6efd;">
+            Iniciar Consulta
+        </a>
         <a href="{% url 'admision:paciente_update' paciente.id %}" class="button" style="text-decoration: none;">
             ✏️ Editar Paciente (E)
         </a>

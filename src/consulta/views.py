@@ -70,6 +70,16 @@ class NotaMedicaCreateView(ConsultaPermissionMixin, CreateView):
     template_name = "consulta/form.html"
     success_url = reverse_lazy("consulta:nota_list")
 
+    def get_initial(self):
+        initial = super().get_initial()
+        paciente_id = self.request.GET.get("paciente")
+        triaje_id = self.request.GET.get("triaje")
+        if paciente_id:
+            initial["paciente"] = paciente_id
+        if triaje_id:
+            initial["triaje"] = triaje_id
+        return initial
+
     def form_valid(self, form):
         form.instance.medico = self.request.user
         response = super().form_valid(form)
