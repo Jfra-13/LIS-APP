@@ -1,12 +1,194 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Home | MVP0 base{% endblock %}
+{% block title %}Dashboard | LIS - Sistema de Información Clínica{% endblock %}
 
 {% block content %}
-  <section class="card">
-    <h1>Home protegida</h1>
-    <p>Bienvenido, {{ user.username }}.</p>
-    <p class="muted">Este es el punto de entrada autenticado del MVP0 antes de reintroducir módulos clínicos.</p>
-  </section>
+<div x-data="dashboard()" class="pt-4">
+  <!-- Bienvenida -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h1 class="mb-2">
+        <i class="bi bi-speedometer2 me-2"></i>
+        Bienvenido, <span class="text-primary">{{ user.first_name|default:user.username }}</span>
+      </h1>
+      <p class="text-muted">
+        <i class="bi bi-calendar-event me-1"></i>
+        <span x-text="currentDate()"></span>
+      </p>
+    </div>
+    <div class="col-md-4 text-end">
+      <div class="badge bg-success">
+        <i class="bi bi-check-circle me-1"></i>
+        Sistema activo
+      </div>
+    </div>
+  </div>
+
+  <!-- Opciones por Rol -->
+  <div class="row g-3">
+    <!-- ADMIN -->
+    {% if user.is_staff %}
+    <div class="col-md-6 col-lg-3">
+      <div class="card h-100 border-0 shadow-sm hover-lift" style="cursor: pointer;" @click="navigate('/admin/')">
+        <div class="card-body text-center">
+          <div class="display-5 text-danger mb-3">
+            <i class="bi bi-gear-fill"></i>
+          </div>
+          <h5 class="card-title">Administración</h5>
+          <p class="card-text small text-muted">Gestión de usuarios, grupos y sistema</p>
+        </div>
+        <div class="card-footer bg-transparent border-0 text-center pb-3">
+          <small class="text-primary fw-bold">
+            Ir a Admin <i class="bi bi-arrow-right ms-1"></i>
+          </small>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- TÉCNICOS ADMINISTRATIVOS -->
+    {% if user.groups.all|dictsort:"name"|length > 0 %}
+      {% if "Tecnicos_Administrativos" in user.groups.values_list %}
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm hover-lift" style="cursor: pointer;" @click="navigate('/admision/pacientes/')">
+          <div class="card-body text-center">
+            <div class="display-5 text-info mb-3">
+              <i class="bi bi-person-check-fill"></i>
+            </div>
+            <h5 class="card-title">Admisión</h5>
+            <p class="card-text small text-muted">Registro de pacientes</p>
+          </div>
+          <div class="card-footer bg-transparent border-0 text-center pb-3">
+            <small class="text-primary fw-bold">
+              Gestionar <i class="bi bi-arrow-right ms-1"></i>
+            </small>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- ENFERMERÍA -->
+      {% if "Enfermeria" in user.groups.values_list %}
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm hover-lift" style="cursor: pointer;" @click="navigate('/triage/')">
+          <div class="card-body text-center">
+            <div class="display-5 text-warning mb-3">
+              <i class="bi bi-heartbeat"></i>
+            </div>
+            <h5 class="card-title">Triaje</h5>
+            <p class="card-text small text-muted">Signos vitales y prioridad</p>
+          </div>
+          <div class="card-footer bg-transparent border-0 text-center pb-3">
+            <small class="text-primary fw-bold">
+              Registrar <i class="bi bi-arrow-right ms-1"></i>
+            </small>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- MÉDICOS -->
+      {% if "medico" in user.groups.values_list or user.is_staff %}
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm hover-lift" style="cursor: pointer;" @click="navigate('/consulta/')">
+          <div class="card-body text-center">
+            <div class="display-5 text-success mb-3">
+              <i class="bi bi-file-medical"></i>
+            </div>
+            <h5 class="card-title">Consultas Médicas</h5>
+            <p class="card-text small text-muted">Notas médicas y recetas</p>
+          </div>
+          <div class="card-footer bg-transparent border-0 text-center pb-3">
+            <small class="text-primary fw-bold">
+              Atender <i class="bi bi-arrow-right ms-1"></i>
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm hover-lift" style="cursor: pointer;" @click="navigate('/medico/cola/')">
+          <div class="card-body text-center">
+            <div class="display-5 text-secondary mb-3">
+              <i class="bi bi-list-ul"></i>
+            </div>
+            <h5 class="card-title">Cola de Atención</h5>
+            <p class="card-text small text-muted">Pacientes en espera</p>
+          </div>
+          <div class="card-footer bg-transparent border-0 text-center pb-3">
+            <small class="text-primary fw-bold">
+              Ver Cola <i class="bi bi-arrow-right ms-1"></i>
+            </small>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    {% endif %}
+
+    <!-- PACIENTES (Portal de Paciente) -->
+    {% if "Paciente" in user.groups.values_list %}
+    <div class="col-md-6 col-lg-3">
+      <div class="card h-100 border-0 shadow-sm hover-lift" style="cursor: pointer;" @click="navigate('/paciente/dashboard/')">
+        <div class="card-body text-center">
+          <div class="display-5 text-primary mb-3">
+            <i class="bi bi-file-earmark-text-fill"></i>
+          </div>
+          <h5 class="card-title">Mis Recetas</h5>
+          <p class="card-text small text-muted">Ver prescripciones</p>
+        </div>
+        <div class="card-footer bg-transparent border-0 text-center pb-3">
+          <small class="text-primary fw-bold">
+            Ver Recetas <i class="bi bi-arrow-right ms-1"></i>
+          </small>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Info boxes -->
+  <div class="row g-3 mt-4">
+    <div class="col-md-8">
+      <div class="alert alert-info border-0">
+        <i class="bi bi-info-circle me-2"></i>
+        <strong>Información del Sistema:</strong> LIS (Sistema de Información Clínica y Laboratorio) v1.0
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="alert alert-success border-0 mb-0">
+        <i class="bi bi-shield-check me-2"></i>
+        <strong>Sesión segura</strong> - {{ user.username }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .hover-lift {
+    transition: all 0.3s ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+  }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function dashboard() {
+    return {
+      currentDate() {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const today = new Date();
+        return today.toLocaleDateString('es-ES', options);
+      },
+      navigate(url) {
+        window.location.href = url;
+      }
+    };
+  }
+</script>
 {% endblock %}
 

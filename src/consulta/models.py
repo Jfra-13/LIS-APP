@@ -1,4 +1,6 @@
+import uuid
 from django.core.exceptions import ValidationError
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 
 from django.conf import settings
@@ -6,6 +8,20 @@ from django.conf import settings
 from core.models import AbstractBaseModel
 
 from admision.models import Paciente
+
+
+class Medicamento(AbstractBaseModel):
+    """Catálogo de medicamentos (puede ser persistido o usado como referencia)."""
+    nombre = models.CharField(max_length=255, verbose_name="Nombre")
+    presentacion = models.CharField(max_length=100, verbose_name="Presentación")
+    concentracion = models.CharField(max_length=50, verbose_name="Concentración")
+
+    class Meta:
+        verbose_name = "Medicamento"
+        verbose_name_plural = "Medicamentos"
+
+    def __str__(self):
+        return f"{self.nombre} ({self.presentacion} - {self.concentracion})"
 
 
 class NotaMedica(AbstractBaseModel):
@@ -41,6 +57,14 @@ class NotaMedica(AbstractBaseModel):
     contenido = models.TextField(verbose_name="Contenido clínico")
     is_privada = models.BooleanField(default=False, verbose_name="Privada")
 
+    # Identificador único de receta para el portal del paciente
+    receta_id = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        unique=True,
+        verbose_name="ID de Receta"
+    )
+
     # Campos para persistencia de selección CIE-10
     cie_code = models.CharField(
         max_length=8,
@@ -67,7 +91,9 @@ class NotaMedica(AbstractBaseModel):
         verbose_name = "Nota médica"
         verbose_name_plural = "Notas médicas"
         ordering = ["-created_at"]
-        indexes = [models.Index(fields=["paciente", "-created_at"])]
+        indexes = [
+            models.Index(fields=["paciente", "-created_at"]),
+        ]
 
     def __str__(self):
         return f"NotaMedica {self.paciente.dni} - {self.created_at.isoformat()}"
@@ -102,7 +128,42 @@ class NotaMedica(AbstractBaseModel):
                 )
 
     def save(self, *args, **kwargs):
+        # Asegurar que se genere un receta_id si por alguna razón es nulo
+        if not self.receta_id:
+            self.receta_id = uuid.uuid4()
+            
         # Validar antes de persistir
         self.full_clean()
         super().save(*args, **kwargs)
+
+
+class Prescripcion(AbstractBaseModel):
+    """Vínculo entre una NotaMedica y los medicamentos recetados."""
+
+    nota_medica = models.ForeignKey(
+        NotaMedica,
+        on_delete=models.CASCADE,
+        related_name="prescripciones",
+        verbose_name="Nota médica"
+    )
+    medicamento = models.ForeignKey(
+        Medicamento,
+        on_delete=models.PROTECT,
+        verbose_name="Medicamento"
+    )
+    dosis = models.CharField(max_length=100, verbose_name="Dosis")
+    frecuencia = models.CharField(max_length=100, verbose_name="Frecuencia")
+    duracion = models.CharField(max_length=100, verbose_name="Duración")
+    instrucciones_adicionales = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Instrucciones adicionales"
+    )
+
+    class Meta:
+        verbose_name = "Prescripción"
+        verbose_name_plural = "Prescripciones"
+
+    def __str__(self):
+        return f"{self.medicamento.nombre} - {self.dosis}"
 

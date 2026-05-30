@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import NotaMedica
+from .models import NotaMedica, Prescripcion
 
 
 class BooleanHiddenInput(forms.HiddenInput):
@@ -47,4 +47,19 @@ class NotaMedicaForm(forms.ModelForm):
             raise forms.ValidationError("Debe seleccionar un código CIE-10 si acepta la sugerencia.")
 
         return cleaned
+
+
+class PrescripcionForm(forms.ModelForm):
+    class Meta:
+        model = Prescripcion
+        fields = ["medicamento", "dosis", "frecuencia", "duracion", "instrucciones_adicionales"]
+
+
+PrescripcionFormSet = forms.inlineformset_factory(
+    NotaMedica,
+    Prescripcion,
+    form=PrescripcionForm,
+    extra=1,
+    can_delete=True
+)
 

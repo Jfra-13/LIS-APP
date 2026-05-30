@@ -1,176 +1,157 @@
 {% extends "core/base.html" %}
 
-{% block title %}Nueva nota médica{% endblock %}
+{% block title %}Nueva Consulta Médica | LIS{% endblock %}
 
 {% block content %}
-<div class="card">
-  <h1>Nueva nota médica</h1>
-  <p class="muted">Registra la ficha clínica narrativa del paciente.</p>
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white border-bottom py-3">
+        <h1 class="h4 mb-0 fw-bold text-primary">Nueva Consulta Médica</h1>
+        <p class="text-muted small mb-0">Complete el registro clínico del paciente y utilice las sugerencias inteligentes de la IA.</p>
+      </div>
+      <div class="card-body p-4">
+        <form method="post" id="nota-form">
+          {% csrf_token %}
 
-  <form method="post" id="nota-form" data-cie-suggest-url="{% url 'consulta:cie_suggest' %}">
-    {% csrf_token %}
+          <div class="row g-4">
+            <!-- Columna Izquierda: Datos Principales -->
+            <div class="col-md-7">
+              <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-file-earmark-medical me-2"></i>Historia Clínica</h5>
+              
+              {% for field in form %}
+                {% if field.name not in 'cie_code,cie_short_description,cie_accepted,paciente,triaje' %}
+                  <div class="mb-3">
+                    <label class="form-label fw-bold small text-uppercase">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                      <div class="form-text small text-muted">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% for error in field.errors %}
+                      <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              {% endfor %}
 
-    <!-- Campos visibles del formulario -->
-    <div class="form-section">
-      <h3>Datos de la nota</h3>
-      {% for field in form %}
-        {% if field.name != 'cie_code' and field.name != 'cie_short_description' and field.name != 'cie_accepted' %}
-          <div class="form-group">
-            {{ field.label_tag }}
-            {% if field.field.widget.input_type == 'textarea' %}
-              {{ field }}
-            {% elif field.field.widget.input_type == 'checkbox' %}
-              <label>
-                {{ field }}
-                {% if field.label %}{{ field.label }}{% endif %}
-              </label>
-            {% else %}
-              {{ field }}
-            {% endif %}
-            {% if field.errors %}
-              <div class="errors">{{ field.errors }}</div>
-            {% endif %}
+              <!-- Campos ocultos pero necesarios -->
+              {{ form.paciente }}
+              {{ form.triaje }}
+
+              <div class="mt-4 pt-3 border-top">
+                <button type="submit" class="btn btn-primary px-5 shadow">
+                  <i class="bi bi-save me-2"></i>Guardar Consulta
+                </button>
+                <a href="{% url 'medico:cola_atencion' %}" class="btn btn-link text-muted ms-3">Cancelar</a>
+              </div>
+            </div>
+
+            <!-- Columna Derecha: IA y Diagnóstico -->
+            <div class="col-md-5">
+              <div class="bg-light p-3 rounded-3 mb-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-robot text-primary me-2"></i>Asistente de IA (NLP)</h6>
+                <p class="text-muted small">La IA analiza el texto en tiempo real para sugerir diagnósticos.</p>
+                
+                <div id="ai-suggestions-container">
+                  <div class="text-center py-3 text-muted" 
+                       hx-get="{% url 'consulta:cie_suggest' %}" 
+                       hx-trigger="keyup from:#id_contenido delay:1s, keyup from:#id_motivo_consulta delay:1s"
+                       hx-vals='js:{q: document.getElementById("id_contenido").value + " " + document.getElementById("id_motivo_consulta").value}'
+                       hx-target="#ai-results">
+                    <span class="small text-muted">La IA se activará al escribir...</span>
+                  </div>
+                  <div id="ai-results"></div>
+                </div>
+
+                <hr>
+
+                <h6 class="fw-bold mb-3">Búsqueda Manual CIE-10</h6>
+                <div class="input-group input-group-sm mb-3 shadow-sm">
+                  <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                  <input type="text" class="form-control border-start-0" 
+                         placeholder="Buscar por síntoma..."
+                         hx-get="{% url 'consulta:cie_suggest' %}"
+                         hx-trigger="keyup changed delay:500ms"
+                         hx-target="#manual-cie-results"
+                         name="q">
+                </div>
+                <div id="manual-cie-results" class="list-group list-group-flush shadow-sm rounded-3 overflow-hidden"></div>
+              </div>
+
+              <!-- Selección Actual -->
+              <div id="cie-selection-display" class="card bg-success bg-opacity-10 border-success border-opacity-25" style="display: none;">
+                <div class="card-body p-3">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-success">Diagnóstico Seleccionado</span>
+                    <button type="button" class="btn-close small" id="clear-cie"></button>
+                  </div>
+                  <div class="fw-bold" id="selected-cie-text"></div>
+                </div>
+              </div>
+
+              <!-- Prescripciones -->
+              <div class="mt-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-capsule-pill text-danger me-2"></i>Receta Médica</h6>
+                <div class="small text-muted mb-3">Agregue medicamentos a la receta.</div>
+                
+                <div class="input-group input-group-sm mb-3">
+                  <input type="text" class="form-control" placeholder="Buscar medicamento..."
+                         hx-get="{% url 'consulta:med_suggest' %}"
+                         hx-trigger="keyup changed delay:500ms"
+                         hx-target="#med-results"
+                         name="q">
+                </div>
+                <div id="med-results" class="list-group list-group-flush mb-3"></div>
+              </div>
+            </div>
           </div>
-        {% endif %}
-      {% endfor %}
-    </div>
 
-    <!-- Sección de Sugerencias CIE-10 -->
-    <div class="cie-section" style="margin-bottom: 1.5rem; padding: 1rem; background-color: #f9f9f9; border-radius: 4px;">
-      <h3>Sugerencias CIE-10 (opcional)</h3>
-      <p class="muted">
-        Esta sección consulta en tiempo real <code>/consulta/api/cie-suggest/</code> para buscar códigos CIE-10 locales.
-      </p>
-      <label for="cie-query"><strong>Busca síntomas o diagnóstico presuntivo</strong></label>
-      <input
-        id="cie-query"
-        type="text"
-        placeholder="Escribe síntomas o diagnóstico presuntivo"
-        style="width: 100%; padding: 0.5rem; margin-bottom: 0.5rem;"
-      >
-      <ul id="cie-results" class="muted" style="padding-left: 1.25rem; list-style: none;"></ul>
-
-      <!-- Campos ocultos para CIE-10 -->
-      <div id="cie-selected" style="margin-top: 1rem; padding: 0.75rem; background-color: #e8f5e9; border-radius: 4px; display: none;">
-        <strong>Seleccionado:</strong> <span id="cie-selected-text"></span>
-        <button type="button" id="cie-clear-btn" style="margin-left: 1rem; padding: 0.25rem 0.5rem;">Descartar</button>
+          <!-- Campos ocultos de Django Form -->
+          {{ form.cie_code }}
+          {{ form.cie_short_description }}
+          {{ form.cie_accepted }}
+        </form>
       </div>
     </div>
-
-    <!-- Campos ocultos para enviar datos CIE -->
-    {{ form.cie_code }}
-    {{ form.cie_short_description }}
-    {{ form.cie_accepted }}
-
-    <!-- Botones de envío -->
-    <div style="margin-top: 1.5rem;">
-      <button type="submit" class="button">Guardar nota</button>
-      <a href="{% url 'consulta:nota_list' %}" class="button secondary">Cancelar</a>
-    </div>
-  </form>
+  </div>
 </div>
 
+<style>
+  #id_motivo_consulta, #id_contenido {
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    width: 100%;
+  }
+  #id_contenido { min-height: 150px; }
+  .list-group-item-action { cursor: pointer; transition: all 0.2s; }
+  .list-group-item-action:hover { background-color: #f8f9fa; border-left: 4px solid #0d6efd; }
+  .pulsate { animation: pulse-ai 2s infinite; }
+  @keyframes pulse-ai { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+</style>
+
 <script>
-(function () {
-  const input = document.getElementById('cie-query');
-  const results = document.getElementById('cie-results');
-  const selectedDiv = document.getElementById('cie-selected');
-  const selectedText = document.getElementById('cie-selected-text');
-  const clearBtn = document.getElementById('cie-clear-btn');
-  const suggestUrl = document.getElementById('nota-form').dataset.cieSuggestUrl;
-  const cieCodeField = document.getElementById('id_cie_code');
-  const cieDescField = document.getElementById('id_cie_short_description');
-  const cieAcceptedField = document.getElementById('id_cie_accepted');
-  let timer = null;
-
-  function clearSelection() {
-    cieCodeField.value = '';
-    cieDescField.value = '';
-    cieAcceptedField.value = 'false';
-    selectedDiv.style.display = 'none';
-    selectedText.textContent = '';
-  }
-
-  function render(items) {
-    results.innerHTML = '';
-    if (!items.length) {
-      const li = document.createElement('li');
-      li.textContent = 'Sin sugerencias todavía.';
-      results.appendChild(li);
-      return;
+  document.body.addEventListener('click', function(evt) {
+    const target = evt.target.closest('.cie-item');
+    if (target) {
+        const code = target.dataset.code;
+        const desc = target.dataset.description;
+        
+        document.getElementById('id_cie_code').value = code;
+        document.getElementById('id_cie_short_description').value = desc;
+        document.getElementById('id_cie_accepted').value = 'true';
+        
+        document.getElementById('selected-cie-text').textContent = `[${code}] ${desc}`;
+        document.getElementById('cie-selection-display').style.display = 'block';
     }
-
-    items.forEach((item) => {
-      const li = document.createElement('li');
-      li.style.cursor = 'pointer';
-      li.style.padding = '0.5rem';
-      li.style.marginBottom = '0.25rem';
-      li.style.backgroundColor = '#f5f5f5';
-      li.style.borderRadius = '4px';
-      li.style.transition = 'background-color 0.2s';
-      li.innerHTML = `<strong>${item.code}</strong> — ${item.short_description} <span class="muted">(${item.group})</span>`;
-
-      li.addEventListener('mouseover', () => {
-        li.style.backgroundColor = '#e3f2fd';
-      });
-      li.addEventListener('mouseout', () => {
-        li.style.backgroundColor = '#f5f5f5';
-      });
-
-      li.addEventListener('click', () => {
-        // Llenar campos ocultos
-        cieCodeField.value = item.code;
-        cieDescField.value = item.short_description;
-        cieAcceptedField.value = 'true';
-
-        // Mostrar confirmación
-        selectedText.textContent = `${item.code} — ${item.short_description}`;
-        selectedDiv.style.display = 'block';
-
-        // Limpiar input y resultados
-        input.value = '';
-        results.innerHTML = '';
-      });
-
-      results.appendChild(li);
-    });
-  }
-
-  async function fetchSuggestions(q) {
-    if (!q.trim()) {
-      results.innerHTML = '';
-      return;
-    }
-    try {
-      const response = await fetch(`${suggestUrl}?q=${encodeURIComponent(q)}`, {
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-      });
-      const payload = await response.json();
-      render(payload.results || []);
-    } catch (error) {
-      console.error('Error fetching CIE suggestions:', error);
-      const li = document.createElement('li');
-      li.textContent = 'Error al buscar sugerencias.';
-      results.appendChild(li);
-    }
-  }
-
-  input.addEventListener('input', () => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fetchSuggestions(input.value), 250);
   });
 
-  clearBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    clearSelection();
-  });
-
-  // Si carga la página con datos CIE ya seleccionados, mostrar el estado
-  if (cieCodeField.value) {
-    selectedText.textContent = `${cieCodeField.value} — ${cieDescField.value}`;
-    selectedDiv.style.display = 'block';
-  }
-})();
+  document.getElementById('clear-cie').onclick = function() {
+    document.getElementById('id_cie_code').value = '';
+    document.getElementById('id_cie_short_description').value = '';
+    document.getElementById('id_id_cie_accepted').value = 'false';
+    document.getElementById('cie-selection-display').style.display = 'none';
+  };
 </script>
 {% endblock %}
 

@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from simple_history.models import HistoricalRecords
 
 from admision.models import Paciente
 from core.models import AbstractBaseModel
@@ -61,6 +62,7 @@ class Triaje(AbstractBaseModel):
         editable=False,
         verbose_name="Registrado por",
     )
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Triaje"
