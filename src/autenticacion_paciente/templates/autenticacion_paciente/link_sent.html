@@ -1,0 +1,38 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Enlace Enviado | Portal del Paciente{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-6">
+        <div class="card shadow-lg text-center">
+            <div class="card-body p-5">
+                <div class="mb-4">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                </div>
+                
+                <h2 class="card-title fw-bold mb-3">¡Revisa tu correo!</h2>
+                
+                <p class="card-text text-muted mb-4 lead">
+                    Te hemos enviado un enlace de acceso a tu correo electrónico. 
+                    Por favor, revisa tu bandeja de entrada y haz clic en el botón para entrar al portal.
+                </p>
+
+                <div class="alert alert-info d-inline-block text-start mb-4">
+                    <ul class="mb-0">
+                        <li>El enlace es de <strong>un solo uso</strong>.</li>
+                        <li>Expira en un tiempo limitado por seguridad.</li>
+                        <li>Si no lo encuentras, revisa tu carpeta de <strong>Correo no deseado (Spam)</strong>.</li>
+                    </ul>
+                </div>
+
+                <div class="mt-4">
+                    <a href="{% url 'autenticacion_paciente:request_link' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-clockwise me-2"></i>No recibí nada, intentar de nuevo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

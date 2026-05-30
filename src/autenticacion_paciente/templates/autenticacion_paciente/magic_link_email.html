@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { width: 80%; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; }
+        .header { text-align: center; border-bottom: 2px solid #0d6efd; padding-bottom: 10px; }
+        .content { padding: 20px 0; }
+        .button-container { text-align: center; margin: 30px 0; }
+        .button { background-color: #0d6efd; color: white !important; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .footer { font-size: 0.8em; color: #777; text-align: center; border-top: 1px solid #eee; padding-top: 10px; }
+        .warning { color: #856404; background-color: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 5px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="color: #0d6efd;">Portal del Paciente - LIS</h1>
+        </div>
+        <div class="content">
+            <p>Hola, <strong>{{ nombre }}</strong>.</p>
+            <p>Has solicitado un enlace de acceso para entrar al Portal del Paciente del Sistema LIS.</p>
+            <p>Para iniciar sesión, haz clic en el siguiente botón:</p>
+            
+            <div class="button-container">
+                <a href="{{ link }}" class="button">Entrar al Portal</a>
+            </div>
+            
+            <p>O copia y pega esta URL en tu navegador:</p>
+            <p style="word-break: break-all; color: #0d6efd;">{{ link }}</p>
+
+            <div class="warning">
+                <strong>Importante:</strong> Este enlace es de un solo uso y expirará pronto por razones de seguridad.
+            </div>
+        </div>
+        <div class="footer">
+            <p>Si no has solicitado este acceso, puedes ignorar este correo de forma segura.</p>
+            <p>&copy; 2024 LIS - Sistema de Información de Laboratorio</p>
+        </div>
+    </div>
+</body>
+</html>

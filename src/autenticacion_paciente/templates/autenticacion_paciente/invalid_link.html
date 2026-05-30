@@ -1,0 +1,35 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Enlace Inválido | Portal del Paciente{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-6">
+        <div class="card shadow-lg text-center border-danger">
+            <div class="card-body p-5">
+                <div class="mb-4 text-danger">
+                    <i class="bi bi-exclamation-octagon-fill" style="font-size: 4rem;"></i>
+                </div>
+                
+                <h2 class="card-title fw-bold mb-3 text-danger">Enlace inválido o expirado</h2>
+                
+                <p class="card-text text-muted mb-4 lead">
+                    Lo sentimos, el enlace de acceso que has utilizado ya no es válido, ha expirado o ya fue utilizado.
+                </p>
+
+                <div class="mt-4">
+                    <a href="{% url 'autenticacion_paciente:request_link' %}" class="btn btn-primary btn-lg px-4">
+                        <i class="bi bi-magic me-2"></i>Solicitar un nuevo enlace
+                    </a>
+                </div>
+                
+                <div class="mt-3">
+                    <a href="{% url 'login' %}" class="text-decoration-none small text-muted">
+                        Volver al inicio
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
