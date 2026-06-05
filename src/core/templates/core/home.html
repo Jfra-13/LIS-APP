@@ -27,7 +27,7 @@
   <!-- Opciones por Rol -->
   <div class="row g-3">
     <!-- ADMIN -->
-    {% if user.is_staff %}
+    {% if user.is_superuser %}
     <div class="col-md-6 col-lg-3">
       <div class="card h-100 border-0 shadow-sm hover-lift" style="cursor: pointer;" @click="navigate('/admin/')">
         <div class="card-body text-center">

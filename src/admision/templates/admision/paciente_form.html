@@ -22,6 +22,27 @@
         <fieldset>
             <legend style="font-weight: bold; margin-bottom: 1rem;">Información de Identidad</legend>
 
+            {% if form.tipo_documento.errors %}
+            <div class="form-group error">
+                <label for="{{ form.tipo_documento.id_for_label }}">
+                    {{ form.tipo_documento.label }} <span style="color: red;">*</span>
+                </label>
+                {{ form.tipo_documento }}
+                <ul class="errorlist">
+                    {% for error in form.tipo_documento.errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% else %}
+            <div class="form-group">
+                <label for="{{ form.tipo_documento.id_for_label }}">
+                    {{ form.tipo_documento.label }} <span style="color: red;">*</span>
+                </label>
+                {{ form.tipo_documento }}
+            </div>
+            {% endif %}
+
             {% if form.dni.errors %}
             <div class="form-group error">
                 <label for="{{ form.dni.id_for_label }}">
@@ -245,6 +266,51 @@
         if (event.key === 'Escape') {
             window.history.back();
         }
+    });
+
+    // Lógica dinámica para Tipo de Documento y Teléfono
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipoDocSelect = document.getElementById('{{ form.tipo_documento.id_for_label }}');
+        const dniInput = document.getElementById('{{ form.dni.id_for_label }}');
+        const telefonoInput = document.getElementById('{{ form.telefono.id_for_label }}');
+
+        function updateDniPlaceholder() {
+            const tipo = tipoDocSelect.value;
+            if (tipo === 'DNI') {
+                dniInput.placeholder = 'Ej. 12345678 (8 dígitos)';
+                dniInput.maxLength = 8;
+            } else if (tipo === 'PAS') {
+                dniInput.placeholder = 'Número de Pasaporte';
+                dniInput.maxLength = 15;
+            } else if (tipo === 'CE') {
+                dniInput.placeholder = 'Carné de Extranjería';
+                dniInput.maxLength = 12;
+            }
+        }
+
+        // Inicializar teléfono con +51 si está vacío
+        if (!telefonoInput.value) {
+            telefonoInput.value = '+51 ';
+        }
+
+        telefonoInput.addEventListener('input', function() {
+            if (!this.value.startsWith('+')) {
+                this.value = '+' + this.value.replace(/[^\d]/g, '');
+            }
+        });
+
+        tipoDocSelect.addEventListener('change', updateDniPlaceholder);
+        updateDniPlaceholder();
+
+        // Validar nombres y apellidos (evitar números al escribir)
+        const nombresInput = document.getElementById('{{ form.nombres.id_for_label }}');
+        const apellidosInput = document.getElementById('{{ form.apellidos.id_for_label }}');
+
+        [nombresInput, apellidosInput].forEach(input => {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[0-9]/g, '');
+            });
+        });
     });
 </script>
 {% endblock %}

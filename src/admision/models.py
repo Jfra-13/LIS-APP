@@ -16,27 +16,34 @@ class PacienteManager(models.Manager):
         return self.filter(estado="activo").select_related("usuario_creador")
 
     @staticmethod
-    def validar_dni(dni):
+    def validar_dni(dni, tipo_documento="DNI"):
         """
-        Valida el formato del DNI.
+        Valida el formato del documento de identidad según su tipo.
         Retorna (válido: bool, mensaje: str)
         """
         if not dni:
-            return False, "El DNI es requerido."
+            return False, "El número de documento es requerido."
 
         dni = dni.strip()
 
-        if len(dni) < 8 or len(dni) > 20:
-            return False, "El DNI debe tener entre 8 y 20 caracteres."
+        if tipo_documento == "DNI":
+            if not dni.isdigit() or len(dni) != 8:
+                return False, "El DNI debe tener exactamente 8 dígitos numéricos."
+        elif tipo_documento == "PAS":
+            if len(dni) < 6 or len(dni) > 15:
+                return False, "El Pasaporte debe tener entre 6 y 15 caracteres."
+        elif tipo_documento == "CE":
+            if len(dni) < 8 or len(dni) > 12:
+                return False, "El Carné de Extranjería debe tener entre 8 y 12 caracteres."
 
-        # Permitir números y letras
+        # Validación general de caracteres alfanuméricos para otros tipos
         if not dni.replace("-", "").replace(".", "").isalnum():
             return (
                 False,
-                "El DNI contiene caracteres inválidos. Use solo letras, números, guiones y puntos.",
+                "El documento contiene caracteres inválidos. Use solo letras y números.",
             )
 
-        return True, "DNI válido."
+        return True, "Documento válido."
 
     @staticmethod
     def normalizar_dni(dni):
@@ -69,6 +76,12 @@ class PacienteManager(models.Manager):
 class Paciente(AbstractBaseModel):
     """Modelo de Paciente para el módulo de Admisión."""
 
+    TIPO_DOCUMENTO_CHOICES = [
+        ("DNI", "DNI"),
+        ("PAS", "Pasaporte"),
+        ("CE", "Carné de Extranjería"),
+    ]
+
     SEXO_CHOICES = [
         ("M", "Masculino"),
         ("F", "Femenino"),
@@ -81,12 +94,18 @@ class Paciente(AbstractBaseModel):
     ]
 
     # Información de identidad
+    tipo_documento = models.CharField(
+        max_length=3,
+        choices=TIPO_DOCUMENTO_CHOICES,
+        default="DNI",
+        verbose_name="Tipo de Documento",
+    )
     dni = models.CharField(
         max_length=20,
         unique=True,
         db_index=True,
-        verbose_name="DNI/Documento de Identidad",
-        help_text="Documento nacional de identidad del paciente",
+        verbose_name="Número de Documento",
+        help_text="DNI, Pasaporte o Carné de Extranjería",
     )
     nombres = models.CharField(max_length=150, verbose_name="Nombres")
     apellidos = models.CharField(max_length=150, verbose_name="Apellidos")
@@ -148,8 +167,8 @@ class Paciente(AbstractBaseModel):
         """Validar datos del paciente."""
         super().clean()
 
-        # Validar DNI
-        es_valido, mensaje = PacienteManager.validar_dni(self.dni)
+        # Validar DNI/Documento
+        es_valido, mensaje = PacienteManager.validar_dni(self.dni, self.tipo_documento)
         if not es_valido:
             raise ValidationError({"dni": mensaje})
 
