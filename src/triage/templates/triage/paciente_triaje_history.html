@@ -1,0 +1,91 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Historial de Triajes - {{ paciente.nombres }} {{ paciente.apellidos }} | LIS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'triage:triage_list' %}">Panel de Triage</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Historial de Triajes</li>
+        </ol>
+    </nav>
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="h3 mb-0 text-gray-800">Historial de Triajes</h1>
+        <a href="{% url 'triage:triage_create' paciente.pk %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Nuevo Triaje
+        </a>
+    </div>
+    <p class="text-muted">Paciente: <strong>{{ paciente.nombres }} {{ paciente.apellidos }}</strong> (DNI: {{ paciente.dni }})</p>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Fecha y Hora</th>
+                        <th>Prioridad</th>
+                        <th>Signos Vitales</th>
+                        <th>Estado</th>
+                        <th>Registrado por</th>
+                        <th class="pe-4">Observaciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for triaje in triajes %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="fw-bold">{{ triaje.created_at|date:"d/m/Y" }}</div>
+                            <div class="text-muted small">{{ triaje.created_at|date:"H:i" }}</div>
+                        </td>
+                        <td>
+                            <span class="badge rounded-pill manchester-{{ triaje.nivel_prioridad }} px-3 py-2">
+                                Nivel {{ triaje.nivel_prioridad }}
+                            </span>
+                        </td>
+                        <td>
+                            <small class="d-block text-muted">SpO2: <span class="fw-bold">{{ triaje.spo2 }}%</span></small>
+                            <small class="d-block text-muted">FC: <span class="fw-bold">{{ triaje.frecuencia_cardiaca }}</span></small>
+                            <small class="d-block text-muted">Temp: <span class="fw-bold">{{ triaje.temperatura }}°C</span></small>
+                        </td>
+                        <td>
+                            {% if triaje.cola_estado.estado == 'EN_ESPERA' %}
+                                <span class="badge bg-warning text-dark">En espera</span>
+                            {% elif triaje.cola_estado.estado == 'EN_CONSULTORIO' %}
+                                <span class="badge bg-primary">En consulta</span>
+                            {% elif triaje.cola_estado.estado == 'FINALIZADO' %}
+                                <span class="badge bg-success">Finalizado</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ triaje.cola_estado.get_estado_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="small">{{ triaje.usuario_enfermeria.get_full_name|default:triaje.usuario_enfermeria.username }}</div>
+                        </td>
+                        <td class="pe-4">
+                            <small class="text-wrap" style="max-width: 250px; display: block;">
+                                {{ triaje.observaciones|default:"---" }}
+                            </small>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            No se encontraron registros de triaje para este paciente.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="mb-4">
+    <a href="{% url 'triage:triage_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Volver al Panel
+    </a>
+</div>
+{% endblock %}
