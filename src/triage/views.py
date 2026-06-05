@@ -32,11 +32,23 @@ class TriajeListView(TriagePermissionMixin, ListView):
     context_object_name = "triajes"
 
     def get_queryset(self):
-        # Mostrar triajes recientes que aún están en espera o consulta
+        # Obtener el triaje más reciente para cada paciente que esté en espera o consulta
+        # Usamos una subconsulta para filtrar solo el último triaje por paciente
+        from django.db.models import OuterRef, Subquery
+
+        ultimos_triajes_ids = (
+            Triaje.objects.filter(
+                paciente=OuterRef("paciente"),
+                cola_estado__estado__in=["EN_ESPERA", "EN_CONSULTORIO"],
+            )
+            .order_by("-created_at")
+            .values("id")[:1]
+        )
+
         return (
             Triaje.objects.select_related("paciente", "cola_estado")
-            .filter(cola_estado__estado__in=["EN_ESPERA", "EN_CONSULTORIO"])
-            .order_by("nivel_prioridad", "created_at")
+            .filter(id__in=Subquery(ultimos_triajes_ids))
+            .order_by("nivel_prioridad", "-created_at")
         )
 
     def get_context_data(self, **kwargs):
@@ -47,6 +59,24 @@ class TriajeListView(TriagePermissionMixin, ListView):
             .filter(nivel_prioridad__in=[1, 2], cola_estado__estado="EN_ESPERA")
             .exists()
         )
+        return context
+
+
+class PacienteTriajeHistoryView(TriagePermissionMixin, ListView):
+    model = Triaje
+    permission_required = "triage.view_triaje"
+    template_name = "triage/paciente_triaje_history.html"
+    context_object_name = "triajes"
+
+    def get_queryset(self):
+        self.paciente = get_object_or_404(Paciente, pk=self.kwargs["paciente_pk"])
+        return Triaje.objects.filter(paciente=self.paciente).select_related(
+            "cola_estado", "usuario_enfermeria"
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["paciente"] = self.paciente
         return context
 
 

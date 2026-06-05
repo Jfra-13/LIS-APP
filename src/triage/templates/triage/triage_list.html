@@ -52,7 +52,10 @@
                             {% endif %}
                         </td>
                         <td class="text-end pe-4">
-                            <a href="{% url 'admision:paciente_detail' triaje.paciente.pk %}" class="btn btn-sm btn-outline-secondary">Ver Historia</a>
+                            <div class="btn-group">
+                                <a href="{% url 'triage:paciente_triaje_history' triaje.paciente.pk %}" class="btn btn-sm btn-outline-primary">Ver Triajes</a>
+                                <a href="{% url 'admision:paciente_detail' triaje.paciente.pk %}" class="btn btn-sm btn-outline-secondary">Historia Clínica</a>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}

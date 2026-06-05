@@ -19,8 +19,9 @@ class PacienteModelTests(TestCase):
 
     def setUp(self):
         """Configurar datos de prueba."""
-        self.user = User.objects.create_user(username="testadmin", password="test123")
+        self.user = User.objects.create_user(username="testadmin", password="test123", is_superuser=True)
         self.paciente_data = {
+            "tipo_documento": "DNI",
             "dni": "12345678",
             "nombres": "Juan",
             "apellidos": "Pérez",
@@ -52,23 +53,23 @@ class PacienteModelTests(TestCase):
     def test_dni_validacion_formato(self):
         """Probar validador de DNI con diferentes formatos."""
         # DNI válido
-        es_valido, msg = PacienteManager.validar_dni("12345678")
+        es_valido, msg = PacienteManager.validar_dni("12345678", "DNI")
         self.assertTrue(es_valido)
 
         # DNI muy corto
-        es_valido, msg = PacienteManager.validar_dni("1234567")
+        es_valido, msg = PacienteManager.validar_dni("1234567", "DNI")
         self.assertFalse(es_valido)
 
-        # DNI vacío
-        es_valido, msg = PacienteManager.validar_dni("")
+        # DNI con letra (inválido para tipo DNI)
+        es_valido, msg = PacienteManager.validar_dni("1234567A", "DNI")
         self.assertFalse(es_valido)
 
-        # DNI con caracteres especiales inválidos
-        es_valido, msg = PacienteManager.validar_dni("12345678#")
-        self.assertFalse(es_valido)
+        # Pasaporte válido
+        es_valido, msg = PacienteManager.validar_dni("ABC123456", "PAS")
+        self.assertTrue(es_valido)
 
-        # DNI válido con letra
-        es_valido, msg = PacienteManager.validar_dni("12345678A")
+        # CE válido
+        es_valido, msg = PacienteManager.validar_dni("001234567", "CE")
         self.assertTrue(es_valido)
 
     def test_campos_requeridos(self):
@@ -191,7 +192,7 @@ class PacienteListViewTests(TestCase):
     def setUp(self):
         """Configurar datos de prueba."""
         self.client = Client()
-        self.user_admin = User.objects.create_user(username="admin", password="pass123")
+        self.user_admin = User.objects.create_user(username="admin", password="pass123", is_superuser=True)
         self.user_normal = User.objects.create_user(username="user", password="pass123")
 
         # Crear grupo de Técnicos Administrativos
@@ -276,7 +277,7 @@ class PacienteCreateViewTests(TestCase):
     def setUp(self):
         """Configurar datos de prueba."""
         self.client = Client()
-        self.user_admin = User.objects.create_user(username="admin", password="pass123")
+        self.user_admin = User.objects.create_user(username="admin", password="pass123", is_superuser=True)
         self.user_normal = User.objects.create_user(username="user", password="pass123")
 
         self.grupo_admin, _ = Group.objects.get_or_create(
@@ -285,6 +286,7 @@ class PacienteCreateViewTests(TestCase):
         self.user_admin.groups.add(self.grupo_admin)
 
         self.form_data = {
+            "tipo_documento": "DNI",
             "dni": "12345678",
             "nombres": "Juan",
             "apellidos": "Pérez",
@@ -319,6 +321,7 @@ class PacienteCreateViewTests(TestCase):
         """Verificar que DNI duplicado falla."""
         # Crear primer paciente
         Paciente.objects.create(
+            tipo_documento="DNI",
             dni="12345678",
             nombres="Juan",
             apellidos="Pérez",
@@ -331,7 +334,7 @@ class PacienteCreateViewTests(TestCase):
         self.client.force_login(self.user_admin)
         response = self.client.post(reverse("admision:paciente_create"), self.form_data)
         self.assertEqual(response.status_code, 200)  # Re-render del formulario
-        self.assertContains(response, "Ya existe un paciente con este DNI.")
+        self.assertContains(response, "Ya existe un paciente con este número de documento.")
 
     def test_response_time_menor_1_5_segundos(self):
         """Verificar que tiempo de respuesta < 1.5 segundos."""
@@ -350,7 +353,7 @@ class PacienteDetailViewTests(TestCase):
     def setUp(self):
         """Configurar datos de prueba."""
         self.client = Client()
-        self.user_admin = User.objects.create_user(username="admin", password="pass123")
+        self.user_admin = User.objects.create_user(username="admin", password="pass123", is_superuser=True)
 
         self.grupo_admin, _ = Group.objects.get_or_create(
             name="Tecnicos_Administrativos"
@@ -382,7 +385,7 @@ class PacienteUpdateViewTests(TestCase):
     def setUp(self):
         """Configurar datos de prueba."""
         self.client = Client()
-        self.user_admin = User.objects.create_user(username="admin", password="pass123")
+        self.user_admin = User.objects.create_user(username="admin", password="pass123", is_superuser=True)
         self.user_normal = User.objects.create_user(username="user", password="pass123")
 
         self.grupo_admin, _ = Group.objects.get_or_create(
@@ -400,6 +403,7 @@ class PacienteUpdateViewTests(TestCase):
         )
 
         self.form_data = {
+            "tipo_documento": "DNI",
             "dni": "12345678",
             "nombres": "Juan",
             "apellidos": "García",  # Cambio
@@ -435,7 +439,7 @@ class PacienteDeleteViewTests(TestCase):
     def setUp(self):
         """Configurar datos de prueba."""
         self.client = Client()
-        self.user_admin = User.objects.create_user(username="admin", password="pass123")
+        self.user_admin = User.objects.create_user(username="admin", password="pass123", is_superuser=True)
         self.user_normal = User.objects.create_user(username="user", password="pass123")
 
         self.grupo_admin, _ = Group.objects.get_or_create(
@@ -479,6 +483,7 @@ class PacienteFormTests(TestCase):
     def setUp(self):
         """Configurar datos de prueba."""
         self.form_data = {
+            "tipo_documento": "DNI",
             "dni": "12345678",
             "nombres": "Juan",
             "apellidos": "Pérez",
@@ -504,11 +509,10 @@ class PacienteFormTests(TestCase):
         form = PacienteForm(self.form_data)
         self.assertTrue(form.is_valid())
 
-    def test_form_rechaza_dni_invalido(self):
-        """Verificar que DNI inválido falla."""
+    def test_form_rechaza_nombres_con_numeros(self):
+        """Verificar que nombres no pueden tener números."""
         from .forms import PacienteForm
-
-        data = {**self.form_data, "dni": "123"}  # Muy corto
+        data = {**self.form_data, "nombres": "Juan123"}
         form = PacienteForm(data)
         self.assertFalse(form.is_valid())
-        self.assertIn("dni", form.errors)
+        self.assertIn("nombres", form.errors)

@@ -24,10 +24,11 @@ class AdmisionPermissionMixin(PermissionRequiredMixin):
 
     def handle_no_permission(self):
         """Redirigir si el usuario no tiene permisos."""
-        messages.error(
-            self.request,
-            "No tiene los permisos necesarios para acceder a esta función de admisión.",
-        )
+        if self.request.user.is_authenticated:
+            messages.error(
+                self.request,
+                "No tiene los permisos necesarios para acceder a esta función de admisión.",
+            )
         return redirect("home")
 
 
