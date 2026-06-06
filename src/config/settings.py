@@ -176,17 +176,17 @@ CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", "")
 # Serialization settings to avoid Decimal/UUID issues
 CELERY_TASK_SERIALIZER = env("CELERY_TASK_SERIALIZER", "json")
 CELERY_RESULT_SERIALIZER = env("CELERY_RESULT_SERIALIZER", "json")
-CELCELERY_ACCEPT_CONTENT = ["json"]
+CELERY_ACCEPT_CONTENT = ["json"]
 
 # For local testing you can enable eager mode by setting CELERY_TASK_ALWAYS_EAGER=1 in env
 CELERY_TASK_ALWAYS_EAGER = env("CELERY_TASK_ALWAYS_EAGER", "0") == "1"
 
 # Email Configuration
-# if DEBUG:
-#    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-#else:
-    # Configuración para producción (ejemplo)
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+# In DEBUG, write emails to the console so magic links work without SMTP credentials.
+if DEBUG:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = env("EMAIL_HOST")
 EMAIL_PORT = env("EMAIL_PORT", 587)
 EMAIL_USE_TLS = env("EMAIL_USE_TLS", "1") == "1"

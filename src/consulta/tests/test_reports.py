@@ -12,7 +12,7 @@ from triage.models import Triaje
 
 
 def make_medico(username: str) -> User:
-    group, _ = Group.objects.get_or_create(name="medico")
+    group = Group.objects.get(name="Medicos")
     user = User.objects.create_user(username=username, password="p", first_name="Juan", last_name="Perez")
     user.groups.add(group)
     return user

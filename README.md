@@ -1,98 +1,78 @@
-# app-LIS MVP0 base técnica
+# app-LIS — Triaje Hospitalario Inteligente
 
-Este repositorio quedó reducido a una base Django mínima para el MVP0:
+Sistema Django para el flujo clínico de urgencias: **admisión → triaje →
+cola de atención → consulta médica** con sugerencia de códigos **CIE-10**.
 
-- `core` como app activa principal.
-- `triage` y `nlp_engine` archivadas en `_archived_apps/`.
-- usuario personalizado con PK UUID.
-- login, home protegida y landing pública.
-- Docker con Django + PostgreSQL 15.
+> Para el detalle del estado del proyecto y el plan de trabajo:
+> - **[`ESTADO_ACTUAL.md`](ESTADO_ACTUAL.md)** — auditoría técnica (qué hay hoy).
+> - **[`PLAN_PENDIENTES.md`](PLAN_PENDIENTES.md)** — plan de cierre por fases.
 
-## Estructura actual
+## Stack
 
-- `src/config/settings.py`: configuración del proyecto.
-- `src/config/urls.py`: ruteo principal.
-- `src/core/`: app activa del MVP0.
-- `_archived_apps/triage/`: flujo clínico anterior archivado.
-- `_archived_apps/nlp_engine/`: procesamiento NLP anterior archivado.
+- **Python 3.12 + Django 5.0** (patrón MVT).
+- **PostgreSQL 15** (producción/Docker) · **SQLite** (fallback local).
+- **RabbitMQ + Celery** para procesamiento asíncrono.
+- **HTMX + Bootstrap 5 + Alpine.js** en la capa de presentación (SSR).
+- **spaCy** (normalización lingüística) + **catálogo JSON determinístico**
+  para la sugerencia CIE-10 — enfoque **híbrido**: spaCy lematiza y limpia el
+  texto, el motor determinístico cruza esos lemas contra el catálogo. spaCy
+  **no** se usa como clasificador de Machine Learning.
+- **simple_history** (historización de triajes) · **WeasyPrint** (recetas PDF).
+
+## Apps
+
+| App | Responsabilidad |
+|-----|-----------------|
+| `core` | Usuario (UUID), base abstracta, landing/home, grupos de permisos |
+| `admision` | Registro y gestión de pacientes (RF-01) |
+| `triage` | Captura de biometría y cálculo inmutable de prioridad (RF-02/03) |
+| `medico` | Cola de atención y transiciones de estado (RF-04) |
+| `consulta` | Nota médica, recetas y sugerencia CIE-10 (RF-05/06/07) |
+| `portal_paciente` | Portal del paciente (consultas y recetas) |
+| `autenticacion_paciente` | Acceso del paciente por *magic link* vía email |
+
+## Roles y grupos de permisos
+
+Los grupos se crean automáticamente vía **migraciones de datos** (no requieren
+fixtures): `Admision`, `Enfermeros`, `Medicos`, `Pacientes`. Son la única fuente
+de verdad para los permisos.
 
 ## Ejecución local
 
-### 1. Instalar dependencias
-```bash
-pip install -r requirements.txt
-```
-
-### 2. Ejecutar migraciones
-```bash
-python src/manage.py makemigrations
-python src/manage.py migrate
-```
-
-### 3. Levantar el servidor
-```bash
-python src/manage.py runserver
-```
-
-## Contenedores
+### Con Docker (recomendado)
 
 ```bash
+cp .env.example .env   # ajustar variables
 docker compose up --build
 ```
 
-## Nota sobre CI/CD
+Levanta `db` (PostgreSQL), `web` (Django), `rabbitmq` y `worker` (Celery).
 
-La configuración de Jenkins, protección de rama en GitHub y el flujo final de GitHub Actions deben hacerse fuera del código del proyecto, en la plataforma correspondiente.
+### Sin Docker
 
-## Siguiente paso ...
+```bash
+pip install -r requirements.txt
+python -m spacy download es_core_news_sm   # modelo NLP en español
+python src/manage.py migrate
+python src/manage.py createsuperuser
+python src/manage.py runserver
+```
 
-#### MVP 1: Módulo de Admisión Transaccional
+## Tests
 
-**Objetivo:** Digitalizar el primer paso del flujo hospitalario asegurando tiempos de respuesta óptimos.
+El proyecto vive bajo `src/`, así que las pruebas necesitan `src` en el
+`PYTHONPATH`:
 
-- **Requerimientos Cubiertos:** RF-01, RNF-02.
-    
-- **Backend:**
-    
-    - Crear la app `admision` y el modelo `Paciente`.
-        
-    - Implementar Class-Based Views (CBV) para el CRUD del paciente.
-        
-    - _Clean Code:_ Optimizar las consultas usando `select_related` o `prefetch_related` desde el principio para garantizar que las operaciones se rendericen en menos de 1.5 segundos.
-        
-- **Frontend:**
-    
-    - Construir un formulario ágil para el Técnico Administrativo, optimizado para navegación por teclado.
-        
-- **QA:**
-    
-    - Pruebas de integración para la creación de pacientes y validación de DNI.
-        
-    - _Performance testing_ inicial en QA local para validar el RNF-02 (< 1.5s).
-        
-- **DevOps (CI/CD):**
-    
-    - **Jenkins:** Se añaden reportes de cobertura de código (ej. `pytest-cov`). Jenkins falla el _build_ si la cobertura baja del 80%.
+```bash
+# Suite completa con cobertura (gate configurado en pytest.ini)
+PYTHONPATH=src python -m pytest
 
-#### MVP 2: Motor Logico de Triaje (Sincrono)
+# Rápido, sin cobertura
+PYTHONPATH=src python -m pytest -q --no-cov
+```
 
-**Objetivo:** Captura de biometria y calculo algoritmico inmutable de la prioridad clinica.
+## CI/CD
 
-- **Requerimientos cubiertos:** RF-02, RF-03, RN-01, RN-03.
-- **Backend:**
-    - App `triage` con modelo `Triaje` relacionado a `Paciente`.
-    - `TriageCalculatorService` con arquitectura OCP (`RuleEngine`, `BasicVitalSignsRule`, `RedFlagRule`).
-    - `red_flag` definido con `TextChoices` (`DOLOR_TORACICO`, `DIFICULTAD_RESPIRATORIA`, `HEMORRAGIA_ACTIVA`).
-    - Persistencia solo de `nivel_prioridad` (1..5); el color Manchester se deriva por `@property`.
-    - Inmutabilidad estricta: cualquier update de `Triaje` lanza `RN01ImmutableTriageError`.
-- **Frontend:**
-    - Formulario de enfermeria con validaciones visuales y campo `nivel_prioridad` bloqueado (`readonly`).
-- **QA:**
-    - Pruebas unitarias de limites para SpO2, frecuencia cardiaca y temperatura.
-    - Validacion RN-03 con excepcion de dominio por falta de datos criticos.
-- **DevOps (CI/CD):**
-    - Jenkins valida lint/formato/tests/cobertura incluyendo `triage`.
-    - GitHub Actions despliega a `staging` via SSH en servidor Docker/Compose, usando secretos:
-      `SERVER_IP`, `SSH_USER`, `SSH_PRIVATE_KEY`, `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`.
-        
-
+`.github/workflows/` (CI, despliegue a staging y main) + `Jenkinsfile` +
+`.pre-commit-config.yaml` (black, flake8). La protección de rama se configura en
+la plataforma, fuera del repositorio.

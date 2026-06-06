@@ -3,7 +3,31 @@
 from django.db import migrations
 
 
+def ensure_default_permissions(schema_editor):
+    """Force-create default model permissions during a data migration.
+
+    Django creates default permissions via a ``post_migrate`` signal that runs
+    *after* all migrations finish. On a fresh database (tests or a first deploy)
+    the permissions do not exist yet while this data migration runs, so any group
+    created here would end up empty. Creating them eagerly keeps the role
+    assignments below working on any database.
+    """
+    from django.apps import apps as global_apps
+    from django.contrib.auth.management import create_permissions
+
+    for app_config in global_apps.get_app_configs():
+        app_config.models_module = True
+        try:
+            create_permissions(
+                app_config, verbosity=0, using=schema_editor.connection.alias
+            )
+        finally:
+            app_config.models_module = None
+
+
 def create_groups(apps, schema_editor):
+    ensure_default_permissions(schema_editor)
+
     Group = apps.get_model("auth", "Group")
     Permission = apps.get_model("auth", "Permission")
     ContentType = apps.get_model("contenttypes", "ContentType")

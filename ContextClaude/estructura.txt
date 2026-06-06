@@ -1,0 +1,346 @@
+FUERA DE SRC ENCONTRARAS FILES DOCKERS ,.ENV , LOS IMPORTANTES ".gitHub"
+C:PS C:\software\projects\app-LIS\src>
+│   db.sqlite3
+│   manage.py
+│
+├───admision
+│   │   admin.py
+│   │   apps.py
+│   │   create_fixture.py
+│   │   forms.py
+│   │   models.py
+│   │   signals.py
+│   │   tests.py
+│   │   urls.py
+│   │   views.py
+│   │   __init__.py
+│   │
+│   ├───fixtures
+│   │       initial_groups.json
+│   │
+│   ├───migrations
+│   │   │   0001_initial.py
+│   │   │   0002_paciente_tipo_documento_alter_paciente_dni.py
+│   │   │   __init__.py
+│   │   │
+│   │   └───__pycache__
+│   │           0001_initial.cpython-312.pyc
+│   │           0002_paciente_tipo_documento_alter_paciente_dni.cpython-312.pyc
+│   │           __init__.cpython-312.pyc
+│   │
+│   ├───templates
+│   │   └───admision
+│   │           paciente_confirm_delete.html
+│   │           paciente_detail.html
+│   │           paciente_form.html
+│   │           paciente_list.html
+│   │
+│   └───__pycache__
+│           admin.cpython-312.pyc
+│           apps.cpython-312.pyc
+│           forms.cpython-312.pyc
+│           models.cpython-312.pyc
+│           signals.cpython-312.pyc
+│           tests.cpython-312.pyc
+│           urls.cpython-312.pyc
+│           views.cpython-312.pyc
+│           __init__.cpython-312.pyc
+│
+├───autenticacion_paciente
+│   │   admin.py
+│   │   apps.py
+│   │   forms.py
+│   │   models.py
+│   │   services.py
+│   │   tests.py
+│   │   tokens.py
+│   │   urls.py
+│   │   views.py
+│   │   __init__.py
+│   │
+│   ├───migrations
+│   │   │   __init__.py
+│   │   │
+│   │   └───__pycache__
+│   │           __init__.cpython-312.pyc
+│   │
+│   ├───templates
+│   │   └───autenticacion_paciente
+│   │           invalid_link.html
+│   │           link_sent.html
+│   │           magic_link_email.html
+│   │           request_link.html
+│   │
+│   └───__pycache__
+│           admin.cpython-312.pyc
+│           apps.cpython-312.pyc
+│           forms.cpython-312.pyc
+│           models.cpython-312.pyc
+│           services.cpython-312.pyc
+│           tests.cpython-312.pyc
+│           tokens.cpython-312.pyc
+│           urls.cpython-312.pyc
+│           views.cpython-312.pyc
+│           __init__.cpython-312.pyc
+│
+├───config
+│   │   asgi.py
+│   │   celery.py
+│   │   settings.py
+│   │   urls.py
+│   │   wsgi.py
+│   │   __init__.py
+│   │
+│   └───__pycache__
+│           celery.cpython-312.pyc
+│           settings.cpython-312.pyc
+│           urls.cpython-312.pyc
+│           __init__.cpython-312.pyc
+│
+├───consulta
+│   │   admin.py
+│   │   apps.py
+│   │   forms.py
+│   │   models.py
+│   │   tests.py
+│   │   urls.py
+│   │   views.py
+│   │   __init__.py
+│   │
+│   ├───data
+│   │       cie10.json
+│   │       medicamentos.json
+│   │
+│   ├───management
+│   │   └───commands
+│   │       │   cargar_medicamentos.py
+│   │       │
+│   │       └───__pycache__
+│   │               cargar_medicamentos.cpython-312.pyc
+│   │
+│   ├───migrations
+│   │   │   0001_initial.py
+│   │   │   0002_rename_consulta_not_paciente_idx_consulta_no_pacient_b8731f_idx_and_more.py
+│   │   │   0003_medicamento_notamedica_receta_id_prescripcion.py
+│   │   │   __init__.py
+│   │   │
+│   │   └───__pycache__
+│   │           0001_initial.cpython-312.pyc
+│   │           0002_rename_consulta_not_paciente_idx_consulta_no_pacient_b8731f_idx_and_more.cpython-312.pyc
+│   │           0003_medicamento_notamedica_receta_id_prescripcion.cpython-312.pyc
+│   │           0004_notamedica_consulta_no_motivo__294735_gin_and_more.cpython-312.pyc
+│   │           __init__.cpython-312.pyc
+│   │
+│   ├───services
+│   │   │   cie_lookup.py
+│   │   │   med_lookup.py
+│   │   │   nlp_service.py
+│   │   │   __init__.py
+│   │   │
+│   │   └───__pycache__
+│   │           cie_lookup.cpython-312.pyc
+│   │           med_lookup.cpython-312.pyc
+│   │           nlp_service.cpython-312.pyc
+│   │           __init__.cpython-312.pyc
+│   │
+│   ├───templates
+│   │   └───consulta
+│   │           detail.html
+│   │           form.html
+│   │           list.html
+│   │           README.md
+│   │
+│   ├───tests
+│   │   │   test_cie_lookup.py
+│   │   │   test_models.py
+│   │   │   test_reports.py
+│   │   │   test_views.py
+│   │   │
+│   │   └───__pycache__
+│   │           test_cie_lookup.cpython-312-pytest-7.4.3.pyc
+│   │           test_models.cpython-312-pytest-7.4.3.pyc
+│   │           test_reports.cpython-312-pytest-7.4.3.pyc
+│   │           test_views.cpython-312-pytest-7.4.3.pyc
+│   │
+│   └───__pycache__
+│           admin.cpython-312.pyc
+│           apps.cpython-312.pyc
+│           forms.cpython-312.pyc
+│           models.cpython-312.pyc
+│           urls.cpython-312.pyc
+│           views.cpython-312.pyc
+│           __init__.cpython-312.pyc
+│
+├───core
+│   │   admin.py
+│   │   apps.py
+│   │   models.py
+│   │   tests.py
+│   │   urls.py
+│   │   views.py
+│   │   __init__.py
+│   │
+│   ├───migrations
+│   │   │   0001_initial.py
+│   │   │   0002_create_groups.py
+│   │   │   0003_update_groups.py
+│   │   │   __init__.py
+│   │   │
+│   │   └───__pycache__
+│   │           0001_initial.cpython-312.pyc
+│   │           0002_create_groups.cpython-312.pyc
+│   │           0003_update_groups.cpython-312.pyc
+│   │           __init__.cpython-312.pyc
+│   │
+│   ├───templates
+│   │   ├───core
+│   │   │       base.html
+│   │   │       home.html
+│   │   │       landing.html
+│   │   │
+│   │   └───registration
+│   │           login.html
+│   │
+│   └───__pycache__
+│           admin.cpython-312.pyc
+│           apps.cpython-312.pyc
+│           models.cpython-312.pyc
+│           urls.cpython-312.pyc
+│           views.cpython-312.pyc
+│           __init__.cpython-312.pyc
+│
+├───medico
+│   │   apps.py
+│   │   models.py
+│   │   tasks.py
+│   │   test_tasks.py
+│   │   urls.py
+│   │   views.py
+│   │   __init__.py
+│   │
+│   ├───migrations
+│   │   │   0001_initial.py
+│   │   │   0002_remove_colaestado_descripcion_and_more.py
+│   │   │   0003_alter_colaestado_triaje.py
+│   │   │   __init__.py
+│   │   │
+│   │   └───__pycache__
+│   │           0001_initial.cpython-312.pyc
+│   │           0002_remove_colaestado_descripcion_and_more.cpython-312.pyc
+│   │           0003_alter_colaestado_triaje.cpython-312.pyc
+│   │           __init__.cpython-312.pyc
+│   │
+│   ├───templates
+│   │   └───medico
+│   │           cola_list.html
+│   │
+│   ├───tests
+│   │   │   test_colas_transitions.py
+│   │   │   __init__.py
+│   │   │
+│   │   └───__pycache__
+│   │           test_colas_transitions.cpython-312-pytest-7.4.3.pyc
+│   │           __init__.cpython-312.pyc
+│   │
+│   └───__pycache__
+│           apps.cpython-312.pyc
+│           models.cpython-312.pyc
+│           tasks.cpython-312.pyc
+│           urls.cpython-312.pyc
+│           views.cpython-312.pyc
+│           __init__.cpython-312.pyc
+│
+├───portal_paciente
+│   │   admin.py
+│   │   apps.py
+│   │   forms.py
+│   │   models.py
+│   │   tests.py
+│   │   urls.py
+│   │   views.py
+│   │   __init__.py
+│   │
+│   ├───migrations
+│   │   │   __init__.py
+│   │   │
+│   │   └───__pycache__
+│   │           __init__.cpython-312.pyc
+│   │
+│   ├───templates
+│   │   └───portal_paciente
+│   │           dashboard.html
+│   │           login.html
+│   │           receta_detail.html
+│   │
+│   └───__pycache__
+│           admin.cpython-312.pyc
+│           apps.cpython-312.pyc
+│           forms.cpython-312.pyc
+│           models.cpython-312.pyc
+│           urls.cpython-312.pyc
+│           views.cpython-312.pyc
+│           __init__.cpython-312.pyc
+│
+├───src
+│   └───portal_paciente
+│           forms.py
+│
+├───tests
+│   ├───e2e
+│   │   │   test_triaje_queue.py
+│   │   │
+│   │   └───__pycache__
+│   │           test_triaje_queue.cpython-312-pytest-7.4.3.pyc
+│   │
+│   └───__pycache__
+│           test_atencion_medica.cpython-312.pyc
+│
+└───triage
+    │   admin.py
+    │   apps.py
+    │   exceptions.py
+    │   forms.py
+    │   models.py
+    │   services.py
+    │   signals.py
+    │   tests.py
+    │   tests_signals.py
+    │   urls.py
+    │   views.py
+    │   __init__.py
+    │
+    ├───migrations
+    │   │   0001_initial.py
+    │   │   0002_triaje_estado.py
+    │   │   0003_remove_triaje_estado.py
+    │   │   0004_historicaltriaje.py
+    │   │   __init__.py
+    │   │
+    │   └───__pycache__
+    │           0001_initial.cpython-312.pyc
+    │           0002_triaje_estado.cpython-312.pyc
+    │           0003_remove_triaje_estado.cpython-312.pyc
+    │           0004_historicaltriaje.cpython-312.pyc
+    │           __init__.cpython-312.pyc
+    │
+    ├───templates
+    │   └───triage
+    │           paciente_triaje_history.html
+    │           triage_form.html
+    │           triage_list.html
+    │
+    └───__pycache__
+            admin.cpython-312.pyc
+            apps.cpython-312.pyc
+            exceptions.cpython-312.pyc
+            forms.cpython-312.pyc
+            models.cpython-312.pyc
+            services.cpython-312.pyc
+            signals.cpython-312.pyc
+            tests.cpython-312.pyc
+            tests_grouping.cpython-312.pyc
+            tests_signals.cpython-312.pyc
+            urls.cpython-312.pyc
+            views.cpython-312.pyc
+            __init__.cpython-312.pyc
+

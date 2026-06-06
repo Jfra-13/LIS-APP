@@ -128,7 +128,7 @@ class TriajeModelAndViewTests(TestCase):
     @staticmethod
     def _create_enfermeria_user():
         user = User.objects.create_user(username="enfermero", password="pass123")
-        group, _ = Group.objects.get_or_create(name="Enfermeria")
+        group, _ = Group.objects.get_or_create(name="Enfermeros")
         user.groups.add(group)
         return user
 

@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -207,6 +208,7 @@ class NotaMedicaViewIntegrationTest(TestCase):
             password="testpass123",
             is_staff=True
         )
+        self.user_medico.groups.add(Group.objects.get(name="Medicos"))
         self.user_enfermeria = User.objects.create_user(
             username="enfermeria_view",
             password="testpass123"

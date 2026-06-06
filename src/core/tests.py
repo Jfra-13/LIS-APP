@@ -29,5 +29,5 @@ class CoreMvp0Tests(TestCase):
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "MVP0 base")
+        self.assertContains(response, "Bienvenido")
         self.assertTrue(response.context["user"].is_authenticated)

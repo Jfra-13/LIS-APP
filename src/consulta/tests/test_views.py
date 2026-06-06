@@ -24,7 +24,7 @@ def test_anon_no_puede_crear_nota(client):
 
 @pytest.mark.django_db
 def test_medico_puede_crear_nota(client):
-    group, _ = Group.objects.get_or_create(name="medico")
+    group = Group.objects.get(name="Medicos")
     user = make_user("medico1")
     user.groups.add(group)
 
@@ -57,7 +57,7 @@ def test_medico_puede_crear_nota(client):
 
 @pytest.mark.django_db
 def test_medico_puede_crear_nota_con_cie_aceptado(client):
-    group, _ = Group.objects.get_or_create(name="medico")
+    group = Group.objects.get(name="Medicos")
     user = make_user("medico_cie")
     user.groups.add(group)
 
@@ -96,7 +96,7 @@ def test_medico_puede_crear_nota_con_cie_aceptado(client):
 
 @pytest.mark.django_db
 def test_listado_y_detalle_visible_a_medico(client):
-    group, _ = Group.objects.get_or_create(name="medico")
+    group = Group.objects.get(name="Medicos")
     user = make_user("medico2")
     user.groups.add(group)
 

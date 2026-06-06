@@ -10,8 +10,6 @@ from django.db.models.functions import TruncDate
 from django.utils import timezone
 from django.views import View
 from django.core.cache import cache
-from django.shortcuts import redirect
-from django.contrib import messages
 
 
 # from .tasks import process_clinical_note
@@ -31,15 +29,13 @@ def consulta_health(request):
 class ConsultaPermissionMixin(PermissionRequiredMixin):
     """
     Verifica los permisos para el módulo de consulta.
-    Redirige a 'home' con un mensaje de error si no tiene permisos.
+
+    Usa el comportamiento estándar de Django:
+    - Usuario anónimo: redirección a login (302).
+    - Usuario autenticado sin permiso: 403 Forbidden.
     """
 
-    def handle_no_permission(self):
-        messages.error(
-            self.request,
-            "No tiene los permisos necesarios para acceder a esta función de consulta.",
-        )
-        return redirect("home")
+    pass
 
 
 class NotaMedicaListView(ConsultaPermissionMixin, ListView):
