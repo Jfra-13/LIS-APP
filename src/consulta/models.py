@@ -87,6 +87,31 @@ class NotaMedica(AbstractBaseModel):
         help_text="Indica si la sugerencia CIE-10 fue aceptada por el médico"
     )
 
+    class EstadoIA(models.TextChoices):
+        PENDIENTE = "PENDIENTE", "Pendiente"
+        PROCESANDO = "PROCESANDO", "Procesando"
+        LISTO = "LISTO", "Listo"
+        ERROR = "ERROR", "Error"
+
+    # Estado del procesamiento asíncrono de IA (RF-06)
+    estado_ia = models.CharField(
+        max_length=10,
+        choices=EstadoIA.choices,
+        default=EstadoIA.PENDIENTE,
+        db_index=True,
+        verbose_name="Estado de procesamiento IA",
+        help_text="Estado del análisis NLP en segundo plano",
+    )
+
+    # Sugerencias CIE-10 generadas por el motor de IA (RF-07).
+    # Separado de cie_code: la IA SUGIERE, el médico CONFIRMA en cie_code.
+    cie_suggestions = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name="Sugerencias CIE-10 (IA)",
+        help_text="Lista de sugerencias propuestas por el motor de IA (no confirmadas)",
+    )
+
     class Meta:
         verbose_name = "Nota médica"
         verbose_name_plural = "Notas médicas"

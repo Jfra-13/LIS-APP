@@ -27,6 +27,15 @@
   {% if nota.is_privada %}
     <p class="muted"><strong>Nota privada</strong></p>
   {% endif %}
+
+  <div class="mt-4 p-3 bg-light rounded-3">
+    <div id="ia-panel"
+         hx-get="{% url 'consulta:ai_suggestions' nota.pk %}"
+         hx-trigger="load, every 2s"
+         hx-swap="outerHTML">
+      <span class="text-muted small">Procesando IA…</span>
+    </div>
+  </div>
 </div>
 {% endblock %}
 

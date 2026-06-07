@@ -2,16 +2,17 @@ import spacy
 from typing import List, Dict, Any
 from functools import lru_cache
 
+
 @lru_cache(maxsize=1)
 def load_nlp():
-    try:
-        return spacy.load("es_core_news_sm")
-    except OSError:
-        # Fallback si no está descargado en el entorno local
-        import subprocess
-        import sys
-        subprocess.run([sys.executable, "-m", "spacy", "download", "es_core_news_sm"])
-        return spacy.load("es_core_news_sm")
+    """Carga el modelo spaCy en español.
+
+    El modelo se instala en tiempo de build (ver Dockerfile.worker). Si no
+    está disponible, se propaga ``OSError`` para que la capa superior degrade
+    a texto crudo. No se descarga en runtime: bajar el modelo dentro del
+    worker añade latencia, dependencia de red y cuelga las pruebas.
+    """
+    return spacy.load("es_core_news_sm")
 
 def extract_entities(text: str) -> Dict[str, List[str]]:
     """

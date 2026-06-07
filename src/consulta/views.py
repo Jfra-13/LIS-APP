@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.http import JsonResponse, HttpResponse
@@ -9,16 +11,16 @@ from django.db.models import Avg, Count
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 from django.views import View
-from django.core.cache import cache
-
-
-# from .tasks import process_clinical_note
+from django.shortcuts import get_object_or_404
 
 from .forms import NotaMedicaForm
 from .models import NotaMedica
 from .services.cie_lookup import search as cie_search
 from .services.med_lookup import search as med_search
 from triage.models import Triaje
+
+
+logger = logging.getLogger(__name__)
 
 
 def consulta_health(request):
@@ -79,12 +81,18 @@ class NotaMedicaCreateView(ConsultaPermissionMixin, CreateView):
     def form_valid(self, form):
         form.instance.medico = self.request.user
         response = super().form_valid(form)
-        # Disparar procesamiento asíncrono de IA si la tarea existe
+        # Disparar el procesamiento NLP en segundo plano (RF-06). Es un efecto
+        # secundario fire-and-forget: si falla, la nota ya quedó guardada y la
+        # pantalla del médico nunca se bloquea esperando la IA.
         try:
             from .tasks import process_clinical_note
+
             process_clinical_note.delay(self.object.id)
-        except (ImportError, ModuleNotFoundError):
-            pass
+        except Exception:
+            logger.exception(
+                "No se pudo encolar process_clinical_note",
+                extra={"nota_id": str(self.object.id)},
+            )
         return response
 
 
@@ -167,16 +175,65 @@ def med_suggest(request):
     return JsonResponse({"query": q, "count": len(payload), "results": payload})
 
 
+def _ai_status(estado: str) -> str:
+    """Mapea el estado interno de la nota al contrato público del endpoint."""
+    return {
+        NotaMedica.EstadoIA.LISTO: "ready",
+        NotaMedica.EstadoIA.ERROR: "error",
+    }.get(estado, "processing")
+
+
+def _render_ai_panel(nota) -> str:
+    """Fragmento HTML del panel de IA para el polling HTMX (detail.html)."""
+    if nota.estado_ia == NotaMedica.EstadoIA.LISTO:
+        suggestions = nota.cie_suggestions or []
+        if not suggestions:
+            body = '<div class="text-muted small">Sin sugerencias para esta nota.</div>'
+        else:
+            items = ""
+            for item in suggestions:
+                items += f"""
+                <div class="list-group-item small">
+                    <span class="fw-bold">{item.get('code')}</span>
+                    <span class="text-muted">{item.get('short_description')}</span>
+                </div>
+                """
+            body = f'<div class="list-group list-group-flush">{items}</div>'
+        return f'<div id="ia-panel"><h6 class="fw-bold">Sugerencias IA (CIE-10)</h6>{body}</div>'
+
+    if nota.estado_ia == NotaMedica.EstadoIA.ERROR:
+        return (
+            '<div id="ia-panel"><span class="text-danger small">'
+            "No se pudo procesar la nota con la IA.</span></div>"
+        )
+
+    # PENDIENTE / PROCESANDO: el div mantiene el polling cada 2s.
+    return (
+        '<div id="ia-panel" hx-get="" hx-trigger="every 2s" hx-swap="outerHTML" '
+        'hx-include="this">'
+        '<span class="text-muted small">Procesando IA…</span></div>'
+    )
+
+
 @login_required
 def get_ai_suggestions(request, pk):
-    """Obtiene las sugerencias generadas por el worker de IA desde el cache."""
-    cache_key = f"suggestions_nota_{pk}"
-    suggestions = cache.get(cache_key)
-    
-    if suggestions:
-        return JsonResponse({"status": "ready", "suggestions": suggestions})
-    
-    return JsonResponse({"status": "processing", "suggestions": None}, status=202)
+    """Estado y sugerencias de IA de una nota, leídos de la BD (sin Redis)."""
+    nota = get_object_or_404(NotaMedica, pk=pk)
+
+    if request.headers.get("HX-Request"):
+        # El polling HTMX necesita la URL en el div que se reinyecta.
+        url = reverse_lazy("consulta:ai_suggestions", kwargs={"pk": nota.pk})
+        html = _render_ai_panel(nota).replace('hx-get=""', f'hx-get="{url}"')
+        return HttpResponse(html)
+
+    status = _ai_status(nota.estado_ia)
+    payload = {
+        "status": status,
+        "estado": nota.estado_ia,
+        "suggestions": nota.cie_suggestions or [],
+    }
+    http_status = 200 if status in ("ready", "error") else 202
+    return JsonResponse(payload, status=http_status)
 
 
 def _parse_date_param(value: str | None):
