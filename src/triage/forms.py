@@ -26,6 +26,8 @@ class TriajeForm(forms.ModelForm):
             "spo2",
             "frecuencia_cardiaca",
             "temperatura",
+            "presion_sistolica",
+            "presion_diastolica",
             "red_flag",
             "observaciones",
         ]
@@ -58,6 +60,22 @@ class TriajeForm(forms.ModelForm):
                     "placeholder": "Ej. 36.8",
                 }
             ),
+            "presion_sistolica": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "min": 40,
+                    "max": 300,
+                    "placeholder": "Ej. 120",
+                }
+            ),
+            "presion_diastolica": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "min": 20,
+                    "max": 200,
+                    "placeholder": "Ej. 80",
+                }
+            ),
             "red_flag": forms.Select(attrs={"class": "form-select"}),
             "observaciones": forms.Textarea(
                 attrs={
@@ -78,11 +96,11 @@ class TriajeForm(forms.ModelForm):
     def _populate_preview_priority(self):
         triage_input = TriageInput(
             spo2=self._to_int_or_none(self.data.get("spo2")),
-            frecuencia_cardiaca=self._to_int_or_none(
-                self.data.get("frecuencia_cardiaca")
-            ),
+            frecuencia_cardiaca=self._to_int_or_none(self.data.get("frecuencia_cardiaca")),
             temperatura=self._to_decimal_or_none(self.data.get("temperatura")),
             red_flag=self.data.get("red_flag") or Triaje.RedFlagChoices.NONE,
+            presion_sistolica=self._to_int_or_none(self.data.get("presion_sistolica")),
+            presion_diastolica=self._to_int_or_none(self.data.get("presion_diastolica")),
         )
 
         try:
@@ -116,12 +134,12 @@ class TriajeForm(forms.ModelForm):
             frecuencia_cardiaca=cleaned_data.get("frecuencia_cardiaca"),
             temperatura=cleaned_data.get("temperatura"),
             red_flag=cleaned_data.get("red_flag") or Triaje.RedFlagChoices.NONE,
+            presion_sistolica=cleaned_data.get("presion_sistolica"),
+            presion_diastolica=cleaned_data.get("presion_diastolica"),
         )
 
         try:
-            self._calculated_priority = TriageCalculatorService().calculate(
-                triage_input
-            )
+            self._calculated_priority = TriageCalculatorService().calculate(triage_input)
         except RN03MissingCriticalDataError as exc:
             raise ValidationError(str(exc)) from exc
 

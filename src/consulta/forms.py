@@ -5,6 +5,7 @@ from .models import NotaMedica, Prescripcion
 
 class BooleanHiddenInput(forms.HiddenInput):
     """Widget que convierte valores booleanos a string para HiddenInput"""
+
     def value_from_datadict(self, data, files, name):
         # Buscar el valor en data; si viene como "on" o "true", convertir a True
         value = data.get(name, "")
@@ -31,6 +32,11 @@ class NotaMedicaForm(forms.ModelForm):
             "cie_short_description": forms.HiddenInput(attrs={"id": "id_cie_short_description"}),
             "cie_accepted": BooleanHiddenInput(attrs={"id": "id_cie_accepted", "value": "false"}),
         }
+        help_texts = {
+            "contenido": (
+                "Soporta Markdown: # encabezados, **negrita**, *cursiva*, " "- listas. El HTML se ignora por seguridad."
+            ),
+        }
 
     def clean(self):
         cleaned = super().clean()
@@ -56,10 +62,5 @@ class PrescripcionForm(forms.ModelForm):
 
 
 PrescripcionFormSet = forms.inlineformset_factory(
-    NotaMedica,
-    Prescripcion,
-    form=PrescripcionForm,
-    extra=1,
-    can_delete=True
+    NotaMedica, Prescripcion, form=PrescripcionForm, extra=1, can_delete=True
 )
-

@@ -42,6 +42,20 @@ class Triaje(AbstractBaseModel):
         help_text="Temperatura corporal en Celsius",
         validators=[MinValueValidator(30), MaxValueValidator(45)],
     )
+    presion_sistolica = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Presion arterial sistolica",
+        help_text="mmHg (opcional)",
+        validators=[MinValueValidator(40), MaxValueValidator(300)],
+    )
+    presion_diastolica = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Presion arterial diastolica",
+        help_text="mmHg (opcional)",
+        validators=[MinValueValidator(20), MaxValueValidator(200)],
+    )
     red_flag = models.CharField(
         max_length=64,
         choices=RedFlagChoices,
@@ -84,9 +98,7 @@ class Triaje(AbstractBaseModel):
     def save(self, *args, **kwargs):
         # Inmutabilidad estricta: no permitir actualizaciones
         if not self._state.adding:
-            raise RN01ImmutableTriageError(
-                "RN-01: El triaje es inmutable. Debe registrar un re-triaje nuevo."
-            )
+            raise RN01ImmutableTriageError("RN-01: El triaje es inmutable. Debe registrar un re-triaje nuevo.")
 
         # Calcular nivel_prioridad automáticamente si no fue establecido por la capa superior
         if not self.nivel_prioridad:
@@ -96,6 +108,8 @@ class Triaje(AbstractBaseModel):
                 frecuencia_cardiaca=self.frecuencia_cardiaca,
                 temperatura=self.temperatura,
                 red_flag=self.red_flag or self.RedFlagChoices.NONE,
+                presion_sistolica=self.presion_sistolica,
+                presion_diastolica=self.presion_diastolica,
             )
             # Esto puede lanzar RN03MissingCriticalDataError si faltan datos críticos;
             # preferimos que falle temprano y no cree triajes incompletos.

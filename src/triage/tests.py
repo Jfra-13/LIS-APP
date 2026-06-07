@@ -17,12 +17,22 @@ class TriageCalculatorServiceTests(SimpleTestCase):
     def setUp(self):
         self.service = TriageCalculatorService()
 
-    def _input(self, spo2=97, fc=80, temp="36.8", red_flag=Triaje.RedFlagChoices.NONE):
+    def _input(
+        self,
+        spo2=97,
+        fc=80,
+        temp="36.8",
+        red_flag=Triaje.RedFlagChoices.NONE,
+        sistolica=None,
+        diastolica=None,
+    ):
         return TriageInput(
             spo2=spo2,
             frecuencia_cardiaca=fc,
             temperatura=Decimal(temp),
             red_flag=red_flag,
+            presion_sistolica=sistolica,
+            presion_diastolica=diastolica,
         )
 
     def test_spo2_boundaries(self):
@@ -89,25 +99,60 @@ class TriageCalculatorServiceTests(SimpleTestCase):
                 result = self.service.calculate(self._input(red_flag=red_flag))
                 self.assertEqual(result, 2)
 
+    def test_blood_pressure_systolic_boundaries(self):
+        # Signos vitales normales (prioridad base 5) para aislar el efecto de BP.
+        cases = [
+            (89, 1),  # hipotension / shock
+            (90, 5),  # limite inferior normal
+            (159, 5),  # normal-alto
+            (160, 3),  # HTA estadio 2
+            (179, 3),
+            (180, 2),  # crisis hipertensiva
+            (220, 2),
+        ]
+        for sistolica, expected in cases:
+            with self.subTest(sistolica=sistolica):
+                result = self.service.calculate(self._input(sistolica=sistolica))
+                self.assertEqual(result, expected)
+
+    def test_blood_pressure_diastolic_boundaries(self):
+        cases = [
+            (99, 5),
+            (100, 3),  # HTA estadio 2
+            (119, 3),
+            (120, 2),  # crisis hipertensiva
+        ]
+        for diastolica, expected in cases:
+            with self.subTest(diastolica=diastolica):
+                result = self.service.calculate(self._input(diastolica=diastolica))
+                self.assertEqual(result, expected)
+
+    def test_blood_pressure_takes_most_severe_of_both(self):
+        # Sistolica normal (5) + diastolica en crisis (2) -> gana la mas severa.
+        result = self.service.calculate(self._input(sistolica=120, diastolica=125))
+        self.assertEqual(result, 2)
+
+    def test_blood_pressure_absent_does_not_change_priority(self):
+        # Sin presion arterial, la prioridad depende solo del resto de reglas.
+        with_bp = self.service.calculate(self._input(sistolica=120, diastolica=80))
+        without_bp = self.service.calculate(self._input())
+        self.assertEqual(with_bp, without_bp)
+        self.assertEqual(without_bp, 5)
+
+    def test_blood_pressure_is_not_critical_for_rn03(self):
+        # La presion arterial es opcional: su ausencia NO dispara RN-03.
+        result = self.service.calculate(self._input(sistolica=None, diastolica=None))
+        self.assertEqual(result, 5)
+
     def test_rn03_raises_for_missing_critical_fields(self):
         with self.assertRaises(RN03MissingCriticalDataError):
-            self.service.calculate(
-                TriageInput(
-                    spo2=None, frecuencia_cardiaca=80, temperatura=Decimal("36.8")
-                )
-            )
+            self.service.calculate(TriageInput(spo2=None, frecuencia_cardiaca=80, temperatura=Decimal("36.8")))
 
         with self.assertRaises(RN03MissingCriticalDataError):
-            self.service.calculate(
-                TriageInput(
-                    spo2=97, frecuencia_cardiaca=None, temperatura=Decimal("36.8")
-                )
-            )
+            self.service.calculate(TriageInput(spo2=97, frecuencia_cardiaca=None, temperatura=Decimal("36.8")))
 
         with self.assertRaises(RN03MissingCriticalDataError):
-            self.service.calculate(
-                TriageInput(spo2=97, frecuencia_cardiaca=80, temperatura=None)
-            )
+            self.service.calculate(TriageInput(spo2=97, frecuencia_cardiaca=80, temperatura=None))
 
 
 class TriajeModelAndViewTests(TestCase):
@@ -155,10 +200,53 @@ class TriajeModelAndViewTests(TestCase):
         self.assertEqual(triaje.nivel_prioridad, 5)
         self.assertEqual(triaje.color_manchester, "Azul")
 
-    def test_form_renders_priority_readonly(self):
-        response = self.client.get(
-            reverse("triage:triage_create", kwargs={"paciente_pk": self.paciente.pk})
+    def test_create_triaje_with_blood_pressure_elevates_priority(self):
+        # Signos vitales normales pero sistolica en shock -> prioridad 1.
+        payload = {
+            "spo2": 98,
+            "frecuencia_cardiaca": 82,
+            "temperatura": "36.7",
+            "presion_sistolica": 80,
+            "presion_diastolica": 50,
+            "red_flag": Triaje.RedFlagChoices.NONE,
+            "observaciones": "Hipotension.",
+        }
+
+        response = self.client.post(
+            reverse("triage:triage_create", kwargs={"paciente_pk": self.paciente.pk}),
+            payload,
+            follow=True,
         )
+
+        self.assertEqual(response.status_code, 200)
+        triaje = Triaje.objects.get()
+        self.assertEqual(triaje.presion_sistolica, 80)
+        self.assertEqual(triaje.presion_diastolica, 50)
+        self.assertEqual(triaje.nivel_prioridad, 1)
+
+    def test_create_triaje_without_blood_pressure_succeeds(self):
+        # La presion arterial es opcional: omitirla no rompe el alta de triaje.
+        payload = {
+            "spo2": 98,
+            "frecuencia_cardiaca": 82,
+            "temperatura": "36.7",
+            "red_flag": Triaje.RedFlagChoices.NONE,
+        }
+
+        response = self.client.post(
+            reverse("triage:triage_create", kwargs={"paciente_pk": self.paciente.pk}),
+            payload,
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        triaje = Triaje.objects.get()
+        self.assertIsNone(triaje.presion_sistolica)
+        self.assertIsNone(triaje.presion_diastolica)
+        self.assertEqual(triaje.nivel_prioridad, 5)
+
+    def test_form_renders_priority_readonly(self):
+        response = self.client.get(reverse("triage:triage_create", kwargs={"paciente_pk": self.paciente.pk}))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "readonly")
 
@@ -178,9 +266,7 @@ class TriajeModelAndViewTests(TestCase):
 
     def test_non_enfermeria_user_cannot_access_triaje(self):
         self.client.force_login(self.other_user)
-        response = self.client.get(
-            reverse("triage:triage_create", kwargs={"paciente_pk": self.paciente.pk})
-        )
+        response = self.client.get(reverse("triage:triage_create", kwargs={"paciente_pk": self.paciente.pk}))
         self.assertEqual(response.status_code, 302)
 
     def test_model_is_immutable_after_creation(self):

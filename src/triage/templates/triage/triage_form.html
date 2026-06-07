@@ -148,6 +148,37 @@
                   <strong>Fiebre:</strong> Temperatura elevada detectada.
                 </div>
               </div>
+
+              <!-- Presión Arterial (opcional) -->
+              <div class="col-md-6">
+                <label class="form-label fw-bold">
+                  <i class="bi bi-activity text-danger me-1"></i>
+                  Presión Arterial (mmHg)
+                  <span class="text-muted fw-normal">(opcional)</span>
+                </label>
+                <div class="input-group input-group-lg">
+                  <span class="input-group-text">
+                    <i class="bi bi-activity"></i>
+                  </span>
+                  {{ form.presion_sistolica }}
+                  <span class="input-group-text">/</span>
+                  {{ form.presion_diastolica }}
+                </div>
+                {% if form.presion_sistolica.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.presion_sistolica.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+                {% if form.presion_diastolica.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.presion_diastolica.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+                <small class="text-muted d-block mt-2">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Sistólica / Diastólica · Normal: ~120/80 | Crisis: &ge;180/120
+                </small>
+              </div>
             </div>
           </div>
         </div>

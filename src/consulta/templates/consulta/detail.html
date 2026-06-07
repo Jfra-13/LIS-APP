@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load markdown_extras %}
 
 {% block title %}Nota médica{% endblock %}
 
@@ -22,7 +23,7 @@
   </dl>
 
   <h2>Contenido</h2>
-  <p>{{ nota.contenido|linebreaks }}</p>
+  <div class="nota-contenido">{{ nota.contenido|markdownify }}</div>
 
   {% if nota.is_privada %}
     <p class="muted"><strong>Nota privada</strong></p>

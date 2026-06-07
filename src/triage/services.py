@@ -14,6 +14,8 @@ class TriageInput:
     frecuencia_cardiaca: int | None
     temperatura: Decimal | None
     red_flag: str | None = None
+    presion_sistolica: int | None = None
+    presion_diastolica: int | None = None
 
 
 class RuleEngine(ABC):
@@ -78,11 +80,52 @@ class BasicVitalSignsRule(RuleEngine):
             return 5
         if temperature < Decimal("35.0") or temperature >= Decimal("41.0"):
             return 1
-        if Decimal("35.0") <= temperature < Decimal("36.0") or Decimal(
-            "39.0"
-        ) <= temperature < Decimal("41.0"):
+        if Decimal("35.0") <= temperature < Decimal("36.0") or Decimal("39.0") <= temperature < Decimal("41.0"):
             return 2
         if Decimal("38.0") <= temperature < Decimal("39.0"):
+            return 3
+        return 5
+
+
+class BloodPressureRule(RuleEngine):
+    """Regla opcional de presion arterial (RF-02).
+
+    La presion arterial no es un dato critico obligatorio (no entra en RN-03):
+    en triaje rapido no siempre se mide. Por eso esta regla puntua solo cuando
+    hay al menos un valor presente y devuelve None en caso contrario, dejando
+    que el resto de reglas decidan. Umbrales clinicos para adultos (mmHg).
+    """
+
+    def evaluate(self, triage_input: TriageInput) -> int | None:
+        sub_priorities = [
+            priority
+            for priority in (
+                self._priority_by_systolic(triage_input.presion_sistolica),
+                self._priority_by_diastolic(triage_input.presion_diastolica),
+            )
+            if priority is not None
+        ]
+        return min(sub_priorities) if sub_priorities else None
+
+    @staticmethod
+    def _priority_by_systolic(systolic: int | None) -> int | None:
+        if systolic is None:
+            return None
+        if systolic < 90:  # hipotension / shock
+            return 1
+        if systolic >= 180:  # crisis hipertensiva
+            return 2
+        if systolic >= 160:  # HTA estadio 2
+            return 3
+        return 5
+
+    @staticmethod
+    def _priority_by_diastolic(diastolic: int | None) -> int | None:
+        if diastolic is None:
+            return None
+        if diastolic >= 120:  # crisis hipertensiva
+            return 2
+        if diastolic >= 100:  # HTA estadio 2
             return 3
         return 5
 
@@ -91,7 +134,7 @@ class TriageCalculatorService:
     """Orquesta reglas y retorna el nivel de prioridad final."""
 
     def __init__(self, rules: Iterable[RuleEngine] | None = None):
-        self.rules = list(rules) if rules else [RedFlagRule(), BasicVitalSignsRule()]
+        self.rules = list(rules) if rules else [RedFlagRule(), BasicVitalSignsRule(), BloodPressureRule()]
 
     def calculate(self, triage_input: TriageInput) -> int:
         self._validate_required_input(triage_input)
