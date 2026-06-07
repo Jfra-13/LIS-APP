@@ -13,11 +13,23 @@ services:
       timeout: 5s
       retries: 10
 
+  # Requires .env.staging to set: DEBUG=0, SECRET_KEY (strong, not the dev key),
+  # ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS, the POSTGRES_* / CELERY_BROKER_URL creds,
+  # and DB_ENGINE=django.db.backends.postgresql. Assumes TLS is terminated by a
+  # reverse proxy forwarding X-Forwarded-Proto; set SECURE_SSL_REDIRECT=0 if not.
   web:
     image: ${DOCKERHUB_USERNAME}/app-lis:${IMAGE_TAG:-staging-latest}
     env_file:
       - .env.staging
-    command: sh -c "python src/manage.py migrate --noinput && python src/manage.py runserver 0.0.0.0:8000"
+    # gunicorn with gthread workers: thread-per-connection keeps the SSE queue
+    # stream (medico:cola_stream) working without an ASGI server.
+    command: >
+      sh -c "python src/manage.py migrate --noinput &&
+             python src/manage.py collectstatic --noinput &&
+             PYTHONPATH=src gunicorn config.wsgi:application
+               --bind 0.0.0.0:8000
+               --worker-class gthread --workers 3 --threads 8 --timeout 120
+               --access-logfile - --error-logfile -"
     ports:
       - "8000:8000"
     depends_on:

@@ -6,6 +6,9 @@ __pycache__/
 *.sqlite3
 /src/media/
 /src/triage/static/
+
+# collectstatic output (STATIC_ROOT)
+/src/staticfiles/
 .git/
 
 # Coverage

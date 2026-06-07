@@ -1,12 +1,21 @@
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 def env(name, default=None):
     return os.environ.get(name, default)
+
+
+def env_bool(name, default):
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in ("1", "true", "yes", "on")
 
 
 def env_any(*names, default=None):
@@ -30,8 +39,16 @@ def db_env(name, default=None):
 
 
 # SECURITY
-SECRET_KEY = env("SECRET_KEY", "django-insecure-dev-key-change-me")
+INSECURE_SECRET_KEY = "django-insecure-dev-key-change-me"
+SECRET_KEY = env("SECRET_KEY", INSECURE_SECRET_KEY)
 DEBUG = env("DEBUG", "1") == "1"
+
+# Fail fast: never boot a deployment with the insecure development key.
+if not DEBUG and SECRET_KEY == INSECURE_SECRET_KEY:
+    raise ImproperlyConfigured(
+        "SECRET_KEY must be set to a strong, unique value when DEBUG is off."
+    )
+
 ALLOWED_HOSTS = [
     host.strip()
     for host in env("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver").split(",")
@@ -42,6 +59,20 @@ CSRF_TRUSTED_ORIGINS = [
     for host in env("CSRF_TRUSTED_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000").split(",")
     if host.strip()
 ]
+
+# Production security hardening. Secure-by-default when DEBUG is off; each flag
+# can still be overridden by env (e.g. a plain-HTTP staging may turn the SSL
+# redirect off). When DEBUG is on, everything stays relaxed for local work.
+_tls_default = not DEBUG
+SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", _tls_default)
+SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", _tls_default)
+CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", _tls_default)
+SECURE_HSTS_SECONDS = int(env("SECURE_HSTS_SECONDS", "31536000" if _tls_default else "0"))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", _tls_default)
+SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", _tls_default)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+# Honor the X-Forwarded-Proto header set by the reverse proxy / load balancer.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # Application definition
@@ -65,6 +96,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    # Serves the collected static files in production without a separate server.
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -161,6 +194,15 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        # WhiteNoise: compress + hash static files for long-lived caching.
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_URL = "login"
@@ -194,3 +236,57 @@ EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "noreply@applis.com")
+
+
+# Logging: single console stream (captured by Docker / the platform's log driver).
+# Application loggers (medico/triage/consulta) already attach structured context
+# via `logger.info(..., extra={...})`; the worker logs through the celery logger.
+LOG_LEVEL = env("LOG_LEVEL", "INFO").upper()
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {
+            "format": "{asctime} {levelname} {name} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": LOG_LEVEL,
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+        "celery": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+        "medico": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+        "triage": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+        "consulta": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+    },
+}
