@@ -15,6 +15,7 @@ def make_user(username: str):
     user.save()
     return user
 
+
 def test_triaje_flow_with_real_rabbitmq(db):
     """
     Test E2E arquitectónico:
@@ -48,7 +49,7 @@ def test_triaje_flow_with_real_rabbitmq(db):
             apellidos="Prueba",
             dni="98765432",
             fecha_nacimiento="1990-01-01",
-            sexo="M"
+            sexo="M",
         )
 
         tr = Triaje.objects.create(
@@ -65,10 +66,10 @@ def test_triaje_flow_with_real_rabbitmq(db):
         # ejecutamos la lógica del worker explícitamente en el mismo hilo de la prueba.
         send_triaje_to_queue.run(tr.id)
 
-        # 4. Validamos que la tarea hizo su trabajo mutando el estado
+        # 4. El task asegura la cola en espera; la transición a consultorio es manual.
         tr.refresh_from_db()
         cola_estado = getattr(tr, "cola_estado")
-        assert cola_estado.estado == ColaEstado.EstadoChoices.EN_CONSULTORIO
+        assert cola_estado.estado == ColaEstado.EstadoChoices.EN_ESPERA
 
     finally:
         # Limpieza de infraestructura

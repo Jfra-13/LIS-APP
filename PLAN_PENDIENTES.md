@@ -202,6 +202,14 @@ pueden paralelizarse. Fase 4 y 5 cierran cuando lo funcional está listo.
 ## Decisiones de producto pendientes (requieren tu input)
 
 1. **Motor de diagnóstico:** determinístico (Opción A) vs spaCy real (Opción B).
-2. **Transición de cola:** automática por worker vs manual por médico.
+2. **Transición de cola:** ✅ RESUELTO (Fase 3) — **manual por el médico**. El
+   worker (`send_triaje_to_queue`) ya no auto-mueve a `EN_CONSULTORIO`; solo
+   asegura el `ColaEstado` en `EN_ESPERA`. La transición la dispara el botón
+   "Llamar paciente" (`LlamarPacienteView`). Único dueño, sin colisión.
 3. **Historia clínica:** texto plano vs editor enriquecido.
-4. **Tiempo real:** ¿polling es suficiente o se invierte en WebSockets/SSE?
+4. **Tiempo real:** ✅ RESUELTO (Fase 3) — **SSE**. La cola usa Server-Sent
+   Events (`medico:cola_stream`, vista síncrona sobre WSGI) con un tick de
+   detección de cambios en BD; el front (htmx SSE ext) re-pide la tabla solo
+   cuando algo cambia, reemplazando el polling de 15s. Deuda Fase 4: cada
+   conexión SSE ocupa un thread/worker — para escalar, servir bajo ASGI o con
+   workers async (gevent/uvicorn).

@@ -8,7 +8,7 @@ from triage.models import Triaje
 
 
 @pytest.mark.django_db
-def test_send_triaje_to_queue_acepta_uuid_y_transiciona_estado():
+def test_send_triaje_to_queue_acepta_uuid_y_mantiene_en_espera():
     user = User.objects.create_user(username="enfermera", password="p")
     paciente = Paciente.objects.create(
         dni="99999999",
@@ -29,13 +29,13 @@ def test_send_triaje_to_queue_acepta_uuid_y_transiciona_estado():
     cola = ColaEstado.objects.get(triaje=triaje)
     assert cola.estado == ColaEstado.EstadoChoices.EN_ESPERA
 
+    # El task asegura la cola pero NO avanza a consultorio: eso lo decide el médico.
     send_triaje_to_queue.run(triaje.id)
 
     cola.refresh_from_db()
-    assert cola.estado == ColaEstado.EstadoChoices.EN_CONSULTORIO
+    assert cola.estado == ColaEstado.EstadoChoices.EN_ESPERA
 
-    # Idempotencia: ejecutar de nuevo no debe romper ni cambiar el estado final.
+    # Idempotencia: re-ejecutar (acepta str) no rompe ni cambia el estado.
     send_triaje_to_queue.run(str(triaje.id))
     cola.refresh_from_db()
-    assert cola.estado == ColaEstado.EstadoChoices.EN_CONSULTORIO
-
+    assert cola.estado == ColaEstado.EstadoChoices.EN_ESPERA

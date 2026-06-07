@@ -12,10 +12,12 @@
     <div class="col-md-12">
         <div class="card shadow-sm border-0">
             <div class="card-body p-0">
-                <div class="table-responsive">
+                <div class="table-responsive"
+                     hx-ext="sse"
+                     sse-connect="{% url 'medico:cola_stream' %}">
                     <table class="table table-hover align-middle mb-0"
                            hx-get="{% url 'medico:cola_atencion' %}"
-                           hx-trigger="every 15s"
+                           hx-trigger="sse:cola-update"
                            hx-select="#cola-table-body"
                            hx-target="#cola-table-body">
                         <thead class="table-light">
@@ -92,4 +94,9 @@
         100% { opacity: 1; }
     }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- htmx SSE extension: empuja la cola en tiempo real (reemplaza el polling) -->
+<script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/sse.js"></script>
 {% endblock %}

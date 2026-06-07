@@ -1,5 +1,3 @@
-import contextlib
-
 import pytest
 
 from admision.models import Paciente
@@ -63,12 +61,17 @@ def test_set_estado_rejects_invalid_transition():
 
 
 @pytest.mark.django_db
-def test_send_triaje_to_queue_uses_row_lock_inside_atomic(monkeypatch):
+def test_send_triaje_to_queue_no_avanza_a_consultorio():
+    """El task asegura la cola en EN_ESPERA pero NO la mueve a consultorio.
+
+    La transición EN_ESPERA -> EN_CONSULTORIO es decisión manual del médico
+    ("Llamar paciente"). El worker no debe robar pacientes de la sala de espera.
+    """
     user = User.objects.create_user(username="enfermera3", password="p")
     paciente = Paciente.objects.create(
         dni="32345678",
         nombres="Prueba",
-        apellidos="Lock",
+        apellidos="Espera",
         fecha_nacimiento="1990-01-01",
         sexo="M",
     )
@@ -81,27 +84,11 @@ def test_send_triaje_to_queue_uses_row_lock_inside_atomic(monkeypatch):
         usuario_enfermeria=user,
     )
 
-    in_atomic = {"value": False}
-
-    @contextlib.contextmanager
-    def fake_atomic():
-        in_atomic["value"] = True
-        try:
-            yield
-        finally:
-            in_atomic["value"] = False
-
-    original_manager = ColaEstado.objects
-
-    def fake_select_for_update(*args, **kwargs):
-        assert in_atomic["value"] is True
-        return original_manager.all()
-
-    monkeypatch.setattr("medico.tasks.transaction.atomic", fake_atomic)
-    monkeypatch.setattr(ColaEstado.objects, "select_for_update", fake_select_for_update)
-
     send_triaje_to_queue.run(triaje.id)
 
     cola = ColaEstado.objects.get(triaje=triaje)
-    assert cola.estado == ColaEstado.EstadoChoices.EN_CONSULTORIO
+    assert cola.estado == ColaEstado.EstadoChoices.EN_ESPERA
 
+    # Solo la acción manual del médico lo mueve a consultorio.
+    cola.set_estado(ColaEstado.EstadoChoices.EN_CONSULTORIO)
+    assert cola.estado == ColaEstado.EstadoChoices.EN_CONSULTORIO
