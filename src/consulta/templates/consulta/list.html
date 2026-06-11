@@ -7,13 +7,13 @@
   <div style="display:flex; justify-content: space-between; align-items: center; gap: 1rem;">
     <div>
       <h1>Notas médicas</h1>
-      <p class="muted">Listado de fichas clínicas narrativas.</p>
+      <p class="text-muted">Listado de fichas clínicas narrativas.</p>
     </div>
-    <a href="{% url 'consulta:nota_create' %}" class="button">Nueva nota</a>
+    <a href="{% url 'consulta:nota_create' %}" class="btn btn-primary">Nueva nota</a>
   </div>
 
   <form method="get" style="margin: 1rem 0;">
-    <input type="search" name="q" value="{{ request.GET.q }}" placeholder="Buscar por paciente o contenido">
+    <input type="search" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Buscar por paciente o contenido">
   </form>
 
   <ul>
@@ -22,10 +22,10 @@
         <a href="{% url 'consulta:nota_detail' nota.pk %}">
           {{ nota.paciente }} — {{ nota.motivo_consulta|default:"Sin motivo" }}
         </a>
-        <span class="muted">({{ nota.created_at }})</span>
+        <span class="text-muted">({{ nota.created_at }})</span>
       </li>
     {% empty %}
-      <li class="muted">No hay notas médicas registradas.</li>
+      <li class="text-muted">No hay notas médicas registradas.</li>
     {% endfor %}
   </ul>
 </div>

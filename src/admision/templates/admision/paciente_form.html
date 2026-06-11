@@ -6,16 +6,6 @@
 <div class="card" style="max-width: 600px; margin: 0 auto;">
     <h1>{{ title }}</h1>
 
-    {% if messages %}
-    <div class="messages">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}" role="alert">
-            {{ message }}
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
     <form method="post" novalidate>
         {% csrf_token %}
 
@@ -227,10 +217,10 @@
         {% endif %}
 
         <div style="margin-top: 2rem; display: flex; gap: 1rem;">
-            <button type="submit" class="button" style="cursor: pointer; flex: 1;">
+            <button type="submit" class="btn btn-primary" style="flex: 1;">
                 {{ button_text }} (Ctrl+S)
             </button>
-            <a href="{% url 'admision:paciente_list' %}" class="button secondary" style="flex: 1; text-align: center; text-decoration: none;">
+            <a href="{% url 'admision:paciente_list' %}" class="btn btn-outline-secondary" style="flex: 1;">
                 Cancelar (ESC)
             </a>
         </div>

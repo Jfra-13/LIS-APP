@@ -39,11 +39,11 @@
     <form method="post" style="margin-top: 2rem;">
         {% csrf_token %}
         <div style="display: flex; gap: 1rem;">
-            <button type="submit" class="button secondary" style="cursor: pointer; flex: 1; background: #7f1d1d; color: white;">
-                ✓ Sí, Desactivar Paciente
+            <button type="submit" class="btn btn-danger" style="flex: 1;">
+                Sí, Desactivar Paciente
             </button>
-            <a href="{% url 'admision:paciente_detail' object.id %}" class="button" style="flex: 1; text-align: center; text-decoration: none;">
-                ✗ Cancelar (ESC)
+            <a href="{% url 'admision:paciente_detail' object.id %}" class="btn btn-outline-secondary" style="flex: 1;">
+                Cancelar (ESC)
             </a>
         </div>
     </form>

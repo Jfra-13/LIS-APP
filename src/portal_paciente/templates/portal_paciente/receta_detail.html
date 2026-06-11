@@ -10,7 +10,7 @@
 <div class="card" style="border: 2px solid #e2e8f0;">
     <div style="text-align: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 1rem; margin-bottom: 1.5rem;">
         <h2 style="margin: 0; color: #0f172a;">Receta Médica Electrónica</h2>
-        <p class="muted">ID: {{ nota.receta_id }}</p>
+        <p class="text-muted">ID: {{ nota.receta_id }}</p>
     </div>
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; font-size: 0.95rem;">
@@ -30,7 +30,7 @@
             {% if nota.cie_code %}
                 <strong>{{ nota.cie_code }}</strong> - {{ nota.cie_short_description }}
             {% else %}
-                <span class="muted">Sin diagnóstico codificado</span>
+                <span class="text-muted">Sin diagnóstico codificado</span>
             {% endif %}
         </p>
     </div>
@@ -50,7 +50,7 @@
                 <tr>
                     <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">
                         <strong>{{ prescripcion.medicamento.nombre }}</strong><br>
-                        <small class="muted">{{ prescripcion.medicamento.presentacion }} - {{ prescripcion.medicamento.concentracion }}</small>
+                        <small class="text-muted">{{ prescripcion.medicamento.presentacion }} - {{ prescripcion.medicamento.concentracion }}</small>
                     </td>
                     <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">{{ prescripcion.dosis }}</td>
                     <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">{{ prescripcion.frecuencia }}</td>
@@ -65,7 +65,7 @@
                 {% endif %}
             {% empty %}
                 <tr>
-                    <td colspan="4" style="padding: 1.5rem; text-align: center;" class="muted">No hay medicamentos registrados en esta receta.</td>
+                    <td colspan="4" style="padding: 1.5rem; text-align: center;" class="text-muted">No hay medicamentos registrados en esta receta.</td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -77,7 +77,7 @@
             <small>Firma del Médico</small>
         </div>
         <div style="text-align: right;">
-            <button onclick="window.print()" class="button secondary" style="padding: 0.5rem 1rem;">Imprimir Receta</button>
+            <button onclick="window.print()" class="btn btn-outline-secondary">Imprimir Receta</button>
         </div>
     </div>
 </div>

@@ -77,9 +77,14 @@ class AutenticacionPacienteTests(TestCase):
         url = reverse('autenticacion_paciente:verify_link', kwargs={'uidb64': uid, 'token': token})
         response = self.client.get(url)
         
-        self.assertEqual(response.status_code, 302) # Redirect to home
-        self.assertRedirects(response, reverse('home'))
-        
+        self.assertEqual(response.status_code, 302)
+        # Bug #1 fix: magic link must redirect to the patient portal, not 'home'
+        self.assertRedirects(
+            response,
+            reverse('portal_paciente:dashboard'),
+            fetch_redirect_response=False,
+        )
+
         # Verificar que el usuario está logueado
         self.assertIn('_auth_user_id', self.client.session)
 

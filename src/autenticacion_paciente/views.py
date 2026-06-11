@@ -70,6 +70,6 @@ class LoginFromLinkView(View):
         if user is not None and account_activation_token.check_token(user, token):
             login(request, user)
             messages.success(request, f"Bienvenido, {user.get_full_name() or user.username}")
-            return redirect('home')
+            return redirect('portal_paciente:dashboard')
         else:
             return render(request, 'autenticacion_paciente/invalid_link.html')

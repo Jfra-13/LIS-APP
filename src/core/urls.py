@@ -13,4 +13,9 @@ urlpatterns = [
         name="login",
     ),
     path("logout/", auth_views.LogoutView.as_view(next_page="landing"), name="logout"),
+    # Role dashboards (global names — no app namespace)
+    path("dashboard/admin/", views.dashboard_admin, name="dashboard_admin"),
+    path("dashboard/medico/", views.dashboard_medico, name="dashboard_medico"),
+    path("dashboard/enfermero/", views.dashboard_enfermero, name="dashboard_enfermero"),
+    path("dashboard/admision/", views.dashboard_admision, name="dashboard_admision"),
 ]

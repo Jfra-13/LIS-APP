@@ -1,10 +1,11 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block title %}Cola de Atención Médica | LIS{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Cola de Pacientes en Espera</h1>
+    <h1 class="h3 mb-0">Cola de Pacientes en Espera</h1>
     <div class="text-muted small">Rol: Médico Especialista</div>
 </div>
 
@@ -84,19 +85,9 @@
     </div>
 </div>
 
-<style>
-    .pulsate {
-        animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.5; }
-        100% { opacity: 1; }
-    }
-</style>
 {% endblock %}
 
 {% block extra_js %}
 <!-- htmx SSE extension: empuja la cola en tiempo real (reemplaza el polling) -->
-<script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/sse.js"></script>
+<script src="{% static 'vendor/htmx/sse.js' %}"></script>
 {% endblock %}

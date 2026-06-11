@@ -92,6 +92,7 @@ INSTALLED_APPS = [
     "autenticacion_paciente.apps.AutenticacionPacienteConfig",
     "simple_history",
     "django_htmx",
+    "django_cotton",
 ]
 
 MIDDLEWARE = [
@@ -115,14 +116,24 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [],
-        "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "core.context_processors.navigation",
             ],
+            "loaders": [
+                (
+                    "django_cotton.cotton_loader.Loader",
+                    [
+                        "django.template.loaders.filesystem.Loader",
+                        "django.template.loaders.app_directories.Loader",
+                    ],
+                ),
+            ],
+            "builtins": ["django_cotton.templatetags.cotton"],
         },
     },
 ]
