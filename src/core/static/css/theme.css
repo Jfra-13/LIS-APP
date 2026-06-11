@@ -1,0 +1,470 @@
+/* LIS Design Tokens — "Clínica Clara"
+ * =====================================================================
+ * These CSS custom properties are the single source of truth for the
+ * LIS theme.  Bootstrap overrides layer on top of them.
+ * ===================================================================== */
+
+:root {
+  --lis-primary:        #0f766e;   /* Clinical teal — sober accent */
+  --lis-primary-hover:  #115e59;
+  --lis-primary-tint:   #e6f3f1;   /* Active nav item background tint */
+  --lis-primary-rgb:    15, 118, 110;
+  --lis-bg:             #f8f9fa;
+  --lis-sidebar-width:  240px;
+  --lis-topbar-height:  56px;
+  --lis-border:         #dee2e6;
+  --lis-text-muted:     #6c757d;
+  --lis-nav-text:       #212529;   /* Dark gray for nav labels */
+  --lis-font-sans:      system-ui, -apple-system, "Segoe UI", Roboto,
+                        "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+
+  /* Bridge to Bootstrap 5.3 CSS variables so utilities (.bg-primary,
+   * .text-primary, links, pagination) pick up the LIS accent. */
+  --bs-primary:            var(--lis-primary);
+  --bs-primary-rgb:        var(--lis-primary-rgb);
+  --bs-link-color:         var(--lis-primary);
+  --bs-link-color-rgb:     var(--lis-primary-rgb);
+  --bs-link-hover-color:   var(--lis-primary-hover);
+  --bs-link-hover-color-rgb: 17, 94, 89;
+}
+
+
+/* =====================================================================
+ * Base / Body / Typography
+ * ===================================================================== */
+
+body {
+  background-color: var(--lis-bg);
+  min-height: 100vh;
+  font-family: var(--lis-font-sans);
+}
+
+/* Compact heading scale: clinical-app density instead of marketing-site
+ * defaults (Bootstrap h1 is 2.5rem — oversized inside the shell). */
+h1, .h1 { font-size: 1.5rem;  font-weight: 700; }
+h2, .h2 { font-size: 1.3rem;  font-weight: 700; }
+h3, .h3 { font-size: 1.15rem; font-weight: 700; }
+h4, .h4 { font-size: 1.05rem; font-weight: 600; }
+
+/* Visible keyboard focus with the theme accent. */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--lis-primary);
+  outline-offset: 2px;
+}
+
+
+/* =====================================================================
+ * Bootstrap component overrides (accent propagation)
+ * ===================================================================== */
+
+.btn-primary {
+  --bs-btn-bg: var(--lis-primary);
+  --bs-btn-border-color: var(--lis-primary);
+  --bs-btn-hover-bg: var(--lis-primary-hover);
+  --bs-btn-hover-border-color: var(--lis-primary-hover);
+  --bs-btn-active-bg: var(--lis-primary-hover);
+  --bs-btn-active-border-color: var(--lis-primary-hover);
+  --bs-btn-disabled-bg: var(--lis-primary);
+  --bs-btn-disabled-border-color: var(--lis-primary);
+  --bs-btn-focus-shadow-rgb: var(--lis-primary-rgb);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--lis-primary);
+  --bs-btn-border-color: var(--lis-primary);
+  --bs-btn-hover-bg: var(--lis-primary);
+  --bs-btn-hover-border-color: var(--lis-primary);
+  --bs-btn-active-bg: var(--lis-primary);
+  --bs-btn-active-border-color: var(--lis-primary);
+  --bs-btn-disabled-color: var(--lis-primary);
+  --bs-btn-disabled-border-color: var(--lis-primary);
+  --bs-btn-focus-shadow-rgb: var(--lis-primary-rgb);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--lis-primary);
+  box-shadow: 0 0 0 0.25rem rgba(var(--lis-primary-rgb), 0.25);
+}
+
+.form-check-input:checked {
+  background-color: var(--lis-primary);
+  border-color: var(--lis-primary);
+}
+
+.form-check-input:focus {
+  border-color: var(--lis-primary);
+  box-shadow: 0 0 0 0.25rem rgba(var(--lis-primary-rgb), 0.25);
+}
+
+.pagination {
+  --bs-pagination-color: var(--lis-primary);
+  --bs-pagination-hover-color: var(--lis-primary-hover);
+  --bs-pagination-focus-color: var(--lis-primary-hover);
+  --bs-pagination-focus-box-shadow: 0 0 0 0.25rem rgba(var(--lis-primary-rgb), 0.25);
+  --bs-pagination-active-bg: var(--lis-primary);
+  --bs-pagination-active-border-color: var(--lis-primary);
+}
+
+
+/* =====================================================================
+ * App Shell
+ * ===================================================================== */
+
+.lis-app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* The horizontal band below the topbar that holds sidebar + content. */
+.lis-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+
+/* =====================================================================
+ * Topbar
+ * ===================================================================== */
+
+.lis-topbar {
+  height: var(--lis-topbar-height);
+  background: #ffffff;
+  border-bottom: 1px solid var(--lis-border);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  flex-shrink: 0;
+}
+
+.lis-topbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.lis-topbar__logo {
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--lis-primary);
+  text-decoration: none;
+}
+
+.lis-topbar__logo:hover {
+  color: var(--lis-primary);
+  opacity: 0.85;
+}
+
+.lis-topbar__hamburger {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  color: var(--lis-nav-text);
+  line-height: 1;
+}
+
+.lis-topbar__user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lis-topbar__fullname {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--lis-nav-text);
+}
+
+/* Role chip next to the user name */
+.lis-topbar__role-chip {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  background-color: var(--lis-primary-tint);
+  color: var(--lis-primary);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+
+/* =====================================================================
+ * Sidebar
+ * ===================================================================== */
+
+.lis-sidebar {
+  width: var(--lis-sidebar-width);
+  background: #ffffff;
+  border-right: 1px solid var(--lis-border);
+  flex-shrink: 0;
+  overflow-y: auto;
+  position: sticky;
+  top: var(--lis-topbar-height);
+  height: calc(100vh - var(--lis-topbar-height));
+  padding-top: 1rem;
+  z-index: 1020;
+  transition: transform 0.25s ease;
+}
+
+/* Nav list */
+.lis-sidebar__nav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lis-sidebar__item {
+  margin: 0 0.5rem 0.125rem;
+}
+
+.lis-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 6px;
+  color: var(--lis-nav-text);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.lis-sidebar__link:hover {
+  background: var(--lis-bg);
+  color: var(--lis-primary);
+}
+
+/* Active nav item: blue accent + left border + tinted background */
+.lis-sidebar__link--active {
+  background: var(--lis-primary-tint);
+  color: var(--lis-primary);
+  font-weight: 600;
+  border-left: 3px solid var(--lis-primary);
+  padding-left: calc(0.875rem - 3px);
+}
+
+.lis-sidebar__icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* Close button (mobile only) */
+.lis-sidebar__close {
+  display: block;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--lis-text-muted);
+}
+
+/* Mobile backdrop overlay */
+.lis-sidebar__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 1019;
+}
+
+/* =====================================================================
+ * Responsive — mobile sidebar (off-canvas)
+ * ===================================================================== */
+
+@media (max-width: 991.98px) {
+  .lis-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    border-right: 1px solid var(--lis-border);
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.12);
+    z-index: 1040;
+    padding-top: 0.5rem;
+  }
+
+  .lis-sidebar--open {
+    transform: translateX(0);
+  }
+
+  /* Full-width content on mobile regardless of sidebar */
+  .lis-body--with-sidebar .lis-content {
+    width: 100%;
+  }
+}
+
+
+/* =====================================================================
+ * Content area
+ * ===================================================================== */
+
+/* When sidebar is present the content fills remaining width. */
+.lis-body--with-sidebar .lis-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.lis-content {
+  flex: 1;
+  min-width: 0;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - var(--lis-topbar-height));
+}
+
+
+/* =====================================================================
+ * Flash messages bar
+ * ===================================================================== */
+
+.lis-messages {
+  margin-bottom: 1rem;
+}
+
+
+/* =====================================================================
+ * Footer (inside content area)
+ * ===================================================================== */
+
+.lis-footer {
+  margin-top: auto;
+  padding-top: 2rem;
+  padding-bottom: 0.5rem;
+  border-top: 1px solid var(--lis-border);
+  text-align: center;
+}
+
+
+/* =====================================================================
+ * Cards — base token
+ * ===================================================================== */
+
+.card,
+.lis-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.lis-card__header {
+  background: #ffffff;
+  border-bottom: 1px solid var(--lis-border);
+  border-radius: 12px 12px 0 0 !important;
+}
+
+
+/* =====================================================================
+ * Stat / KPI tile
+ * ===================================================================== */
+
+.lis-stat .card-body {
+  padding: 1.25rem;
+}
+
+.lis-stat__icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.lis-stat__value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.lis-stat__label {
+  margin-top: 0.125rem;
+}
+
+
+/* =====================================================================
+ * Page header
+ * ===================================================================== */
+
+.lis-page-header {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--lis-border);
+}
+
+.lis-page-header__title {
+  font-size: 1.375rem;
+  font-weight: 700;
+}
+
+
+/* =====================================================================
+ * Empty state
+ * ===================================================================== */
+
+.lis-empty-state {
+  padding: 3rem 1rem;
+}
+
+
+/* =====================================================================
+ * Utilities
+ * ===================================================================== */
+
+/* Live "in consultation" indicator (médico queue row). */
+.pulsate {
+  animation: lis-pulse 2s infinite;
+}
+
+@keyframes lis-pulse {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Vertical timeline (patient portal history). */
+.lis-timeline {
+  position: relative;
+  margin-left: 0.5rem;
+  padding-left: 2rem;
+  border-left: 2px solid var(--lis-border);
+}
+
+.lis-timeline__item {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.lis-timeline__dot {
+  position: absolute;
+  left: -2.45rem;
+  top: 0.25rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--lis-primary);
+  border: 4px solid #ffffff;
+  box-shadow: 0 0 0 2px var(--lis-primary);
+}
+
+
+/* =====================================================================
+ * Manchester Triage Colors — DO NOT MODIFY (medical semantic color)
+ * ===================================================================== */
+
+.manchester-1 { background-color: #dc3545 !important; color: white; }  /* Rojo — Inmediato */
+.manchester-2 { background-color: #fd7e14 !important; color: white; }  /* Naranja — Muy urgente */
+.manchester-3 { background-color: #ffc107 !important; color: black; }  /* Amarillo — Urgente */
+.manchester-4 { background-color: #198754 !important; color: white; }  /* Verde — Poco urgente */
+.manchester-5 { background-color: #0dcaf0 !important; color: black; }  /* Azul — No urgente */

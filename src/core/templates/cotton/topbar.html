@@ -1,0 +1,37 @@
+{% load static %}
+{# LIS Topbar — white bar with brand, mobile hamburger, user info, and logout. #}
+<header class="lis-topbar">
+  <div class="lis-topbar__brand">
+    {# Hamburger: only relevant on mobile; triggers Alpine sidebar toggle on the parent layout. #}
+    <button class="lis-topbar__hamburger d-lg-none"
+            type="button"
+            @click="sidebarOpen = !sidebarOpen"
+            aria-label="Abrir menú">
+      <i class="bi bi-list fs-4"></i>
+    </button>
+    <a class="lis-topbar__logo" href="{% url 'home' %}">
+      <i class="bi bi-heart-pulse-fill me-2"></i>LIS
+    </a>
+  </div>
+
+  <div class="lis-topbar__user">
+    {% if user.is_authenticated %}
+      <span class="lis-topbar__fullname">
+        {{ user.get_full_name|default:user.username }}
+      </span>
+      {% if current_role_label %}
+        <span class="lis-topbar__role-chip">{{ current_role_label }}</span>
+      {% endif %}
+      <form action="{% url 'logout' %}" method="post" class="d-inline ms-2">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-outline-danger">
+          <i class="bi bi-box-arrow-right me-1"></i>Salir
+        </button>
+      </form>
+    {% else %}
+      <a href="{% url 'login' %}" class="btn btn-sm btn-primary">
+        <i class="bi bi-box-arrow-in-right me-1"></i>Ingresar
+      </a>
+    {% endif %}
+  </div>
+</header>

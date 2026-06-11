@@ -1,0 +1,31 @@
+{# LIS Layout shell — topbar + optional sidebar + main content. #}
+{# is_patient_shell (from context processor) switches to a lighter full-width layout. #}
+<div class="lis-app-shell" x-data="{ sidebarOpen: false }">
+
+  <c-topbar />
+
+  <div class="lis-body {% if not is_patient_shell and nav_items %}lis-body--with-sidebar{% endif %}">
+
+    {% if not is_patient_shell and nav_items %}
+      <c-sidebar />
+    {% endif %}
+
+    <main class="lis-content" id="main-content">
+      {# Django flash messages — rendered before page content. #}
+      {% if messages %}
+        <div class="lis-messages">
+          {% for message in messages %}
+            <c-alert :type="message.tags">{{ message }}</c-alert>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {{ slot }}
+
+      <footer class="lis-footer">
+        <p class="text-muted mb-0 small">&copy; {% now "Y" %} LIS &mdash; Sistema de Información Clínica.</p>
+      </footer>
+    </main>
+
+  </div>
+</div>

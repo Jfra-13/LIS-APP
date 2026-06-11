@@ -1,0 +1,22 @@
+{#
+  c-stat — KPI / metric tile for dashboards.
+
+  Attrs:
+    label   (required) — descriptor text shown below the value
+    value   (required) — the numeric or text metric to highlight
+    icon    (required) — Bootstrap Icons class, e.g. "bi-people"
+    variant (optional) — Bootstrap color suffix (primary|success|danger|warning|info).
+                         Defaults to "primary".
+#}
+{% cotton:vars variant="primary" %}
+<div class="card lis-stat">
+  <div class="card-body d-flex align-items-center gap-3">
+    <div class="lis-stat__icon-wrap bg-{{ variant }} bg-opacity-10 text-{{ variant }}">
+      <i class="bi {{ icon }} fs-3"></i>
+    </div>
+    <div>
+      <div class="lis-stat__value">{{ value }}</div>
+      <div class="lis-stat__label text-muted small">{{ label }}</div>
+    </div>
+  </div>
+</div>
