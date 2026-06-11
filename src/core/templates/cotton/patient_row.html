@@ -1,0 +1,40 @@
+{#
+  c-patient-row — Reusable <tr> for patient / queue tables.
+
+  Expected attrs (pass directly or via :paciente binding):
+    dni        — patient DNI string
+    nombres    — patient first names
+    apellidos  — patient last names
+    nivel      (optional) — Manchester priority level (1-5); renders badge if provided
+    wait_time  (optional) — human-readable waiting time string
+    row_class  (optional) — extra CSS class on the <tr> element
+
+  Named slots:
+    actions    — action buttons injected in the last <td>
+
+  The caller controls which columns exist in the parent <thead>; this component
+  provides: priority badge | name + detail | DNI | wait time | actions.
+  Omit columns by not passing the relevant attr.
+#}
+<tr class="{{ row_class }}">
+  {% if nivel %}
+  <td class="ps-4">
+    <c-badge-manchester :level="nivel" />
+  </td>
+  {% endif %}
+
+  <td>
+    <div class="fw-bold">{{ nombres }} {{ apellidos }}</div>
+    {{ slot }}
+  </td>
+
+  <td>{{ dni }}</td>
+
+  {% if wait_time %}
+  <td><span class="text-muted">{{ wait_time }}</span></td>
+  {% endif %}
+
+  <td class="text-end pe-4">
+    {{ actions }}
+  </td>
+</tr>

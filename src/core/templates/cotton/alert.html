@@ -1,0 +1,34 @@
+{#
+  c-alert — Bootstrap 5 alert with optional dismiss button.
+
+  Attrs:
+    type        (optional) — success | danger | warning | info | error (default: info)
+                             "error" is mapped to "danger" (Django message tag compat).
+    dismissible (optional) — "true" or "false" (default: "true")
+
+  Slot: alert message content
+#}
+{% cotton:vars type="info" dismissible="true" %}
+
+{# Resolve Bootstrap variant: Django "error" tag → Bootstrap "danger". #}
+{% if type == "error" or type == "danger" %}{% with bs_type="danger" %}
+<div class="alert alert-{{ bs_type }}{% if dismissible == 'true' %} alert-dismissible fade show{% endif %}" role="alert">
+  {{ slot }}
+  {% if dismissible == "true" %}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>{% endif %}
+</div>
+{% endwith %}{% elif type == "success" %}{% with bs_type="success" %}
+<div class="alert alert-{{ bs_type }}{% if dismissible == 'true' %} alert-dismissible fade show{% endif %}" role="alert">
+  {{ slot }}
+  {% if dismissible == "true" %}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>{% endif %}
+</div>
+{% endwith %}{% elif type == "warning" %}{% with bs_type="warning" %}
+<div class="alert alert-{{ bs_type }}{% if dismissible == 'true' %} alert-dismissible fade show{% endif %}" role="alert">
+  {{ slot }}
+  {% if dismissible == "true" %}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>{% endif %}
+</div>
+{% endwith %}{% else %}{% with bs_type="info" %}
+<div class="alert alert-{{ bs_type }}{% if dismissible == 'true' %} alert-dismissible fade show{% endif %}" role="alert">
+  {{ slot }}
+  {% if dismissible == "true" %}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>{% endif %}
+</div>
+{% endwith %}{% endif %}

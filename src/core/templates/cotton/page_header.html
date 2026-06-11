@@ -1,0 +1,23 @@
+{#
+  c-page-header — Page title bar with optional subtitle and action buttons.
+
+  Attrs:
+    title    (required) — main heading text
+    subtitle (optional) — muted sub-text below the heading
+
+  Named slots:
+    actions  (optional) — right-aligned action buttons
+#}
+<div class="lis-page-header d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+  <div>
+    <h1 class="lis-page-header__title mb-0">{{ title }}</h1>
+    {% if subtitle %}
+      <p class="text-muted mb-0 mt-1 small">{{ subtitle }}</p>
+    {% endif %}
+  </div>
+  {% if actions %}
+    <div class="lis-page-header__actions d-flex align-items-center gap-2 flex-shrink-0">
+      {{ actions }}
+    </div>
+  {% endif %}
+</div>

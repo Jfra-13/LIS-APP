@@ -1,0 +1,17 @@
+{#
+  c-empty-state — Centered muted placeholder for empty lists.
+
+  Attrs:
+    icon    (optional) — Bootstrap Icons class; defaults to "bi-inbox"
+    message (required) — descriptive text to show
+
+  Slot: optional additional content (e.g. a CTA button)
+#}
+{% cotton:vars icon="bi-inbox" %}
+<div class="lis-empty-state text-center py-5 text-muted">
+  <i class="bi {{ icon }} fs-1 d-block mb-3"></i>
+  <p class="mb-3">{{ message }}</p>
+  {% if slot %}
+    <div class="lis-empty-state__extra">{{ slot }}</div>
+  {% endif %}
+</div>

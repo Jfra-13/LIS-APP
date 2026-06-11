@@ -1,0 +1,36 @@
+{# LIS Sidebar — role-scoped navigation panel. #}
+{# Rendered only when nav_items is non-empty. Hidden/off-canvas on mobile, fixed on desktop. #}
+{% if nav_items %}
+<aside class="lis-sidebar"
+       :class="{ 'lis-sidebar--open': sidebarOpen }"
+       @click.outside="sidebarOpen = false">
+
+  {# Mobile overlay close button #}
+  <button class="lis-sidebar__close d-lg-none"
+          type="button"
+          @click="sidebarOpen = false"
+          aria-label="Cerrar menú">
+    <i class="bi bi-x-lg"></i>
+  </button>
+
+  <nav aria-label="Navegación principal">
+    <ul class="lis-sidebar__nav">
+      {% for item in nav_items %}
+      <li class="lis-sidebar__item">
+        <a href="{{ item.url }}"
+           class="lis-sidebar__link {% if item.active %}lis-sidebar__link--active{% endif %}">
+          <i class="bi {{ item.icon }} lis-sidebar__icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </nav>
+</aside>
+
+{# Mobile overlay backdrop #}
+<div class="lis-sidebar__backdrop d-lg-none"
+     x-show="sidebarOpen"
+     @click="sidebarOpen = false"
+     x-cloak></div>
+{% endif %}

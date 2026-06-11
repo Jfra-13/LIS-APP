@@ -1,0 +1,10 @@
+{#
+  c-badge-manchester — Manchester Triage System priority badge.
+
+  Attrs:
+    level (required) — integer 1-5 (maps to manchester-1 … manchester-5 CSS classes)
+    label (optional) — override the default "Nivel {level}" text
+#}
+<span class="badge rounded-pill manchester-{{ level }} px-3 py-2">
+  {% if label %}{{ label }}{% else %}Nivel {{ level }}{% endif %}
+</span>
