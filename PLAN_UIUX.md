@@ -327,13 +327,13 @@ manual con dos sesiones); typeahead CIE-10 y medicamentos intactos.
 del staff.
 
 ### Fase D5 — Superadmin + autenticación staff
-- [ ] `registration/login.html`: card neutra (sin header `bg-primary`), sin
+- [x] `registration/login.html`: card neutra (sin header `bg-primary`), sin
       `alert-info` de relleno, sin validación con `alert()` (la validación real
       es del server). Mantener el toggle de visibilidad de contraseña.
-- [ ] `dashboard/admin.html`: métricas reales con `c-stat` (pacientes del día,
+- [x] `dashboard/admin.html`: métricas reales con `c-stat` (pacientes del día,
       cola activa, triajes, notas) consumiendo `consulta:reportes` o queries
       simples en la vista.
-- [ ] Dashboards médico/enfermero/admisión: 2–3 `c-stat` con datos reales +
+- [x] Dashboards médico/enfermero/admisión: 2–3 `c-stat` con datos reales +
       accesos rápidos como cards (reemplaza el `list-group` con `max-width`
       inline).
 
@@ -341,18 +341,18 @@ del staff.
 sobrio y profesional.
 
 ### Fase E — Pulido
-- [ ] Responsive por página (el shell ya es responsive; las páginas no): tablas
+- [x] Responsive por página (el shell ya es responsive; las páginas no): tablas
       con columnas priorizadas en mobile (`d-none d-md-table-cell` en columnas
       secundarias) o patrón stacked; formularios a una columna en `< md`;
       botones de acción full-width en mobile.
-- [ ] Accesibilidad: `:focus-visible` con ring del tema; `aria-current="page"`
+- [x] Accesibilidad: `:focus-visible` con ring del tema; `aria-current="page"`
       en el item de nav activo; contraste AA (verificar manchester-3 y 5 con
       texto negro); `aria-label` en botones de solo icono.
-- [ ] Estados: `hx-indicator` (spinner) en búsquedas y typeahead;
+- [x] Estados: `hx-indicator` (spinner) en búsquedas y typeahead;
       `c-empty-state` en todos los listados; páginas 403/404/500 con el shell.
-- [ ] Print styles (`@media print`): nota clínica y receta — ocultar
+- [x] Print styles (`@media print`): nota clínica y receta — ocultar
       sidebar/topbar/botones, tipografía de documento.
-- [ ] `collectstatic` con manifest + smoke test sin red externa.
+- [x] `collectstatic` con manifest + smoke test sin red externa.
 
 **Aceptación**: contraste AA en textos clave; navegable por teclado; impresión de
 receta legible; vistas principales usables a 360 px.
