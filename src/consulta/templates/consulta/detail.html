@@ -1,42 +1,62 @@
 {% extends "core/base.html" %}
 {% load markdown_extras %}
 
-{% block title %}Nota médica{% endblock %}
+{% block title %}Nota Médica | LIS{% endblock %}
 
 {% block content %}
-<div class="card">
-  <p><a href="{% url 'consulta:nota_list' %}">&larr; Volver al listado</a></p>
-  <h1>Nota médica</h1>
 
-  <dl>
-    <dt>Paciente</dt>
-    <dd>{{ nota.paciente }}</dd>
+<c-page-header title="Nota Médica" subtitle="{{ nota.paciente }}">
+  <c-slot name="actions">
+    <a href="{% url 'consulta:nota_list' %}" class="btn btn-outline-secondary">
+      &larr; Volver al listado
+    </a>
+  </c-slot>
+</c-page-header>
 
-    <dt>Médico</dt>
-    <dd>{{ nota.medico|default:"Sin asignar" }}</dd>
+<div class="row g-4">
 
-    <dt>Triaje</dt>
-    <dd>{{ nota.triaje|default:"Sin triaje" }}</dd>
+  {# Patient summary #}
+  <div class="col-md-4">
+    <c-card title="Datos de la consulta">
+      <dl class="lis-patient-dl mb-0">
+        <dt>Paciente</dt>
+        <dd>{{ nota.paciente }}</dd>
 
-    <dt>Motivo</dt>
-    <dd>{{ nota.motivo_consulta|default:"Sin motivo" }}</dd>
-  </dl>
+        <dt>Médico</dt>
+        <dd>{{ nota.medico|default:"Sin asignar" }}</dd>
 
-  <h2>Contenido</h2>
-  <div class="nota-contenido">{{ nota.contenido|markdownify }}</div>
+        <dt>Triaje</dt>
+        <dd>{{ nota.triaje|default:"Sin triaje" }}</dd>
 
-  {% if nota.is_privada %}
-    <p class="text-muted"><strong>Nota privada</strong></p>
-  {% endif %}
+        <dt>Motivo</dt>
+        <dd>{{ nota.motivo_consulta|default:"Sin motivo" }}</dd>
+      </dl>
 
-  <div class="mt-4 p-3 bg-light rounded-3">
-    <div id="ia-panel"
-         hx-get="{% url 'consulta:ai_suggestions' nota.pk %}"
-         hx-trigger="load, every 2s"
-         hx-swap="outerHTML">
-      <span class="text-muted small">Procesando IA…</span>
-    </div>
+      {% if nota.is_privada %}
+        <p class="text-muted small mt-3 mb-0">Nota marcada como privada.</p>
+      {% endif %}
+    </c-card>
   </div>
-</div>
-{% endblock %}
 
+  {# Clinical note content #}
+  <div class="col-md-8 d-flex flex-column gap-4">
+
+    <c-card title="Contenido de la nota">
+      <div class="lis-clinical-note">{{ nota.contenido|markdownify }}</div>
+    </c-card>
+
+    {# AI suggestions panel — HTMX polling (do not modify hx-* attrs) #}
+    <c-card title="Sugerencias IA (CIE-10)">
+      <div id="ia-panel"
+           hx-get="{% url 'consulta:ai_suggestions' nota.pk %}"
+           hx-trigger="load, every 2s"
+           hx-swap="outerHTML">
+        <span class="text-muted small">Procesando IA…</span>
+      </div>
+    </c-card>
+
+  </div>
+
+</div>
+
+{% endblock %}

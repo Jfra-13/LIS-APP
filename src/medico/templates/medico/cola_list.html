@@ -1,93 +1,81 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Cola de Atención Médica | LIS{% endblock %}
+{% block title %}Cola de Atención | LIS{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Cola de Pacientes en Espera</h1>
-    <div class="text-muted small">Rol: Médico Especialista</div>
-</div>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-0">
-                <div class="table-responsive"
-                     hx-ext="sse"
-                     sse-connect="{% url 'medico:cola_stream' %}">
-                    <table class="table table-hover align-middle mb-0"
-                           hx-get="{% url 'medico:cola_atencion' %}"
-                           hx-trigger="sse:cola-update"
-                           hx-select="#cola-table-body"
-                           hx-target="#cola-table-body">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="ps-4">Prioridad</th>
-                                <th>Paciente</th>
-                                <th>DNI</th>
-                                <th>Tiempo Espera</th>
-                                <th>Estado</th>
-                                <th class="text-end pe-4">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cola-table-body">
-                            {% for item in pacientes_cola %}
-                            <tr class="{% if item.estado == 'EN_CONSULTORIO' %}table-primary{% endif %}">
-                                <td class="ps-4">
-                                    <span class="badge rounded-pill manchester-{{ item.triaje.nivel_prioridad }} px-3 py-2">
-                                        Nivel {{ item.triaje.nivel_prioridad }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="fw-bold">{{ item.triaje.paciente.nombres }} {{ item.triaje.paciente.apellidos }}</div>
-                                    <small class="text-muted">Triaje por: {{ item.triaje.usuario_enfermeria.get_full_name|default:item.triaje.usuario_enfermeria.username }}</small>
-                                </td>
-                                <td>{{ item.triaje.paciente.dni }}</td>
-                                <td>
-                                    <span class="text-muted">{{ item.created_at|timesince }}</span>
-                                </td>
-                                <td>
-                                    {% if item.estado == 'EN_ESPERA' %}
-                                        <span class="badge bg-warning text-dark">Pendiente</span>
-                                    {% elif item.estado == 'EN_CONSULTORIO' %}
-                                        <span class="badge bg-primary pulsate">En Consultorio</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-end pe-4">
-                                    {% if item.estado == 'EN_ESPERA' %}
-                                        <form action="{% url 'medico:llamar_paciente' item.pk %}" method="post" class="d-inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-sm btn-success px-3">
-                                                <i class="bi bi-megaphone me-1"></i> Llamar
-                                            </button>
-                                        </form>
-                                    {% elif item.estado == 'EN_CONSULTORIO' %}
-                                        <a href="{% url 'consulta:nota_create' %}?paciente={{ item.triaje.paciente.pk }}&triaje={{ item.triaje.pk }}" class="btn btn-sm btn-primary">
-                                            <i class="bi bi-pencil-square me-1"></i> Atender
-                                        </a>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="6" class="text-center py-5 text-muted">
-                                    <i class="bi bi-check2-circle fs-1 d-block mb-2 text-success"></i>
-                                    No hay pacientes pendientes en la cola.
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<c-page-header title="Cola de Pacientes" subtitle="Pacientes en espera de atención médica" />
+
+<c-card title="Pacientes en espera">
+  <div class="table-responsive"
+       hx-ext="sse"
+       sse-connect="{% url 'medico:cola_stream' %}">
+    <table class="table table-hover align-middle mb-0"
+           hx-get="{% url 'medico:cola_atencion' %}"
+           hx-trigger="sse:cola-update"
+           hx-select="#cola-table-body"
+           hx-target="#cola-table-body">
+      <thead class="table-light">
+        <tr>
+          <th class="ps-3">Prioridad</th>
+          <th>Paciente</th>
+          <th>DNI</th>
+          <th>Tiempo espera</th>
+          <th>Estado</th>
+          <th class="text-end pe-3">Acción</th>
+        </tr>
+      </thead>
+      <tbody id="cola-table-body">
+        {% for item in pacientes_cola %}
+        <tr class="{% if item.estado == 'EN_CONSULTORIO' %}table-primary{% endif %}">
+          <td class="ps-3">
+            <c-badge-manchester :level="item.triaje.nivel_prioridad" label="Nivel {{ item.triaje.nivel_prioridad }}" />
+          </td>
+          <td>
+            <div class="fw-semibold">{{ item.triaje.paciente.nombres }} {{ item.triaje.paciente.apellidos }}</div>
+            <small class="text-muted">Triaje: {{ item.triaje.usuario_enfermeria.get_full_name|default:item.triaje.usuario_enfermeria.username }}</small>
+          </td>
+          <td class="text-muted">{{ item.triaje.paciente.dni }}</td>
+          <td class="text-muted">{{ item.created_at|timesince }}</td>
+          <td>
+            {% if item.estado == 'EN_ESPERA' %}
+              <span class="badge bg-secondary">Pendiente</span>
+            {% elif item.estado == 'EN_CONSULTORIO' %}
+              <span class="badge bg-primary pulsate">En Consultorio</span>
+            {% endif %}
+          </td>
+          <td class="text-end pe-3">
+            {% if item.estado == 'EN_ESPERA' %}
+              <form action="{% url 'medico:llamar_paciente' item.pk %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-primary">
+                  Llamar
+                </button>
+              </form>
+            {% elif item.estado == 'EN_CONSULTORIO' %}
+              <a href="{% url 'consulta:nota_create' %}?paciente={{ item.triaje.paciente.pk }}&triaje={{ item.triaje.pk }}"
+                 class="btn btn-sm btn-primary">
+                Atender
+              </a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="p-0 border-0">
+            <c-empty-state icon="bi-check2-circle" message="No hay pacientes pendientes en la cola." />
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</c-card>
 
 {% endblock %}
 
 {% block extra_js %}
-<!-- htmx SSE extension: empuja la cola en tiempo real (reemplaza el polling) -->
+{# htmx SSE extension: pushes live queue updates (replaces polling) #}
 <script src="{% static 'vendor/htmx/sse.js' %}"></script>
 {% endblock %}

@@ -55,6 +55,18 @@ class PacienteListView(AdmisionPermissionMixin, ListView):
         context["search_query"] = self.request.GET.get("search", "")
         return context
 
+    def render_to_response(self, context, **response_kwargs):
+        """Return only the table-rows partial for HTMX requests."""
+        if self.request.headers.get("HX-Request"):
+            from django.template.response import TemplateResponse
+
+            return TemplateResponse(
+                self.request,
+                "admision/_paciente_rows.html",
+                context,
+            )
+        return super().render_to_response(context, **response_kwargs)
+
 
 class PacienteCreateView(AdmisionPermissionMixin, CreateView):
     """Vista para crear un nuevo paciente."""

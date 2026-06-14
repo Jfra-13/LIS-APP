@@ -1,84 +1,89 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Detalle de Receta{% endblock %}
+{% block title %}Receta Médica | Portal del Paciente{% endblock %}
 
 {% block content %}
-<div style="margin-bottom: 1.5rem;">
-    <a href="{% url 'portal_paciente:dashboard' %}" style="text-decoration: none; color: #1d4ed8;">&larr; Volver a mi historial</a>
-</div>
 
-<div class="card" style="border: 2px solid #e2e8f0;">
-    <div style="text-align: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 1rem; margin-bottom: 1.5rem;">
-        <h2 style="margin: 0; color: #0f172a;">Receta Médica Electrónica</h2>
-        <p class="text-muted">ID: {{ nota.receta_id }}</p>
+<c-page-header
+  title="Receta Médica Electrónica"
+  subtitle="ID: {{ nota.receta_id }}">
+  <c-slot name="actions">
+    <a href="{% url 'portal_paciente:dashboard' %}" class="btn btn-outline-secondary btn-sm">&larr; Volver a mi historial</a>
+    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">Imprimir Receta</button>
+  </c-slot>
+</c-page-header>
+
+<c-card>
+
+  <div class="row mb-3">
+    <div class="col-sm-6">
+      <p class="mb-1"><strong>Paciente:</strong> {{ nota.paciente.nombres }} {{ nota.paciente.apellidos }}</p>
+      <p class="mb-0"><strong>DNI:</strong> {{ nota.paciente.dni }}</p>
     </div>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; font-size: 0.95rem;">
-        <div>
-            <strong>Paciente:</strong> {{ nota.paciente.nombres }} {{ nota.paciente.apellidos }}<br>
-            <strong>DNI:</strong> {{ nota.paciente.dni }}
-        </div>
-        <div style="text-align: right;">
-            <strong>Fecha:</strong> {{ nota.created_at|date:"d/m/Y" }}<br>
-            <strong>Médico:</strong> Dr. {{ nota.medico.first_name }} {{ nota.medico.last_name }}
-        </div>
+    <div class="col-sm-6 text-sm-end mt-2 mt-sm-0">
+      <p class="mb-1"><strong>Fecha:</strong> {{ nota.created_at|date:"d/m/Y" }}</p>
+      <p class="mb-0"><strong>Médico:</strong> Dr. {{ nota.medico.first_name }} {{ nota.medico.last_name }}</p>
     </div>
+  </div>
 
-    <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
-        <h4 style="margin: 0 0 0.5rem 0;">Diagnóstico</h4>
-        <p style="margin: 0;">
-            {% if nota.cie_code %}
-                <strong>{{ nota.cie_code }}</strong> - {{ nota.cie_short_description }}
-            {% else %}
-                <span class="text-muted">Sin diagnóstico codificado</span>
-            {% endif %}
-        </p>
-    </div>
+  <hr>
 
-    <h4 style="margin: 0 0 1rem 0; border-bottom: 1px solid #eee; padding-bottom: 0.3rem;">Prescripciones</h4>
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
-        <thead>
-            <tr style="background: #f1f5f9; text-align: left;">
-                <th style="padding: 0.75rem; border: 1px solid #e2e8f0;">Medicamento</th>
-                <th style="padding: 0.75rem; border: 1px solid #e2e8f0;">Dosis</th>
-                <th style="padding: 0.75rem; border: 1px solid #e2e8f0;">Frecuencia</th>
-                <th style="padding: 0.75rem; border: 1px solid #e2e8f0;">Duración</th>
+  <div class="mb-3">
+    <h4 class="mb-2">Diagnóstico</h4>
+    <p class="mb-0">
+      {% if nota.cie_code %}
+        <strong>{{ nota.cie_code }}</strong> &mdash; {{ nota.cie_short_description }}
+      {% else %}
+        <span class="text-muted">Sin diagnóstico codificado</span>
+      {% endif %}
+    </p>
+  </div>
+
+  <h4 class="mb-2">Prescripciones</h4>
+  <div class="table-responsive">
+    <table class="table table-bordered table-sm align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Medicamento</th>
+          <th>Dosis</th>
+          <th>Frecuencia</th>
+          <th>Duración</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for prescripcion in nota.prescripciones.all %}
+          <tr>
+            <td>
+              <strong>{{ prescripcion.medicamento.nombre }}</strong><br>
+              <small class="text-muted">{{ prescripcion.medicamento.presentacion }} &mdash; {{ prescripcion.medicamento.concentracion }}</small>
+            </td>
+            <td>{{ prescripcion.dosis }}</td>
+            <td>{{ prescripcion.frecuencia }}</td>
+            <td>{{ prescripcion.duracion }}</td>
+          </tr>
+          {% if prescripcion.instrucciones_adicionales %}
+            <tr class="table-warning">
+              <td colspan="4" class="small">
+                <strong>Instrucciones:</strong> {{ prescripcion.instrucciones_adicionales }}
+              </td>
             </tr>
-        </thead>
-        <tbody>
-            {% for prescripcion in nota.prescripciones.all %}
-                <tr>
-                    <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">
-                        <strong>{{ prescripcion.medicamento.nombre }}</strong><br>
-                        <small class="text-muted">{{ prescripcion.medicamento.presentacion }} - {{ prescripcion.medicamento.concentracion }}</small>
-                    </td>
-                    <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">{{ prescripcion.dosis }}</td>
-                    <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">{{ prescripcion.frecuencia }}</td>
-                    <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">{{ prescripcion.duracion }}</td>
-                </tr>
-                {% if prescripcion.instrucciones_adicionales %}
-                    <tr style="background: #fffbeb;">
-                        <td colspan="4" style="padding: 0.5rem 0.75rem; border: 1px solid #e2e8f0; font-size: 0.85rem;">
-                            <strong>Instrucciones:</strong> {{ prescripcion.instrucciones_adicionales }}
-                        </td>
-                    </tr>
-                {% endif %}
-            {% empty %}
-                <tr>
-                    <td colspan="4" style="padding: 1.5rem; text-align: center;" class="text-muted">No hay medicamentos registrados en esta receta.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
+          {% endif %}
+        {% empty %}
+          <tr>
+            <td colspan="4" class="text-center text-muted py-4">No hay medicamentos registrados en esta receta.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
     </table>
+  </div>
 
-    <div style="margin-top: 3rem; border-top: 1px solid #eee; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
-        <div style="text-align: center; width: 200px;">
-            <div style="border-bottom: 1px solid #333; height: 40px; margin-bottom: 5px;"></div>
-            <small>Firma del Médico</small>
-        </div>
-        <div style="text-align: right;">
-            <button onclick="window.print()" class="btn btn-outline-secondary">Imprimir Receta</button>
-        </div>
+  <div class="d-flex justify-content-start mt-4 pt-3 border-top">
+    <div class="text-center lis-signature-block">
+      <div class="lis-signature-line"></div>
+      <small class="text-muted">Firma del Médico</small>
     </div>
-</div>
+  </div>
+
+</c-card>
+
 {% endblock %}

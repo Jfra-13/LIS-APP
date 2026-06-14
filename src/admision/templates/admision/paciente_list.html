@@ -1,219 +1,87 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Admisión - Listado de Pacientes | LIS{% endblock %}
+{% block title %}Pacientes | LIS{% endblock %}
 
 {% block content %}
-<div x-data="pacienteList()" class="pt-4">
-  <!-- Header -->
-  <div class="row mb-4">
-    <div class="col-md-8">
-      <h1 class="mb-2">
-        <i class="bi bi-person-lines-fill me-2"></i>
-        Admisión de Pacientes
-      </h1>
-      <p class="text-muted">
-        <i class="bi bi-info-circle me-1"></i>
-        Gestione el registro y datos demográficos de los pacientes
-      </p>
-    </div>
-    <div class="col-md-4 text-end">
-      <a href="{% url 'admision:paciente_create' %}" class="btn btn-success btn-lg">
-        <i class="bi bi-plus-circle me-2"></i>
-        Nuevo Paciente
-      </a>
-    </div>
-  </div>
 
-  <!-- Búsqueda -->
-  <div class="card mb-4 shadow-sm">
-    <div class="card-body">
-      <form method="get" @submit.prevent="searchPacientes($event)" class="row g-3">
-        <div class="col-md-6">
-          <label for="searchInput" class="form-label fw-bold">
-            <i class="bi bi-search me-1"></i>
-            Buscar Paciente
-          </label>
-          <div class="input-group">
-            <span class="input-group-text">
-              <i class="bi bi-magnifying-glass"></i>
-            </span>
-            <input
-              id="searchInput"
-              type="text"
-              name="search"
-              class="form-control"
-              placeholder="DNI, nombres o apellidos..."
-              value="{{ search_query }}"
-              x-model="searchQuery"
-              @input.debounce.500ms="searchPacientes()"
-            />
-          </div>
-          <small class="text-muted d-block mt-1">
-            <i class="bi bi-info-circle me-1"></i>
-            Búsqueda en tiempo real
-          </small>
-        </div>
-        <div class="col-md-6 d-flex align-items-end gap-2">
-          <button type="submit" class="btn btn-primary">
-            <i class="bi bi-search me-1"></i>
-            Buscar
-          </button>
-          <a href="{% url 'admision:paciente_list' %}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-counterclockwise me-1"></i>
-            Limpiar
-          </a>
-        </div>
-      </form>
-    </div>
-  </div>
+<c-page-header title="Pacientes" subtitle="Registro y datos demográficos">
+  <c-slot name="actions">
+    <a href="{% url 'admision:paciente_create' %}" class="btn btn-primary">
+      <i class="bi bi-plus-lg me-1"></i>
+      Nuevo Paciente
+    </a>
+  </c-slot>
+</c-page-header>
 
-  <!-- Tabla de Pacientes -->
-  {% if pacientes %}
-  <div class="card shadow-sm">
-    <div class="card-header bg-light d-flex justify-content-between align-items-center py-3">
-      <h5 class="mb-0">
-        <i class="bi bi-list-ul me-2"></i>
-        Pacientes Activos
-        <span class="badge bg-primary ms-2">{{ pacientes|length }}</span>
-      </h5>
-    </div>
-    <div class="table-responsive">
-      <table class="table table-hover table-striped mb-0">
-        <thead class="table-light">
-          <tr>
-            <th class="fw-bold">DNI</th>
-            <th class="fw-bold">Nombres</th>
-            <th class="fw-bold">Apellidos</th>
-            <th class="fw-bold">Sexo</th>
-            <th class="fw-bold">Edad</th>
-            <th class="fw-bold">Registro</th>
-            <th class="fw-bold text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for paciente in pacientes %}
-          <tr class="align-middle" x-data="{ showDetails: false }">
-            <td>
-              <strong class="text-primary">
-                <a href="{% url 'admision:paciente_detail' paciente.id %}" class="text-decoration-none">
-                  {{ paciente.dni }}
-                </a>
-              </strong>
-            </td>
-            <td>{{ paciente.nombres }}</td>
-            <td>{{ paciente.apellidos }}</td>
-            <td>
-              {% if paciente.sexo == 'M' %}
-                <span class="badge bg-info">M</span>
-              {% elif paciente.sexo == 'F' %}
-                <span class="badge bg-danger">F</span>
-              {% else %}
-                <span class="badge bg-secondary">O</span>
-              {% endif %}
-            </td>
-            <td>
-              <span class="badge bg-light text-dark">{{ paciente.get_edad }} años</span>
-            </td>
-            <td>
-              <small class="text-muted">{{ paciente.created_at|date:"d/m/Y" }}</small>
-            </td>
-            <td class="text-center">
-              <div class="btn-group btn-group-sm" role="group">
-                <a
-                  href="{% url 'admision:paciente_detail' paciente.id %}"
-                  class="btn btn-outline-info"
-                  title="Ver detalles"
-                >
-                  <i class="bi bi-eye"></i>
-                </a>
-                <a
-                  href="{% url 'admision:paciente_update' paciente.id %}"
-                  class="btn btn-outline-warning"
-                  title="Editar"
-                >
-                  <i class="bi bi-pencil"></i>
-                </a>
-                <a
-                  href="{% url 'admision:paciente_delete' paciente.id %}"
-                  class="btn btn-outline-danger"
-                  title="Eliminar"
-                >
-                  <i class="bi bi-trash"></i>
-                </a>
-              </div>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Paginación -->
-    {% if is_paginated %}
-    <div class="card-footer bg-light d-flex justify-content-between align-items-center">
-      <small class="text-muted">
-        Página <strong>{{ page_obj.number }}</strong> de <strong>{{ page_obj.paginator.num_pages }}</strong>
-        ({{ page_obj.paginator.count }} pacientes totales)
-      </small>
-      <nav aria-label="Paginación">
-        <ul class="pagination mb-0">
-          {% if page_obj.has_previous %}
-          <li class="page-item">
-            <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">Primera</a>
-          </li>
-          <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Anterior</a>
-          </li>
-          {% endif %}
-
-          {% if page_obj.has_next %}
-          <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Siguiente</a>
-          </li>
-          <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">Última</a>
-          </li>
-          {% endif %}
-        </ul>
-      </nav>
-    </div>
-    {% endif %}
-  </div>
-
-  {% else %}
-  <div class="alert alert-info text-center py-5" role="alert">
-    <h5 class="mb-3">
-      <i class="bi bi-search me-2"></i>
-      No se encontraron pacientes
-    </h5>
-    <p class="mb-0 text-muted">
-      {% if search_query %}
-        No hay resultados para "<strong>{{ search_query }}</strong>". Intenta con otros criterios de búsqueda.
-      {% else %}
-        No hay pacientes registrados. <a href="{% url 'admision:paciente_create' %}" class="alert-link">Crea uno nuevo.</a>
-      {% endif %}
-    </p>
-  </div>
-  {% endif %}
+{# Search toolbar #}
+<div class="d-flex gap-2 mb-3">
+  <input
+    id="search-input"
+    type="search"
+    name="search"
+    class="form-control"
+    placeholder="Buscar por DNI, nombres o apellidos…"
+    value="{{ search_query }}"
+    autocomplete="off"
+    hx-get="{% url 'admision:paciente_list' %}"
+    hx-trigger="keyup changed delay:400ms, search"
+    hx-target="#patient-table-body"
+    hx-include="[name='search']"
+    aria-label="Buscar paciente"
+  />
+  <a href="{% url 'admision:paciente_list' %}" class="btn btn-outline-secondary flex-shrink-0">
+    Limpiar
+  </a>
 </div>
 
+<c-card title="Pacientes Activos">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>DNI</th>
+          <th>Nombres</th>
+          <th>Apellidos</th>
+          <th>Sexo</th>
+          <th>Edad</th>
+          <th>Registro</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="patient-table-body">
+        {% include "admision/_paciente_rows.html" %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+  <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-2 px-1">
+    <small class="text-muted">
+      Página <strong>{{ page_obj.number }}</strong> de <strong>{{ page_obj.paginator.num_pages }}</strong>
+      ({{ page_obj.paginator.count }} pacientes)
+    </small>
+    <nav aria-label="Paginación">
+      <ul class="pagination pagination-sm mb-0">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">Primera</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Anterior</a>
+        </li>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Siguiente</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">Última</a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+</c-card>
+
 {% endblock %}
-
-{% block extra_js %}
-<script>
-  function pacienteList() {
-    return {
-      searchQuery: '{{ search_query }}',
-
-      searchPacientes(e) {
-        if (e && e.target) {
-          this.searchQuery = e.target.value;
-        }
-        // La búsqueda se realiza mediante GET del formulario
-        // Alpine solo proporciona feedback visual
-      }
-    };
-  }
-</script>
-{% endblock %}
-

@@ -1,0 +1,43 @@
+{% for paciente in pacientes %}
+<tr class="align-middle">
+  <td>
+    <a href="{% url 'admision:paciente_detail' paciente.id %}" class="fw-semibold text-decoration-none">
+      {{ paciente.dni }}
+    </a>
+  </td>
+  <td>{{ paciente.nombres }}</td>
+  <td>{{ paciente.apellidos }}</td>
+  <td>{{ paciente.get_sexo_display }}</td>
+  <td>{{ paciente.get_edad }} años</td>
+  <td>
+    <small class="text-muted">{{ paciente.created_at|date:"d/m/Y" }}</small>
+  </td>
+  <td class="text-center">
+    <a href="{% url 'admision:paciente_detail' paciente.id %}"
+       class="btn btn-outline-secondary btn-sm me-1"
+       title="Ver detalles">
+      <i class="bi bi-eye"></i>
+    </a>
+    <a href="{% url 'admision:paciente_update' paciente.id %}"
+       class="btn btn-outline-secondary btn-sm me-1"
+       title="Editar">
+      <i class="bi bi-pencil"></i>
+    </a>
+    <a href="{% url 'admision:paciente_delete' paciente.id %}"
+       class="btn btn-outline-danger btn-sm"
+       title="Desactivar">
+      <i class="bi bi-trash"></i>
+    </a>
+  </td>
+</tr>
+{% empty %}
+<tr id="empty-row">
+  <td colspan="7" class="p-0">
+    <c-empty-state icon="bi-person-x" message="{% if search_query %}No se encontraron pacientes para &ldquo;{{ search_query }}&rdquo;.{% else %}No hay pacientes registrados aún.{% endif %}">
+      {% if not search_query %}
+        <a href="{% url 'admision:paciente_create' %}" class="btn btn-primary btn-sm">Nuevo Paciente</a>
+      {% endif %}
+    </c-empty-state>
+  </td>
+</tr>
+{% endfor %}

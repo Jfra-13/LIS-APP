@@ -468,3 +468,110 @@ button:focus-visible {
 .manchester-3 { background-color: #ffc107 !important; color: black; }  /* Amarillo — Urgente */
 .manchester-4 { background-color: #198754 !important; color: white; }  /* Verde — Poco urgente */
 .manchester-5 { background-color: #0dcaf0 !important; color: black; }  /* Azul — No urgente */
+
+
+/* =====================================================================
+ * Form section headings (admision-form, generic forms)
+ * ===================================================================== */
+
+.lis-form-section-heading {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--lis-text-muted);
+  border-bottom: 1px solid var(--lis-border);
+  padding-bottom: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+
+/* =====================================================================
+ * Patient detail definition list
+ * ===================================================================== */
+
+.lis-patient-dl {
+  display: grid;
+  grid-template-columns: 10rem 1fr;
+  row-gap: 0;
+}
+
+.lis-patient-dl dt,
+.lis-patient-dl dd {
+  padding: 0.625rem 0.75rem;
+  margin: 0;
+  border-bottom: 1px solid var(--lis-border);
+}
+
+.lis-patient-dl dt {
+  font-weight: 600;
+  background: #f8f9fa;
+  color: var(--lis-nav-text);
+}
+
+.lis-patient-dl dd {
+  background: #ffffff;
+}
+
+.lis-patient-dl dt:last-of-type,
+.lis-patient-dl dd:last-of-type {
+  border-bottom: none;
+}
+
+
+/* =====================================================================
+ * Triage — observation cell truncation
+ * ===================================================================== */
+
+.lis-triage-obs {
+  max-width: 250px;
+  display: block;
+}
+
+
+/* =====================================================================
+ * Clinical note — rendered Markdown (consulta/detail)
+ * ===================================================================== */
+
+.lis-clinical-note {
+  line-height: 1.75;
+  font-size: 0.9375rem;
+}
+
+.lis-clinical-note p { margin-bottom: 0.75rem; }
+.lis-clinical-note h1,
+.lis-clinical-note h2,
+.lis-clinical-note h3 { margin-top: 1.25rem; margin-bottom: 0.5rem; }
+.lis-clinical-note ul,
+.lis-clinical-note ol  { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+
+
+/* =====================================================================
+ * CIE-10 selection panel (consulta/form)
+ * ===================================================================== */
+
+.lis-cie-selection {
+  background-color: rgba(25, 135, 84, 0.08);
+  border: 1px solid rgba(25, 135, 84, 0.2);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.lis-cie-selection--hidden {
+  display: none;
+}
+
+
+/* =====================================================================
+ * Patient portal — prescription signature block
+ * ===================================================================== */
+
+.lis-signature-block {
+  width: 200px;
+}
+
+.lis-signature-line {
+  height: 40px;
+  border-bottom: 1px solid #333;
+  margin-bottom: 4px;
+}

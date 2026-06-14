@@ -1,307 +1,56 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
-{% block title %}Crear Paciente - MVP1{% endblock %}
+{% block title %}{{ title }} | LIS{% endblock %}
 
 {% block content %}
-<div class="card" style="max-width: 600px; margin: 0 auto;">
-    <h1>{{ title }}</h1>
 
-    <form method="post" novalidate>
-        {% csrf_token %}
+<c-page-header title="{{ title }}">
+  <c-slot name="actions">
+    <a href="{% url 'admision:paciente_list' %}" class="btn btn-outline-secondary">
+      Cancelar
+    </a>
+  </c-slot>
+</c-page-header>
 
-        <fieldset>
-            <legend style="font-weight: bold; margin-bottom: 1rem;">Información de Identidad</legend>
+<c-card>
+  <form method="post" novalidate>
+    {% csrf_token %}
 
-            {% if form.tipo_documento.errors %}
-            <div class="form-group error">
-                <label for="{{ form.tipo_documento.id_for_label }}">
-                    {{ form.tipo_documento.label }} <span style="color: red;">*</span>
-                </label>
-                {{ form.tipo_documento }}
-                <ul class="errorlist">
-                    {% for error in form.tipo_documento.errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% else %}
-            <div class="form-group">
-                <label for="{{ form.tipo_documento.id_for_label }}">
-                    {{ form.tipo_documento.label }} <span style="color: red;">*</span>
-                </label>
-                {{ form.tipo_documento }}
-            </div>
-            {% endif %}
+    {% if form.non_field_errors %}
+      <c-alert type="danger" dismissible="false">
+        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+      </c-alert>
+    {% endif %}
 
-            {% if form.dni.errors %}
-            <div class="form-group error">
-                <label for="{{ form.dni.id_for_label }}">
-                    {{ form.dni.label }} <span style="color: red;">*</span>
-                </label>
-                {{ form.dni }}
-                <ul class="errorlist">
-                    {% for error in form.dni.errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% else %}
-            <div class="form-group">
-                <label for="{{ form.dni.id_for_label }}">
-                    {{ form.dni.label }} <span style="color: red;">*</span>
-                </label>
-                {{ form.dni }}
-            </div>
-            {% endif %}
+    <p class="lis-form-section-heading">Información de Identidad</p>
+    <c-form-field :field="form.tipo_documento" />
+    <c-form-field :field="form.dni" />
+    <c-form-field :field="form.nombres" />
+    <c-form-field :field="form.apellidos" />
 
-            {% if form.nombres.errors %}
-            <div class="form-group error">
-                <label for="{{ form.nombres.id_for_label }}">
-                    {{ form.nombres.label }} <span style="color: red;">*</span>
-                </label>
-                {{ form.nombres }}
-                <ul class="errorlist">
-                    {% for error in form.nombres.errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% else %}
-            <div class="form-group">
-                <label for="{{ form.nombres.id_for_label }}">
-                    {{ form.nombres.label }} <span style="color: red;">*</span>
-                </label>
-                {{ form.nombres }}
-            </div>
-            {% endif %}
+    <p class="lis-form-section-heading mt-4">Información Demográfica</p>
+    <c-form-field :field="form.fecha_nacimiento" />
+    <c-form-field :field="form.sexo" />
 
-            {% if form.apellidos.errors %}
-            <div class="form-group error">
-                <label for="{{ form.apellidos.id_for_label }}">
-                    {{ form.apellidos.label }} <span style="color: red;">*</span>
-                </label>
-                {{ form.apellidos }}
-                <ul class="errorlist">
-                    {% for error in form.apellidos.errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% else %}
-            <div class="form-group">
-                <label for="{{ form.apellidos.id_for_label }}">
-                    {{ form.apellidos.label }} <span style="color: red;">*</span>
-                </label>
-                {{ form.apellidos }}
-            </div>
-            {% endif %}
-        </fieldset>
+    <p class="lis-form-section-heading mt-4">Información de Contacto</p>
+    <c-form-field :field="form.telefono" />
+    <c-form-field :field="form.email" />
+    <c-form-field :field="form.direccion" />
 
-        <fieldset style="margin-top: 1.5rem;">
-            <legend style="font-weight: bold; margin-bottom: 1rem;">Información Demográfica</legend>
+    <div class="d-flex gap-2 mt-4 pt-2 border-top">
+      <button type="submit" class="btn btn-primary">
+        {{ button_text }} <kbd class="ms-1">Ctrl+S</kbd>
+      </button>
+      <a href="{% url 'admision:paciente_list' %}" class="btn btn-outline-secondary">
+        Cancelar <kbd class="ms-1">ESC</kbd>
+      </a>
+    </div>
+  </form>
+</c-card>
 
-            {% if form.fecha_nacimiento.errors %}
-            <div class="form-group error">
-                <label for="{{ form.fecha_nacimiento.id_for_label }}">
-                    {{ form.fecha_nacimiento.label }} <span style="color: red;">*</span>
-                </label>
-                {{ form.fecha_nacimiento }}
-                <ul class="errorlist">
-                    {% for error in form.fecha_nacimiento.errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% else %}
-            <div class="form-group">
-                <label for="{{ form.fecha_nacimiento.id_for_label }}">
-                    {{ form.fecha_nacimiento.label }} <span style="color: red;">*</span>
-                </label>
-                {{ form.fecha_nacimiento }}
-            </div>
-            {% endif %}
-
-            {% if form.sexo.errors %}
-            <div class="form-group error">
-                <label for="{{ form.sexo.id_for_label }}">
-                    {{ form.sexo.label }} <span style="color: red;">*</span>
-                </label>
-                {{ form.sexo }}
-                <ul class="errorlist">
-                    {% for error in form.sexo.errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% else %}
-            <div class="form-group">
-                <label for="{{ form.sexo.id_for_label }}">
-                    {{ form.sexo.label }} <span style="color: red;">*</span>
-                </label>
-                {{ form.sexo }}
-            </div>
-            {% endif %}
-        </fieldset>
-
-        <fieldset style="margin-top: 1.5rem;">
-            <legend style="font-weight: bold; margin-bottom: 1rem;">Información de Contacto</legend>
-
-            {% if form.telefono.errors %}
-            <div class="form-group error">
-                <label for="{{ form.telefono.id_for_label }}">
-                    {{ form.telefono.label }}
-                </label>
-                {{ form.telefono }}
-                <ul class="errorlist">
-                    {% for error in form.telefono.errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% else %}
-            <div class="form-group">
-                <label for="{{ form.telefono.id_for_label }}">
-                    {{ form.telefono.label }}
-                </label>
-                {{ form.telefono }}
-            </div>
-            {% endif %}
-
-            {% if form.email.errors %}
-            <div class="form-group error">
-                <label for="{{ form.email.id_for_label }}">
-                    {{ form.email.label }}
-                </label>
-                {{ form.email }}
-                <ul class="errorlist">
-                    {% for error in form.email.errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% else %}
-            <div class="form-group">
-                <label for="{{ form.email.id_for_label }}">
-                    {{ form.email.label }}
-                </label>
-                {{ form.email }}
-            </div>
-            {% endif %}
-
-            {% if form.direccion.errors %}
-            <div class="form-group error">
-                <label for="{{ form.direccion.id_for_label }}">
-                    {{ form.direccion.label }}
-                </label>
-                {{ form.direccion }}
-                <ul class="errorlist">
-                    {% for error in form.direccion.errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% else %}
-            <div class="form-group">
-                <label for="{{ form.direccion.id_for_label }}">
-                    {{ form.direccion.label }}
-                </label>
-                {{ form.direccion }}
-            </div>
-            {% endif %}
-        </fieldset>
-
-        {% if form.non_field_errors %}
-        <div class="alert alert-error">
-            {{ form.non_field_errors }}
-        </div>
-        {% endif %}
-
-        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
-            <button type="submit" class="btn btn-primary" style="flex: 1;">
-                {{ button_text }} (Ctrl+S)
-            </button>
-            <a href="{% url 'admision:paciente_list' %}" class="btn btn-outline-secondary" style="flex: 1;">
-                Cancelar (ESC)
-            </a>
-        </div>
-    </form>
-</div>
-
-<style>
-    .messages { margin-bottom: 1.5rem; }
-    .alert { padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; }
-    .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
-    .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-
-    fieldset { border: 1px solid #e5e7eb; padding: 1rem; border-radius: 8px; }
-    legend { margin-left: -0.5rem; }
-
-    .form-group { margin-bottom: 1rem; }
-    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; box-sizing: border-box; padding: 0.65rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #1d4ed8; box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1); }
-
-    .form-group.error { background: #fef2f2; padding: 0.5rem; border-radius: 4px; }
-    .errorlist { list-style: none; padding: 0; margin: 0.5rem 0 0 0; color: #991b1b; font-size: 0.875rem; }
-    .errorlist li { margin: 0.25rem 0; }
-</style>
-
-<script>
-    // Atajos de teclado
-    document.addEventListener('keydown', function(event) {
-        if (event.ctrlKey && event.key === 's') {
-            event.preventDefault();
-            document.querySelector('form').submit();
-        }
-        if (event.key === 'Escape') {
-            window.history.back();
-        }
-    });
-
-    // Lógica dinámica para Tipo de Documento y Teléfono
-    document.addEventListener('DOMContentLoaded', function() {
-        const tipoDocSelect = document.getElementById('{{ form.tipo_documento.id_for_label }}');
-        const dniInput = document.getElementById('{{ form.dni.id_for_label }}');
-        const telefonoInput = document.getElementById('{{ form.telefono.id_for_label }}');
-
-        function updateDniPlaceholder() {
-            const tipo = tipoDocSelect.value;
-            if (tipo === 'DNI') {
-                dniInput.placeholder = 'Ej. 12345678 (8 dígitos)';
-                dniInput.maxLength = 8;
-            } else if (tipo === 'PAS') {
-                dniInput.placeholder = 'Número de Pasaporte';
-                dniInput.maxLength = 15;
-            } else if (tipo === 'CE') {
-                dniInput.placeholder = 'Carné de Extranjería';
-                dniInput.maxLength = 12;
-            }
-        }
-
-        // Inicializar teléfono con +51 si está vacío
-        if (!telefonoInput.value) {
-            telefonoInput.value = '+51 ';
-        }
-
-        telefonoInput.addEventListener('input', function() {
-            if (!this.value.startsWith('+')) {
-                this.value = '+' + this.value.replace(/[^\d]/g, '');
-            }
-        });
-
-        tipoDocSelect.addEventListener('change', updateDniPlaceholder);
-        updateDniPlaceholder();
-
-        // Validar nombres y apellidos (evitar números al escribir)
-        const nombresInput = document.getElementById('{{ form.nombres.id_for_label }}');
-        const apellidosInput = document.getElementById('{{ form.apellidos.id_for_label }}');
-
-        [nombresInput, apellidosInput].forEach(input => {
-            input.addEventListener('input', function() {
-                this.value = this.value.replace(/[0-9]/g, '');
-            });
-        });
-    });
-</script>
 {% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'js/admision-form.js' %}"></script>
+{% endblock %}

@@ -3,29 +3,18 @@
 {% block title %}Registro de Triaje | LIS{% endblock %}
 
 {% block content %}
-<div x-data="triageForm()" class="pt-4">
-  <!-- Header -->
-  <div class="row mb-4">
-    <div class="col-md-8">
-      <h1 class="mb-2">
-        <i class="bi bi-heart-pulse me-2"></i>
-        {{ title }}
-      </h1>
-      <p class="text-muted">
-        <i class="bi bi-person me-1"></i>
-        <strong>{{ paciente.nombres }} {{ paciente.apellidos }}</strong>
-        <span class="badge bg-light text-dark ms-2">DNI: {{ paciente.dni }}</span>
-      </p>
-    </div>
-    <div class="col-md-4 text-end">
-      <div class="alert alert-info mb-0">
-        <small>
-          <i class="bi bi-info-circle me-1"></i>
-          Edad: <strong>{{ paciente.get_edad }}</strong> años
-        </small>
-      </div>
-    </div>
-  </div>
+<div x-data="triageForm()">
+
+  <c-page-header
+    title="{{ title }}"
+    subtitle="{{ paciente.nombres }} {{ paciente.apellidos }} &mdash; DNI {{ paciente.dni }} &mdash; {{ paciente.get_edad }} años"
+  >
+    <c-slot name="actions">
+      <a href="{% url 'admision:paciente_detail' paciente.id %}" class="btn btn-outline-secondary">
+        Cancelar
+      </a>
+    </c-slot>
+  </c-page-header>
 
   <div class="row">
     <div class="col-md-8 mx-auto">
@@ -33,239 +22,180 @@
         {% csrf_token %}
 
         {% if form.non_field_errors %}
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          <i class="bi bi-exclamation-triangle me-2"></i>
-          <strong>Error:</strong> {{ form.non_field_errors }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+          <c-alert type="danger" dismissible="false">
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+          </c-alert>
         {% endif %}
 
-        <!-- Card: Signos Vitales -->
-        <div class="card mb-4 shadow-sm">
-          <div class="card-header bg-primary text-white py-3">
-            <h5 class="mb-0">
-              <i class="bi bi-thermometer-high me-2"></i>
-              Signos Vitales
-            </h5>
-          </div>
-          <div class="card-body">
-            <div class="row g-3">
-              <!-- SpO2 -->
-              <div class="col-md-6">
-                <label for="{{ form.spo2.id_for_label }}" class="form-label fw-bold">
-                  <i class="bi bi-droplet-fill text-danger me-1"></i>
-                  {{ form.spo2.label }} (%)
-                  <span class="text-danger">*</span>
-                </label>
-                <div class="input-group input-group-lg">
-                  <span class="input-group-text">
-                    <i class="bi bi-droplet-fill"></i>
-                  </span>
-                  {{ form.spo2 }}
-                  <span class="input-group-text" x-show="spo2">
-                    <span :class="getSpo2Status()" x-text="spo2 + '%'"></span>
-                  </span>
-                </div>
-                {% if form.spo2.errors %}
-                <div class="invalid-feedback d-block">
-                  {% for error in form.spo2.errors %}{{ error }}{% endfor %}
-                </div>
-                {% endif %}
-                <small class="text-muted d-block mt-2">
-                  <i class="bi bi-info-circle me-1"></i>
-                  Normal: 95-100% | Anormal: &lt;95%
-                </small>
-                <div x-show="spo2 < 95" class="alert alert-warning mt-2 mb-0" role="alert">
-                  <i class="bi bi-exclamation-triangle me-1"></i>
-                  <strong>Alerta:</strong> SpO2 bajo. Paciente en riesgo.
-                </div>
-              </div>
+        {# ── Signos Vitales ── #}
+        <c-card title="Signos Vitales">
+          <div class="row g-3">
 
-              <!-- Frecuencia Cardíaca -->
-              <div class="col-md-6">
-                <label for="{{ form.frecuencia_cardiaca.id_for_label }}" class="form-label fw-bold">
-                  <i class="bi bi-heart-pulse text-danger me-1"></i>
-                  {{ form.frecuencia_cardiaca.label }} (lpm)
-                  <span class="text-danger">*</span>
-                </label>
-                <div class="input-group input-group-lg">
-                  <span class="input-group-text">
-                    <i class="bi bi-heart"></i>
-                  </span>
-                  {{ form.frecuencia_cardiaca }}
-                  <span class="input-group-text" x-show="frecuencia_cardiaca">
-                    <span :class="getFrecuenciaStatus()" x-text="frecuencia_cardiaca + ' bpm'"></span>
-                  </span>
-                </div>
-                {% if form.frecuencia_cardiaca.errors %}
-                <div class="invalid-feedback d-block">
-                  {% for error in form.frecuencia_cardiaca.errors %}{{ error }}{% endfor %}
-                </div>
-                {% endif %}
-                <small class="text-muted d-block mt-2">
-                  <i class="bi bi-info-circle me-1"></i>
-                  Normal: 60-100 bpm | Crítico: &lt;40 o &gt;140
-                </small>
-              </div>
-
-              <!-- Temperatura -->
-              <div class="col-md-6">
-                <label for="{{ form.temperatura.id_for_label }}" class="form-label fw-bold">
-                  <i class="bi bi-thermometer text-danger me-1"></i>
-                  {{ form.temperatura.label }} (°C)
-                  <span class="text-danger">*</span>
-                </label>
-                <div class="input-group input-group-lg">
-                  <span class="input-group-text">
-                    <i class="bi bi-thermometer-half"></i>
-                  </span>
-                  {{ form.temperatura }}
-                  <span class="input-group-text" x-show="temperatura">
-                    <span :class="getTemperaturaStatus()" x-text="temperatura + '°C'"></span>
-                  </span>
-                </div>
-                {% if form.temperatura.errors %}
-                <div class="invalid-feedback d-block">
-                  {% for error in form.temperatura.errors %}{{ error }}{% endfor %}
-                </div>
-                {% endif %}
-                <small class="text-muted d-block mt-2">
-                  <i class="bi bi-info-circle me-1"></i>
-                  Normal: 36.5-37.5°C | Fiebre: &gt;38°C
-                </small>
-                <div x-show="temperatura > 38" class="alert alert-warning mt-2 mb-0" role="alert">
-                  <i class="bi bi-exclamation-triangle me-1"></i>
-                  <strong>Fiebre:</strong> Temperatura elevada detectada.
-                </div>
-              </div>
-
-              <!-- Presión Arterial (opcional) -->
-              <div class="col-md-6">
-                <label class="form-label fw-bold">
-                  <i class="bi bi-activity text-danger me-1"></i>
-                  Presión Arterial (mmHg)
-                  <span class="text-muted fw-normal">(opcional)</span>
-                </label>
-                <div class="input-group input-group-lg">
-                  <span class="input-group-text">
-                    <i class="bi bi-activity"></i>
-                  </span>
-                  {{ form.presion_sistolica }}
-                  <span class="input-group-text">/</span>
-                  {{ form.presion_diastolica }}
-                </div>
-                {% if form.presion_sistolica.errors %}
-                <div class="invalid-feedback d-block">
-                  {% for error in form.presion_sistolica.errors %}{{ error }}{% endfor %}
-                </div>
-                {% endif %}
-                {% if form.presion_diastolica.errors %}
-                <div class="invalid-feedback d-block">
-                  {% for error in form.presion_diastolica.errors %}{{ error }}{% endfor %}
-                </div>
-                {% endif %}
-                <small class="text-muted d-block mt-2">
-                  <i class="bi bi-info-circle me-1"></i>
-                  Sistólica / Diastólica · Normal: ~120/80 | Crisis: &ge;180/120
-                </small>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card: Síntomas de Alto Riesgo -->
-        <div class="card mb-4 shadow-sm">
-          <div class="card-header bg-warning text-dark py-3">
-            <h5 class="mb-0">
-              <i class="bi bi-exclamation-triangle-fill me-2"></i>
-              Síntomas de Alto Riesgo
-            </h5>
-          </div>
-          <div class="card-body">
-            <!-- Bandera Roja -->
-            <div class="mb-3">
-              <label for="{{ form.red_flag.id_for_label }}" class="form-label fw-bold">
-                <i class="bi bi-flag-fill text-danger me-1"></i>
-                {{ form.red_flag.label }}
+            {# SpO2 #}
+            <div class="col-md-6">
+              <label for="{{ form.spo2.id_for_label }}" class="form-label fw-semibold">
+                {{ form.spo2.label }} <span class="text-danger" aria-hidden="true">*</span>
               </label>
-              {{ form.red_flag }}
-              {% if form.red_flag.errors %}
-              <div class="invalid-feedback d-block">
-                {% for error in form.red_flag.errors %}{{ error }}{% endfor %}
+              <div class="input-group">
+                {{ form.spo2 }}
+                <span class="input-group-text">%</span>
               </div>
+              {% if form.spo2.errors %}
+                {% for error in form.spo2.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
               {% endif %}
-              <div x-show="red_flag && red_flag !== 'NONE'" class="alert alert-danger mt-3" role="alert">
-                <i class="bi bi-exclamation-octagon-fill me-1"></i>
-                <strong>ALERTA CRÍTICA:</strong> Se detectó un síntoma de alto riesgo. Prioridad elevada recomendada.
-              </div>
+              <div class="form-text">Normal 95–100 %. Valores &lt; 95 % indican hipoxemia.</div>
+              <small class="text-danger" x-show="spo2 !== null && spo2 < 95" x-cloak>
+                SpO2 bajo — paciente en riesgo.
+              </small>
             </div>
 
-            <!-- Observaciones -->
-            <div class="mb-3">
-              <label for="{{ form.observaciones.id_for_label }}" class="form-label fw-bold">
-                <i class="bi bi-chat-left-text me-1"></i>
-                {{ form.observaciones.label }}
+            {# Frecuencia Cardíaca #}
+            <div class="col-md-6">
+              <label for="{{ form.frecuencia_cardiaca.id_for_label }}" class="form-label fw-semibold">
+                {{ form.frecuencia_cardiaca.label }} <span class="text-danger" aria-hidden="true">*</span>
               </label>
-              {{ form.observaciones }}
-              {% if form.observaciones.errors %}
-              <div class="invalid-feedback d-block">
-                {% for error in form.observaciones.errors %}{{ error }}{% endfor %}
+              <div class="input-group">
+                {{ form.frecuencia_cardiaca }}
+                <span class="input-group-text">lpm</span>
               </div>
+              {% if form.frecuencia_cardiaca.errors %}
+                {% for error in form.frecuencia_cardiaca.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
               {% endif %}
-              <small class="text-muted d-block mt-2">
-                <i class="bi bi-info-circle me-1"></i>
-                Observaciones clínicas adicionales (opcional)
-              </small>
+              <div class="form-text">Normal 60–100 lpm. Crítico &lt; 40 o &gt; 140.</div>
             </div>
-          </div>
-        </div>
 
-        <!-- Card: Prioridad (Read-only) -->
-        <div class="card mb-4 shadow-sm border-info">
-          <div class="card-header bg-info text-white py-3">
-            <h5 class="mb-0">
-              <i class="bi bi-lightning-fill me-2"></i>
-              Nivel de Prioridad (Calculado Automáticamente)
-            </h5>
-          </div>
-          <div class="card-body">
-            <div class="alert alert-info mb-0">
-              <small>
-                <i class="bi bi-info-circle me-1"></i>
-                El nivel de prioridad se calcula automáticamente según los signos vitales y síntomas ingresados.
-                Este campo no puede ser modificado (RN-01).
-              </small>
-            </div>
-            <div class="mt-3">
-              <label for="{{ form.nivel_prioridad.id_for_label }}" class="form-label fw-bold">
-                <i class="bi bi-bar-chart me-1"></i>
-                {{ form.nivel_prioridad.label }}
+            {# Temperatura #}
+            <div class="col-md-6">
+              <label for="{{ form.temperatura.id_for_label }}" class="form-label fw-semibold">
+                {{ form.temperatura.label }} <span class="text-danger" aria-hidden="true">*</span>
               </label>
-              {{ form.nivel_prioridad }}
-              <small class="text-muted d-block mt-2">
-                <i class="bi bi-lock-fill me-1"></i>
-                Campo bloqueado (RN-01). Se calcula automáticamente.
+              <div class="input-group">
+                {{ form.temperatura }}
+                <span class="input-group-text">°C</span>
+              </div>
+              {% if form.temperatura.errors %}
+                {% for error in form.temperatura.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              {% endif %}
+              <div class="form-text">Normal 36.5–37.5 °C. Fiebre &gt; 38 °C.</div>
+              <small class="text-danger" x-show="temperatura !== null && temperatura > 38" x-cloak>
+                Temperatura elevada — fiebre detectada.
               </small>
             </div>
-          </div>
-        </div>
 
-        <!-- Botones de acción -->
-        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4">
-          <a href="{% url 'admision:paciente_detail' paciente.id %}" class="btn btn-outline-secondary btn-lg">
-            <i class="bi bi-x-circle me-2"></i>
+            {# Presión Arterial (composite — cannot use c-form-field) #}
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">
+                Presión Arterial
+                <span class="text-muted fw-normal">(opcional)</span>
+              </label>
+              <div class="input-group">
+                {{ form.presion_sistolica }}
+                <span class="input-group-text">/</span>
+                {{ form.presion_diastolica }}
+                <span class="input-group-text">mmHg</span>
+              </div>
+              {% if form.presion_sistolica.errors %}
+                {% for error in form.presion_sistolica.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              {% endif %}
+              {% if form.presion_diastolica.errors %}
+                {% for error in form.presion_diastolica.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              {% endif %}
+              <div class="form-text">Sistólica / Diastólica. Normal ~120/80. Crisis &ge; 180/120.</div>
+            </div>
+
+          </div>
+        </c-card>
+
+        {# ── Síntomas de Alto Riesgo ── #}
+        <c-card title="Síntomas de Alto Riesgo">
+
+          {# Bandera Roja #}
+          <div class="mb-3">
+            <label for="{{ form.red_flag.id_for_label }}" class="form-label fw-semibold">
+              {{ form.red_flag.label }}
+            </label>
+            {{ form.red_flag }}
+            {% if form.red_flag.errors %}
+              {% for error in form.red_flag.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            {% endif %}
+            <small class="text-danger d-block mt-1" x-show="red_flag && red_flag !== 'NONE'" x-cloak>
+              Síntoma de alto riesgo — prioridad elevada recomendada.
+            </small>
+          </div>
+
+          {# Observaciones #}
+          <div class="mb-0">
+            <label for="{{ form.observaciones.id_for_label }}" class="form-label fw-semibold">
+              {{ form.observaciones.label }}
+            </label>
+            {{ form.observaciones }}
+            {% if form.observaciones.errors %}
+              {% for error in form.observaciones.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            {% endif %}
+            <div class="form-text">Observaciones clínicas adicionales (opcional).</div>
+          </div>
+
+        </c-card>
+
+        {# ── Prioridad (Read-only, calculada automáticamente) ── #}
+        <c-card title="Nivel de Prioridad">
+
+          <p class="form-text mb-3">
+            Calculado automáticamente según signos vitales y síntomas (RN-01). Campo de solo lectura.
+          </p>
+
+          {# Live Manchester preview via Alpine (client-side approximation) #}
+          <div class="mb-3" x-show="priorityLevel !== null" x-cloak>
+            <span
+              class="badge rounded-pill px-3 py-2"
+              :class="'manchester-' + priorityLevel"
+              x-text="'Nivel ' + priorityLevel"
+            ></span>
+          </div>
+
+          {# Server-rendered value (shown after POST or on edit) #}
+          {% if form.nivel_prioridad.value %}
+            <div class="mb-3">
+              <c-badge-manchester level="{{ form.nivel_prioridad.value }}" label="Nivel {{ form.nivel_prioridad.value }}" />
+            </div>
+          {% endif %}
+
+          {# Hidden readonly field — keeps form binding intact #}
+          <div class="visually-hidden">
+            {{ form.nivel_prioridad }}
+          </div>
+
+        </c-card>
+
+        {# ── Actions ── #}
+        <div class="d-flex gap-2 justify-content-end mb-4">
+          <a href="{% url 'admision:paciente_detail' paciente.id %}" class="btn btn-outline-secondary">
             Cancelar
           </a>
-          <button type="submit" class="btn btn-primary btn-lg" :disabled="!isFormValid()">
-            <i class="bi bi-check-circle me-2"></i>
+          <button type="submit" class="btn btn-primary" :disabled="!isFormValid()">
+            <i class="bi bi-check-lg me-1"></i>
             Guardar Triaje
           </button>
         </div>
+
       </form>
     </div>
   </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
@@ -276,61 +206,92 @@
       frecuencia_cardiaca: null,
       temperatura: null,
       red_flag: 'NONE',
+      priorityLevel: null,
 
       init() {
-        // Inicializar desde valores del formulario si existen
-        const spo2Input = document.querySelector('input[name="spo2"]');
-        const fcInput = document.querySelector('input[name="frecuencia_cardiaca"]');
-        const tempInput = document.querySelector('input[name="temperatura"]');
-        const rfSelect = document.querySelector('select[name="red_flag"]');
+        const spo2Input    = document.querySelector('input[name="spo2"]');
+        const fcInput      = document.querySelector('input[name="frecuencia_cardiaca"]');
+        const tempInput    = document.querySelector('input[name="temperatura"]');
+        const rfSelect     = document.querySelector('select[name="red_flag"]');
 
-        if (spo2Input && spo2Input.value) this.spo2 = parseInt(spo2Input.value);
-        if (fcInput && fcInput.value) this.frecuencia_cardiaca = parseInt(fcInput.value);
-        if (tempInput && tempInput.value) this.temperatura = parseFloat(tempInput.value);
-        if (rfSelect && rfSelect.value) this.red_flag = rfSelect.value;
+        if (spo2Input  && spo2Input.value)  this.spo2                = parseInt(spo2Input.value);
+        if (fcInput    && fcInput.value)    this.frecuencia_cardiaca = parseInt(fcInput.value);
+        if (tempInput  && tempInput.value)  this.temperatura         = parseFloat(tempInput.value);
+        if (rfSelect   && rfSelect.value)   this.red_flag            = rfSelect.value;
 
-        // Sincronizar cambios
-        document.querySelectorAll('input[name="spo2"], input[name="frecuencia_cardiaca"], input[name="temperatura"], select[name="red_flag"]').forEach(el => {
-          el.addEventListener('change', (e) => {
-            if (e.target.name === 'spo2') this.spo2 = parseInt(e.target.value) || null;
-            if (e.target.name === 'frecuencia_cardiaca') this.frecuencia_cardiaca = parseInt(e.target.value) || null;
-            if (e.target.name === 'temperatura') this.temperatura = parseFloat(e.target.value) || null;
-            if (e.target.name === 'red_flag') this.red_flag = e.target.value;
+        this._syncPriority();
+
+        document.querySelectorAll(
+          'input[name="spo2"], input[name="frecuencia_cardiaca"], input[name="temperatura"], select[name="red_flag"]'
+        ).forEach(el => {
+          el.addEventListener('input', e => {
+            if (e.target.name === 'spo2')               this.spo2                = parseInt(e.target.value)   || null;
+            if (e.target.name === 'frecuencia_cardiaca') this.frecuencia_cardiaca = parseInt(e.target.value)   || null;
+            if (e.target.name === 'temperatura')         this.temperatura         = parseFloat(e.target.value) || null;
+            if (e.target.name === 'red_flag')            this.red_flag            = e.target.value;
+            this._syncPriority();
           });
         });
       },
 
-      getSpo2Status() {
-        if (!this.spo2) return 'text-muted';
+      _syncPriority() {
+        // Client-side Manchester approximation for live preview (RN-01 server calc is authoritative).
+        if (!this.spo2 || !this.frecuencia_cardiaca || !this.temperatura) {
+          this.priorityLevel = null;
+          return;
+        }
+
+        // Red flag → immediate level 1
+        if (this.red_flag && this.red_flag !== 'NONE') {
+          this.priorityLevel = 1;
+          return;
+        }
+
+        // Critical vitals → level 1
+        if (this.spo2 < 85 || this.frecuencia_cardiaca < 40 || this.frecuencia_cardiaca > 140 || this.temperatura > 40) {
+          this.priorityLevel = 1;
+          return;
+        }
+
+        // Severely abnormal → level 2
+        if (this.spo2 < 90 || (this.frecuencia_cardiaca < 50 || this.frecuencia_cardiaca > 120) || this.temperatura > 39) {
+          this.priorityLevel = 2;
+          return;
+        }
+
+        // Abnormal → level 3
+        if (this.spo2 < 95 || (this.frecuencia_cardiaca < 60 || this.frecuencia_cardiaca > 100) || this.temperatura > 38) {
+          this.priorityLevel = 3;
+          return;
+        }
+
+        // Normal range → level 4
+        this.priorityLevel = 4;
+      },
+
+      getSpo2StatusClass() {
+        if (this.spo2 === null) return 'text-muted';
         return this.spo2 >= 95 ? 'text-success' : 'text-danger';
       },
 
-      getFrecuenciaStatus() {
-        if (!this.frecuencia_cardiaca) return 'text-muted';
+      getFrecuenciaStatusClass() {
+        if (this.frecuencia_cardiaca === null) return 'text-muted';
         if (this.frecuencia_cardiaca >= 60 && this.frecuencia_cardiaca <= 100) return 'text-success';
-        if (this.frecuencia_cardiaca < 40 || this.frecuencia_cardiaca > 140) return 'text-danger';
+        if (this.frecuencia_cardiaca < 40  || this.frecuencia_cardiaca > 140)  return 'text-danger';
         return 'text-warning';
       },
 
-      getTemperaturaStatus() {
-        if (!this.temperatura) return 'text-muted';
+      getTemperaturaStatusClass() {
+        if (this.temperatura === null) return 'text-muted';
         if (this.temperatura >= 36.5 && this.temperatura <= 37.5) return 'text-success';
         if (this.temperatura > 38) return 'text-danger';
         return 'text-warning';
       },
 
       isFormValid() {
-        return this.spo2 && this.frecuencia_cardiaca && this.temperatura;
+        return this.spo2 !== null && this.frecuencia_cardiaca !== null && this.temperatura !== null;
       }
     };
   }
-
-  document.addEventListener('alpine:init', () => {
-    // Forzar inicialización
-    document.querySelectorAll('[x-data*="triageForm"]').forEach(el => {
-      if (el.__x) el.__x.getUnobservedData().init();
-    });
-  });
 </script>
 {% endblock %}
-
