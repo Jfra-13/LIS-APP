@@ -46,11 +46,16 @@ h2, .h2 { font-size: 1.3rem;  font-weight: 700; }
 h3, .h3 { font-size: 1.15rem; font-weight: 700; }
 h4, .h4 { font-size: 1.05rem; font-weight: 600; }
 
-/* Visible keyboard focus with the theme accent. */
+/* Visible keyboard focus with the theme accent (AA-compliant ring). */
 a:focus-visible,
-button:focus-visible {
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
   outline: 2px solid var(--lis-primary);
   outline-offset: 2px;
+  border-radius: 3px;
 }
 
 
@@ -574,4 +579,132 @@ button:focus-visible {
   height: 40px;
   border-bottom: 1px solid #333;
   margin-bottom: 4px;
+}
+
+
+/* =====================================================================
+ * HTMX loading indicators
+ * ===================================================================== */
+
+/* Hidden by default; visible while an HTMX request is in-flight. */
+.htmx-indicator {
+  display: none;
+}
+
+.htmx-request .htmx-indicator,
+.htmx-request.htmx-indicator {
+  display: inline-block;
+}
+
+
+/* =====================================================================
+ * Error pages (403/404/500)
+ * ===================================================================== */
+
+.lis-error-box {
+  max-width: 480px;
+  width: 100%;
+}
+
+
+/* =====================================================================
+ * Responsive utilities
+ * ===================================================================== */
+
+/* Full-width on mobile, auto-width on md+ — for primary CTAs. */
+.w-md-auto {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .w-md-auto {
+    width: auto !important;
+  }
+}
+
+
+/* =====================================================================
+ * Print styles — clinical note (consulta/detail) + receta (portal)
+ * ===================================================================== */
+
+/* Hide chrome elements when printing. */
+.lis-print-hide {
+  /* rendered normally on screen — print rule below hides it */
+}
+
+@media print {
+  /* Hide shell chrome */
+  .lis-sidebar,
+  .lis-topbar,
+  .lis-footer,
+  .lis-page-header__actions,
+  .lis-print-hide,
+  [data-bs-toggle],
+  .btn,
+  nav {
+    display: none !important;
+  }
+
+  /* Reset layout — single column, full width */
+  .lis-app-shell,
+  .lis-body,
+  .lis-content {
+    display: block !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Reset card chrome */
+  .card,
+  .lis-card {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    border-radius: 0 !important;
+    page-break-inside: avoid;
+  }
+
+  /* Document-readable typography */
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 11pt;
+    color: #000;
+    background: #fff;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #000;
+  }
+
+  /* Clinical note: clean readable prose */
+  .lis-clinical-note {
+    font-size: 11pt;
+    line-height: 1.6;
+  }
+
+  /* Row reset for side-by-side columns */
+  .row {
+    display: block !important;
+  }
+
+  .col-md-4,
+  .col-md-5,
+  .col-md-7,
+  .col-md-8,
+  .col-sm-6 {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Signature block — keep on print */
+  .lis-signature-block {
+    margin-top: 2rem;
+  }
+
+  @page {
+    margin: 2cm;
+  }
 }

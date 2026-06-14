@@ -20,9 +20,9 @@
         <tr>
           <th class="ps-3">Prioridad</th>
           <th>Paciente</th>
-          <th>DNI</th>
-          <th>Signos Vitales</th>
-          <th>Estado</th>
+          <th class="d-none d-md-table-cell">DNI</th>
+          <th class="d-none d-lg-table-cell">Signos Vitales</th>
+          <th class="d-none d-md-table-cell">Estado</th>
           <th class="text-end pe-3">Acciones</th>
         </tr>
       </thead>
@@ -36,23 +36,27 @@
             <div class="fw-semibold">{{ triaje.paciente.nombres }} {{ triaje.paciente.apellidos }}</div>
             <div class="text-muted small">Registrado: {{ triaje.created_at|date:"H:i" }}</div>
           </td>
-          <td class="text-muted small">{{ triaje.paciente.dni }}</td>
-          <td>
+          <td class="text-muted small d-none d-md-table-cell">{{ triaje.paciente.dni }}</td>
+          <td class="d-none d-lg-table-cell">
             <small class="d-block text-muted">SpO2: <span class="fw-semibold">{{ triaje.spo2 }}%</span></small>
             <small class="d-block text-muted">FC: <span class="fw-semibold">{{ triaje.frecuencia_cardiaca }} lpm</span></small>
             <small class="d-block text-muted">Temp: <span class="fw-semibold">{{ triaje.temperatura }}°C</span></small>
           </td>
-          <td>
+          <td class="d-none d-md-table-cell">
             {% if triaje.cola_estado.estado == 'EN_ESPERA' %}
-              <span class="text-warning"><i class="bi bi-clock me-1"></i>En espera</span>
+              <span class="text-warning"><i class="bi bi-clock me-1" aria-hidden="true"></i>En espera</span>
             {% elif triaje.cola_estado.estado == 'EN_CONSULTORIO' %}
-              <span class="text-primary"><i class="bi bi-person-workspace me-1"></i>En consulta</span>
+              <span class="text-primary"><i class="bi bi-person-workspace me-1" aria-hidden="true"></i>En consulta</span>
             {% endif %}
           </td>
           <td class="text-end pe-3">
             <div class="btn-group">
-              <a href="{% url 'triage:paciente_triaje_history' triaje.paciente.pk %}" class="btn btn-sm btn-outline-primary">Ver Triajes</a>
-              <a href="{% url 'admision:paciente_detail' triaje.paciente.pk %}" class="btn btn-sm btn-outline-secondary">Historia Clínica</a>
+              <a href="{% url 'triage:paciente_triaje_history' triaje.paciente.pk %}"
+                 class="btn btn-sm btn-outline-primary"
+                 aria-label="Ver triajes de {{ triaje.paciente.nombres }} {{ triaje.paciente.apellidos }}">Ver Triajes</a>
+              <a href="{% url 'admision:paciente_detail' triaje.paciente.pk %}"
+                 class="btn btn-sm btn-outline-secondary"
+                 aria-label="Historia clínica de {{ triaje.paciente.nombres }} {{ triaje.paciente.apellidos }}">Historia Clínica</a>
             </div>
           </td>
         </tr>

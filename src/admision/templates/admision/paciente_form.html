@@ -38,11 +38,11 @@
     <c-form-field :field="form.email" />
     <c-form-field :field="form.direccion" />
 
-    <div class="d-flex gap-2 mt-4 pt-2 border-top">
-      <button type="submit" class="btn btn-primary">
+    <div class="d-flex flex-column flex-md-row gap-2 mt-4 pt-2 border-top">
+      <button type="submit" class="btn btn-primary w-md-auto">
         {{ button_text }} <kbd class="ms-1">Ctrl+S</kbd>
       </button>
-      <a href="{% url 'admision:paciente_list' %}" class="btn btn-outline-secondary">
+      <a href="{% url 'admision:paciente_list' %}" class="btn btn-outline-secondary w-md-auto">
         Cancelar <kbd class="ms-1">ESC</kbd>
       </a>
     </div>

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Error interno | LIS</title>
+  {# Self-contained on purpose: the 500 handler must not depend on the static
+     manifest ({% static %} with ManifestStaticFilesStorage raises if the
+     manifest is missing/corrupt, which would break this page too). #}
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+           background: #f8f9fa; color: #212529; }
+    .lis-500 { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+    .lis-500__box { max-width: 30rem; text-align: center; }
+    .lis-500__icon { font-size: 2.5rem; line-height: 1; color: #dc3545; margin-bottom: 1rem; }
+    .lis-500 h1 { font-size: 1.5rem; margin: 0 0 .5rem; }
+    .lis-500 p { color: #6c757d; margin: 0 0 1.5rem; }
+    .lis-500 a { display: inline-block; padding: .5rem 1rem; border-radius: .375rem;
+                 background: #0f766e; color: #fff; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="lis-500">
+    <div class="lis-500__box">
+      <div class="lis-500__icon" aria-hidden="true">&#9888;</div>
+      <h1>Error interno del servidor</h1>
+      <p>Se produjo un error inesperado. El equipo técnico fue notificado. Intente de nuevo en unos momentos.</p>
+      <a href="/">Volver al inicio</a>
+    </div>
+  </div>
+</body>
+</html>

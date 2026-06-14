@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.template.response import TemplateResponse
+from django.utils import timezone
 from django.views.decorators.http import require_GET
 
 from .roles import ROLE_HOME, Role, get_role, role_required
@@ -26,19 +27,85 @@ def home(request):
 
 @role_required(Role.SUPERADMIN)
 def dashboard_admin(request):
-    return TemplateResponse(request, "core/dashboard/admin.html")
+    from admision.models import Paciente
+    from medico.models import ColaEstado
+    from triage.models import Triaje
+    from consulta.models import NotaMedica
+
+    today = timezone.now().date()
+
+    context = {
+        "pacientes_hoy": Paciente.objects.filter(created_at__date=today).count(),
+        "cola_activa": ColaEstado.objects.filter(
+            estado__in=[
+                ColaEstado.EstadoChoices.EN_ESPERA,
+                ColaEstado.EstadoChoices.EN_CONSULTORIO,
+            ]
+        ).count(),
+        "triajes_hoy": Triaje.objects.filter(created_at__date=today).count(),
+        "notas_hoy": NotaMedica.objects.filter(created_at__date=today).count(),
+    }
+    return TemplateResponse(request, "core/dashboard/admin.html", context)
 
 
 @role_required(Role.MEDICO)
 def dashboard_medico(request):
-    return TemplateResponse(request, "core/dashboard/medico.html")
+    from medico.models import ColaEstado
+    from consulta.models import NotaMedica
+
+    today = timezone.now().date()
+
+    context = {
+        "en_espera": ColaEstado.objects.filter(
+            estado=ColaEstado.EstadoChoices.EN_ESPERA
+        ).count(),
+        "en_consultorio": ColaEstado.objects.filter(
+            estado=ColaEstado.EstadoChoices.EN_CONSULTORIO
+        ).count(),
+        "notas_hoy": NotaMedica.objects.filter(
+            medico=request.user, created_at__date=today
+        ).count(),
+    }
+    return TemplateResponse(request, "core/dashboard/medico.html", context)
 
 
 @role_required(Role.ENFERMERO)
 def dashboard_enfermero(request):
-    return TemplateResponse(request, "core/dashboard/enfermero.html")
+    from triage.models import Triaje
+    from medico.models import ColaEstado
+
+    today = timezone.now().date()
+
+    # Patients in the queue that haven't been triaged yet can't be directly
+    # queried here (no intermediate "awaiting triage" model). We use the
+    # count of today's triages as the key metric for the nurse.
+    context = {
+        "triajes_hoy": Triaje.objects.filter(created_at__date=today).count(),
+        "en_espera": ColaEstado.objects.filter(
+            estado=ColaEstado.EstadoChoices.EN_ESPERA
+        ).count(),
+        "red_flags_hoy": Triaje.objects.filter(
+            created_at__date=today
+        ).exclude(red_flag=Triaje.RedFlagChoices.NONE).count(),
+    }
+    return TemplateResponse(request, "core/dashboard/enfermero.html", context)
 
 
 @role_required(Role.ADMISION)
 def dashboard_admision(request):
-    return TemplateResponse(request, "core/dashboard/admision.html")
+    from admision.models import Paciente
+    from medico.models import ColaEstado
+
+    today = timezone.now().date()
+
+    context = {
+        "pacientes_hoy": Paciente.objects.filter(created_at__date=today).count(),
+        "total_pacientes": Paciente.objects.filter(estado="activo").count(),
+        "en_cola": ColaEstado.objects.filter(
+            estado__in=[
+                ColaEstado.EstadoChoices.EN_ESPERA,
+                ColaEstado.EstadoChoices.EN_CONSULTORIO,
+            ]
+        ).count(),
+    }
+    return TemplateResponse(request, "core/dashboard/admision.html", context)

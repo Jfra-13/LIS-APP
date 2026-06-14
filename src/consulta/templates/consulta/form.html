@@ -50,8 +50,12 @@
                hx-get="{% url 'consulta:cie_suggest' %}"
                hx-trigger="keyup from:#id_contenido delay:1s, keyup from:#id_motivo_consulta delay:1s"
                hx-vals='js:{q: document.getElementById("id_contenido").value + " " + document.getElementById("id_motivo_consulta").value}'
-               hx-target="#ai-results">
+               hx-target="#ai-results"
+               hx-indicator="#ai-spinner">
             La IA se activará al escribir…
+            <span id="ai-spinner"
+                  class="htmx-indicator spinner-border spinner-border-sm text-secondary ms-1"
+                  aria-hidden="true"></span>
           </div>
           <div id="ai-results"></div>
         </div>
@@ -59,13 +63,19 @@
         <hr class="my-3">
 
         <p class="form-label fw-semibold mb-2">Búsqueda manual CIE-10</p>
-        <input type="text" class="form-control form-control-sm mb-2"
-               placeholder="Buscar por síntoma…"
-               hx-get="{% url 'consulta:cie_suggest' %}"
-               hx-trigger="keyup changed delay:500ms"
-               hx-target="#manual-cie-results"
-               name="q"
-               aria-label="Buscar código CIE-10">
+        <div class="position-relative">
+          <input type="text" class="form-control form-control-sm mb-2"
+                 placeholder="Buscar por síntoma…"
+                 hx-get="{% url 'consulta:cie_suggest' %}"
+                 hx-trigger="keyup changed delay:500ms"
+                 hx-target="#manual-cie-results"
+                 hx-indicator="#cie-spinner"
+                 name="q"
+                 aria-label="Buscar código CIE-10">
+          <span id="cie-spinner"
+                class="htmx-indicator spinner-border spinner-border-sm text-secondary position-absolute top-50 end-0 translate-middle-y me-2"
+                aria-hidden="true"></span>
+        </div>
         <div id="manual-cie-results" class="list-group list-group-flush rounded overflow-hidden"></div>
 
         {# CIE selection display — hidden until a code is picked (JS toggles visibility) #}
@@ -84,13 +94,19 @@
 
         <p class="text-muted small mb-3">Agregue medicamentos a la receta.</p>
 
-        <input type="text" class="form-control form-control-sm mb-2"
-               placeholder="Buscar medicamento…"
-               hx-get="{% url 'consulta:med_suggest' %}"
-               hx-trigger="keyup changed delay:500ms"
-               hx-target="#med-results"
-               name="q"
-               aria-label="Buscar medicamento">
+        <div class="position-relative">
+          <input type="text" class="form-control form-control-sm mb-2"
+                 placeholder="Buscar medicamento…"
+                 hx-get="{% url 'consulta:med_suggest' %}"
+                 hx-trigger="keyup changed delay:500ms"
+                 hx-target="#med-results"
+                 hx-indicator="#med-spinner"
+                 name="q"
+                 aria-label="Buscar medicamento">
+          <span id="med-spinner"
+                class="htmx-indicator spinner-border spinner-border-sm text-secondary position-absolute top-50 end-0 translate-middle-y me-2"
+                aria-hidden="true"></span>
+        </div>
         <div id="med-results" class="list-group list-group-flush"></div>
 
       </c-card>

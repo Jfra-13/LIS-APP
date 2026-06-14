@@ -8,8 +8,9 @@
   title="Receta Médica Electrónica"
   subtitle="ID: {{ nota.receta_id }}">
   <c-slot name="actions">
-    <a href="{% url 'portal_paciente:dashboard' %}" class="btn btn-outline-secondary btn-sm">&larr; Volver a mi historial</a>
-    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">Imprimir Receta</button>
+    <a href="{% url 'portal_paciente:dashboard' %}" class="btn btn-outline-secondary btn-sm lis-print-hide">&larr; Volver a mi historial</a>
+    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm lis-print-hide"
+            aria-label="Imprimir receta médica">Imprimir Receta</button>
   </c-slot>
 </c-page-header>
 

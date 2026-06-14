@@ -1,0 +1,20 @@
+{% extends "core/base.html" %}
+
+{% block title %}Acceso denegado | LIS{% endblock %}
+
+{% block content %}
+
+<c-page-header title="Acceso denegado" subtitle="No tiene permiso para acceder a esta página." />
+
+<c-card>
+  <div class="text-center py-4">
+    <i class="bi bi-shield-lock fs-1 text-warning mb-3 d-block" aria-hidden="true"></i>
+    <p class="mb-4 text-muted">
+      Su cuenta no cuenta con los permisos necesarios para ver este recurso.<br>
+      Si cree que esto es un error, contacte al administrador del sistema.
+    </p>
+    <a href="/" class="btn btn-primary">Volver al inicio</a>
+  </div>
+</c-card>
+
+{% endblock %}

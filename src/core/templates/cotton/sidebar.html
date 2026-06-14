@@ -18,8 +18,9 @@
       {% for item in nav_items %}
       <li class="lis-sidebar__item">
         <a href="{{ item.url }}"
-           class="lis-sidebar__link {% if item.active %}lis-sidebar__link--active{% endif %}">
-          <i class="bi {{ item.icon }} lis-sidebar__icon"></i>
+           class="lis-sidebar__link {% if item.active %}lis-sidebar__link--active{% endif %}"
+           {% if item.active %}aria-current="page"{% endif %}>
+          <i class="bi {{ item.icon }} lis-sidebar__icon" aria-hidden="true"></i>
           <span>{{ item.label }}</span>
         </a>
       </li>

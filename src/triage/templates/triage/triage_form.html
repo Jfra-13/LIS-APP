@@ -182,12 +182,12 @@
         </c-card>
 
         {# ── Actions ── #}
-        <div class="d-flex gap-2 justify-content-end mb-4">
-          <a href="{% url 'admision:paciente_detail' paciente.id %}" class="btn btn-outline-secondary">
+        <div class="d-flex flex-column flex-md-row gap-2 justify-content-end mb-4">
+          <a href="{% url 'admision:paciente_detail' paciente.id %}" class="btn btn-outline-secondary w-md-auto">
             Cancelar
           </a>
-          <button type="submit" class="btn btn-primary" :disabled="!isFormValid()">
-            <i class="bi bi-check-lg me-1"></i>
+          <button type="submit" class="btn btn-primary w-md-auto" :disabled="!isFormValid()">
+            <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
             Guardar Triaje
           </button>
         </div>

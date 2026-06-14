@@ -25,10 +25,10 @@
         <tr>
           <th class="ps-3">Fecha y Hora</th>
           <th>Prioridad</th>
-          <th>Signos Vitales</th>
-          <th>Estado</th>
-          <th>Registrado por</th>
-          <th class="pe-3">Observaciones</th>
+          <th class="d-none d-lg-table-cell">Signos Vitales</th>
+          <th class="d-none d-md-table-cell">Estado</th>
+          <th class="d-none d-lg-table-cell">Registrado por</th>
+          <th class="pe-3 d-none d-md-table-cell">Observaciones</th>
         </tr>
       </thead>
       <tbody>
@@ -41,12 +41,12 @@
           <td>
             <c-badge-manchester level="{{ triaje.nivel_prioridad }}" label="Nivel {{ triaje.nivel_prioridad }}" />
           </td>
-          <td>
+          <td class="d-none d-lg-table-cell">
             <small class="d-block text-muted">SpO2: <span class="fw-semibold">{{ triaje.spo2 }}%</span></small>
             <small class="d-block text-muted">FC: <span class="fw-semibold">{{ triaje.frecuencia_cardiaca }} lpm</span></small>
             <small class="d-block text-muted">Temp: <span class="fw-semibold">{{ triaje.temperatura }}°C</span></small>
           </td>
-          <td>
+          <td class="d-none d-md-table-cell">
             {% if triaje.cola_estado.estado == 'EN_ESPERA' %}
               <span class="badge bg-warning text-dark">En espera</span>
             {% elif triaje.cola_estado.estado == 'EN_CONSULTORIO' %}
@@ -57,10 +57,10 @@
               <span class="badge bg-secondary">{{ triaje.cola_estado.get_estado_display }}</span>
             {% endif %}
           </td>
-          <td>
+          <td class="d-none d-lg-table-cell">
             <div class="small">{{ triaje.usuario_enfermeria.get_full_name|default:triaje.usuario_enfermeria.username }}</div>
           </td>
-          <td class="pe-3">
+          <td class="pe-3 d-none d-md-table-cell">
             <small class="lis-triage-obs text-wrap">{{ triaje.observaciones|default:"—" }}</small>
           </td>
         </tr>

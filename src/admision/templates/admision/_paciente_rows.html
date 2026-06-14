@@ -6,27 +6,27 @@
     </a>
   </td>
   <td>{{ paciente.nombres }}</td>
-  <td>{{ paciente.apellidos }}</td>
-  <td>{{ paciente.get_sexo_display }}</td>
-  <td>{{ paciente.get_edad }} años</td>
-  <td>
+  <td class="d-none d-md-table-cell">{{ paciente.apellidos }}</td>
+  <td class="d-none d-md-table-cell">{{ paciente.get_sexo_display }}</td>
+  <td class="d-none d-md-table-cell">{{ paciente.get_edad }} años</td>
+  <td class="d-none d-lg-table-cell">
     <small class="text-muted">{{ paciente.created_at|date:"d/m/Y" }}</small>
   </td>
   <td class="text-center">
     <a href="{% url 'admision:paciente_detail' paciente.id %}"
        class="btn btn-outline-secondary btn-sm me-1"
-       title="Ver detalles">
-      <i class="bi bi-eye"></i>
+       aria-label="Ver detalles de {{ paciente.nombres }} {{ paciente.apellidos }}">
+      <i class="bi bi-eye" aria-hidden="true"></i>
     </a>
     <a href="{% url 'admision:paciente_update' paciente.id %}"
        class="btn btn-outline-secondary btn-sm me-1"
-       title="Editar">
-      <i class="bi bi-pencil"></i>
+       aria-label="Editar paciente {{ paciente.nombres }} {{ paciente.apellidos }}">
+      <i class="bi bi-pencil" aria-hidden="true"></i>
     </a>
     <a href="{% url 'admision:paciente_delete' paciente.id %}"
        class="btn btn-outline-danger btn-sm"
-       title="Desactivar">
-      <i class="bi bi-trash"></i>
+       aria-label="Desactivar paciente {{ paciente.nombres }} {{ paciente.apellidos }}">
+      <i class="bi bi-trash" aria-hidden="true"></i>
     </a>
   </td>
 </tr>

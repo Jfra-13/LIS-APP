@@ -1,0 +1,20 @@
+{% extends "core/base.html" %}
+
+{% block title %}Página no encontrada | LIS{% endblock %}
+
+{% block content %}
+
+<c-page-header title="Página no encontrada" subtitle="El recurso que busca no existe o fue eliminado." />
+
+<c-card>
+  <div class="text-center py-4">
+    <i class="bi bi-file-earmark-x fs-1 text-secondary mb-3 d-block" aria-hidden="true"></i>
+    <p class="mb-4 text-muted">
+      La página que buscaba no existe, fue movida o fue eliminada.<br>
+      Verifique la URL o regrese al inicio.
+    </p>
+    <a href="/" class="btn btn-primary">Volver al inicio</a>
+  </div>
+</c-card>
+
+{% endblock %}

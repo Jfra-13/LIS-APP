@@ -27,8 +27,8 @@
         <thead class="table-light">
           <tr>
             <th>Paciente</th>
-            <th>Motivo</th>
-            <th>Fecha</th>
+            <th class="d-none d-md-table-cell">Motivo</th>
+            <th class="d-none d-md-table-cell">Fecha</th>
           </tr>
         </thead>
         <tbody>
@@ -39,8 +39,8 @@
                 {{ nota.paciente }}
               </a>
             </td>
-            <td class="text-muted">{{ nota.motivo_consulta|default:"Sin motivo" }}</td>
-            <td class="text-muted small">{{ nota.created_at }}</td>
+            <td class="text-muted d-none d-md-table-cell">{{ nota.motivo_consulta|default:"Sin motivo" }}</td>
+            <td class="text-muted small d-none d-md-table-cell">{{ nota.created_at }}</td>
           </tr>
           {% endfor %}
         </tbody>

@@ -7,7 +7,7 @@
 
 <c-page-header title="Nota Médica" subtitle="{{ nota.paciente }}">
   <c-slot name="actions">
-    <a href="{% url 'consulta:nota_list' %}" class="btn btn-outline-secondary">
+    <a href="{% url 'consulta:nota_list' %}" class="btn btn-outline-secondary lis-print-hide">
       &larr; Volver al listado
     </a>
   </c-slot>
@@ -46,14 +46,16 @@
     </c-card>
 
     {# AI suggestions panel — HTMX polling (do not modify hx-* attrs) #}
-    <c-card title="Sugerencias IA (CIE-10)">
-      <div id="ia-panel"
-           hx-get="{% url 'consulta:ai_suggestions' nota.pk %}"
-           hx-trigger="load, every 2s"
-           hx-swap="outerHTML">
-        <span class="text-muted small">Procesando IA…</span>
-      </div>
-    </c-card>
+    <div class="lis-print-hide">
+      <c-card title="Sugerencias IA (CIE-10)">
+        <div id="ia-panel"
+             hx-get="{% url 'consulta:ai_suggestions' nota.pk %}"
+             hx-trigger="load, every 2s"
+             hx-swap="outerHTML">
+          <span class="text-muted small">Procesando IA…</span>
+        </div>
+      </c-card>
+    </div>
 
   </div>
 

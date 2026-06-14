@@ -6,77 +6,60 @@
 <div class="row justify-content-center my-5">
   <div class="col-md-5">
     <div class="card shadow-lg" x-data="loginForm()">
-      <div class="card-header bg-primary text-white text-center py-4">
-        <h2 class="mb-0">
-          <i class="bi bi-shield-lock me-2"></i>
-          Acceso a Intranet
-        </h2>
+      <div class="card-header lis-card__header text-center py-3">
+        <h2 class="mb-0">Acceso a Intranet</h2>
       </div>
 
       <div class="card-body p-4">
         {% if form.errors %}
           <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle me-2"></i>
             <strong>Error de acceso:</strong> Usuario o contraseña inválidos.
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
           </div>
         {% endif %}
 
-        <form method="post" @submit="validateForm($event)">
+        <form method="post">
           {% csrf_token %}
 
           <!-- Campo Username -->
           <div class="mb-3">
-            <label for="id_username" class="form-label fw-bold">Usuario (DNI o Username)</label>
-            <div class="input-group">
-              <span class="input-group-text">
-                <i class="bi bi-person-fill"></i>
-              </span>
-              <input
-                type="text"
-                id="id_username"
-                name="username"
-                class="form-control"
-                placeholder="Ingrese su usuario"
-                @input="checkUsername()"
-                x-model="username"
-                required
-              />
-            </div>
-            <small class="text-muted d-block mt-1">
-              <i class="bi bi-info-circle me-1"></i>
-              Puede usar su DNI o nombre de usuario
-            </small>
+            <label for="id_username" class="form-label fw-semibold">Usuario</label>
+            <input
+              type="text"
+              id="id_username"
+              name="username"
+              class="form-control"
+              placeholder="DNI o nombre de usuario"
+              x-model="username"
+              required
+              autocomplete="username"
+            />
           </div>
 
           <!-- Campo Password -->
           <div class="mb-4">
-            <label for="id_password" class="form-label fw-bold">Contraseña</label>
+            <label for="id_password" class="form-label fw-semibold">Contraseña</label>
             <div class="input-group">
-              <span class="input-group-text">
-                <i class="bi bi-lock-fill"></i>
-              </span>
               <input
                 type="password"
                 id="id_password"
                 name="password"
                 class="form-control"
                 placeholder="Ingrese su contraseña"
-                @input="checkPassword()"
                 x-model="password"
                 required
+                autocomplete="current-password"
               />
               <button
                 class="btn btn-outline-secondary"
                 type="button"
                 @click="togglePasswordVisibility()"
+                aria-label="Mostrar u ocultar contraseña"
               >
                 <i :class="showPassword ? 'bi-eye-slash' : 'bi-eye'" class="bi"></i>
               </button>
             </div>
-            <small class="text-muted d-block mt-1">
-              Mínimo 3 caracteres
-            </small>
+            <small class="text-muted d-block mt-1">Puede usar su DNI o nombre de usuario</small>
           </div>
 
           <!-- Botón Enviar -->
@@ -92,22 +75,15 @@
 
         <hr class="my-4">
 
-        <!-- Info Footer -->
-        <div class="alert alert-info small mb-3">
-          <i class="bi bi-shield-exclamation me-2"></i>
-          Este sistema es confidencial. Acceso restringido a personal autorizado.
-        </div>
-
         <div class="text-center">
-            <p class="mb-0">¿Eres un paciente?</p>
-            <a href="{% url 'autenticacion_paciente:request_link' %}" class="btn btn-outline-primary w-100 mt-2">
-                <i class="bi bi-magic me-2"></i>Acceder al portal aquí
-            </a>
+          <p class="mb-2 text-muted small">¿Eres un paciente?</p>
+          <a href="{% url 'autenticacion_paciente:request_link' %}" class="btn btn-outline-primary w-100">
+            Acceder al portal del paciente
+          </a>
         </div>
       </div>
     </div>
 
-    <!-- Footer Info -->
     <div class="text-center mt-3 text-muted">
       <small>LIS &mdash; Sistema de Información Clínica</small>
     </div>
@@ -129,25 +105,7 @@
         const input = document.getElementById('id_password');
         input.type = this.showPassword ? 'text' : 'password';
       },
-
-      checkUsername() {
-        // Validación en tiempo real del usuario
-        return this.username.length > 0;
-      },
-
-      checkPassword() {
-        // Validación en tiempo real de contraseña
-        return this.password.length >= 3;
-      },
-
-      validateForm(e) {
-        if (!this.username || !this.password || this.password.length < 3) {
-          e.preventDefault();
-          alert('Por favor, complete todos los campos correctamente.');
-        }
-      }
     };
   }
 </script>
 {% endblock %}
-

@@ -6,8 +6,8 @@
 
 <c-page-header title="Pacientes" subtitle="Registro y datos demográficos">
   <c-slot name="actions">
-    <a href="{% url 'admision:paciente_create' %}" class="btn btn-primary">
-      <i class="bi bi-plus-lg me-1"></i>
+    <a href="{% url 'admision:paciente_create' %}" class="btn btn-primary w-md-auto">
+      <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>
       Nuevo Paciente
     </a>
   </c-slot>
@@ -15,20 +15,26 @@
 
 {# Search toolbar #}
 <div class="d-flex gap-2 mb-3">
-  <input
-    id="search-input"
-    type="search"
-    name="search"
-    class="form-control"
-    placeholder="Buscar por DNI, nombres o apellidos…"
-    value="{{ search_query }}"
-    autocomplete="off"
-    hx-get="{% url 'admision:paciente_list' %}"
-    hx-trigger="keyup changed delay:400ms, search"
-    hx-target="#patient-table-body"
-    hx-include="[name='search']"
-    aria-label="Buscar paciente"
-  />
+  <div class="flex-grow-1 position-relative">
+    <input
+      id="search-input"
+      type="search"
+      name="search"
+      class="form-control"
+      placeholder="Buscar por DNI, nombres o apellidos…"
+      value="{{ search_query }}"
+      autocomplete="off"
+      hx-get="{% url 'admision:paciente_list' %}"
+      hx-trigger="keyup changed delay:400ms, search"
+      hx-target="#patient-table-body"
+      hx-include="[name='search']"
+      hx-indicator="#search-spinner"
+      aria-label="Buscar paciente"
+    />
+    <span id="search-spinner"
+          class="htmx-indicator spinner-border spinner-border-sm text-secondary position-absolute top-50 end-0 translate-middle-y me-2"
+          aria-hidden="true"></span>
+  </div>
   <a href="{% url 'admision:paciente_list' %}" class="btn btn-outline-secondary flex-shrink-0">
     Limpiar
   </a>
@@ -41,10 +47,10 @@
         <tr>
           <th>DNI</th>
           <th>Nombres</th>
-          <th>Apellidos</th>
-          <th>Sexo</th>
-          <th>Edad</th>
-          <th>Registro</th>
+          <th class="d-none d-md-table-cell">Apellidos</th>
+          <th class="d-none d-md-table-cell">Sexo</th>
+          <th class="d-none d-md-table-cell">Edad</th>
+          <th class="d-none d-lg-table-cell">Registro</th>
           <th class="text-center">Acciones</th>
         </tr>
       </thead>
