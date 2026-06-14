@@ -263,20 +263,20 @@ rojo (`is-invalid`); no quedan clases muertas ni `<style>` nuevos en los
 templates tocados.
 
 ### Fase D1 — Admisión
-- [ ] `paciente_form.html`: reescritura completa → `c-page-header` + `c-card` +
+- [x] `paciente_form.html`: reescritura completa → `c-page-header` + `c-card` +
       `<c-form-field>` por campo (los 3 fieldsets se conservan como secciones).
       Quitar el `<style>` embebido y el `if/else` duplicado (~250 líneas → ~60).
       Conservar la UX de JS (placeholder por tipo de documento, prefijo +51,
       bloqueo de dígitos en nombres, Ctrl+S/ESC) extraída a
       `static/js/admision-form.js` o Alpine.
-- [ ] `paciente_list.html`: `c-page-header` (título + botón "Nuevo Paciente"
+- [x] `paciente_list.html`: `c-page-header` (título + botón "Nuevo Paciente"
       tamaño normal); búsqueda como toolbar simple sobre la tabla (sin card
       aparte); convertirla en búsqueda HTMX real (`hx-get` +
       `hx-trigger="keyup changed delay:400ms"` → parcial de tabla) o quitar el
       Alpine muerto y la promesa de "tiempo real". Sexo como texto plano.
       Acciones ver/editar discretas (`btn-outline-secondary`), eliminar separado
       en rojo.
-- [ ] `paciente_detail.html` + `paciente_confirm_delete.html`: alinear a
+- [x] `paciente_detail.html` + `paciente_confirm_delete.html`: alinear a
       `c-card`/`c-page-header`; confirm_delete con resumen del paciente y un
       único botón rojo.
 
@@ -284,7 +284,7 @@ templates tocados.
 sigue siendo operable por teclado; cero CSS embebido.
 
 ### Fase D2 — Enfermería (triaje)
-- [ ] `triage_form.html`: bajar el ruido — sin iconos en labels; inputs tamaño
+- [x] `triage_form.html`: bajar el ruido — sin iconos en labels; inputs tamaño
       default con UNA unidad como addon (%, lpm, °C); headers de card neutros;
       hints de rango en una sola línea `form-text`; las alertas Alpine
       (SpO2 bajo / fiebre / red flag) como texto compacto `small text-danger`
@@ -292,34 +292,34 @@ sigue siendo operable por teclado; cero CSS embebido.
       readonly (`c-badge-manchester` grande) con UNA línea explicando RN-01.
       Quitar el hack muerto de `alpine:init`/`__x` (API de Alpine 2, no existe
       en v3).
-- [ ] `triage_list.html` + `paciente_triaje_history.html`: `c-page-header`,
+- [x] `triage_list.html` + `paciente_triaje_history.html`: `c-page-header`,
       `c-card`, `c-badge-manchester`, `c-empty-state`.
 
 **Aceptación**: el form de triaje entra en una pantalla 1366×768 sin scroll
 excesivo; el feedback de valores anormales es visible pero sin saltos de layout.
 
 ### Fase D3 — Médico
-- [ ] `cola_list.html`: migrar a `c-page-header` + `c-card` +
+- [x] `cola_list.html`: migrar a `c-page-header` + `c-card` +
       `c-badge-manchester` + `c-empty-state`. **Intocable**: `hx-ext="sse"`,
       `sse-connect`, `hx-get`/`hx-trigger`/`hx-select`/`hx-target` y el id
       `cola-table-body`. Quitar "Rol: Médico Especialista" (el topbar ya muestra
       el rol). `.pulsate` pasa a theme.css (D0).
-- [ ] `consulta/form.html`: campos vía `<c-form-field>`; panel IA re-encuadrado
+- [x] `consulta/form.html`: campos vía `<c-form-field>`; panel IA re-encuadrado
       en `c-card` con header neutro — **sin tocar** los endpoints/atributos HTMX
       (`cie_suggest`, `med_suggest`) ni los ids (`id_contenido`, `id_motivo_consulta`,
       `ai-results`, `manual-cie-results`, `med-results`, `cie-selection-display`).
-- [ ] `consulta/list.html` + `detail.html`: componentes + tipografía legible
+- [x] `consulta/list.html` + `detail.html`: componentes + tipografía legible
       para la nota clínica (el Markdown ya renderizado).
 
 **Aceptación**: la cola actualiza en vivo vía SSE contra Docker (verificación
 manual con dos sesiones); typeahead CIE-10 y medicamentos intactos.
 
 ### Fase D4 — Paciente (portal)
-- [ ] `portal_paciente/dashboard.html`: reescritura sin estilos inline; timeline
+- [x] `portal_paciente/dashboard.html`: reescritura sin estilos inline; timeline
       con clases `lis-timeline` de theme.css; header con nombre + DNI; CTA
       "Ver Receta" como botón outline tamaño normal.
-- [ ] `receta_detail.html`: card limpia + botón de imprimir.
-- [ ] `autenticacion_paciente/*` (request_link, link_sent, invalid_link):
+- [x] `receta_detail.html`: card limpia + botón de imprimir.
+- [x] `autenticacion_paciente/*` (request_link, link_sent, invalid_link):
       pantalla de auth centrada, consistente con el login de staff, un solo
       mensaje claro por pantalla.
 
