@@ -1,4 +1,4 @@
-{#
+{% comment %}
   c-empty-state — Centered muted placeholder for empty lists.
 
   Attrs:
@@ -6,7 +6,7 @@
     message (required) — descriptive text to show
 
   Slot: optional additional content (e.g. a CTA button)
-#}
+{% endcomment %}
 {% cotton:vars icon="bi-inbox" %}
 <div class="lis-empty-state text-center py-5 text-muted">
   <i class="bi {{ icon }} fs-1 d-block mb-3"></i>

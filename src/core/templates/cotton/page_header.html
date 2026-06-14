@@ -1,4 +1,4 @@
-{#
+{% comment %}
   c-page-header — Page title bar with optional subtitle and action buttons.
 
   Attrs:
@@ -7,7 +7,7 @@
 
   Named slots:
     actions  (optional) — right-aligned action buttons
-#}
+{% endcomment %}
 <div class="lis-page-header d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
   <div>
     <h1 class="lis-page-header__title mb-0">{{ title }}</h1>

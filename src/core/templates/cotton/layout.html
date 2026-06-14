@@ -1,5 +1,5 @@
-{# LIS Layout shell — topbar + optional sidebar + main content. #}
-{# is_patient_shell (from context processor) switches to a lighter full-width layout. #}
+{% comment %} LIS Layout shell — topbar + optional sidebar + main content. {% endcomment %}
+{% comment %} is_patient_shell (from context processor) switches to a lighter full-width layout. {% endcomment %}
 <div class="lis-app-shell" x-data="{ sidebarOpen: false }">
 
   <c-topbar />
@@ -11,7 +11,7 @@
     {% endif %}
 
     <main class="lis-content" id="main-content">
-      {# Django flash messages — rendered before page content. #}
+      {% comment %} Django flash messages — rendered before page content. {% endcomment %}
       {% if messages %}
         <div class="lis-messages">
           {% for message in messages %}

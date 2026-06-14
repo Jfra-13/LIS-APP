@@ -1,4 +1,4 @@
-{#
+{% comment %}
   c-alert — Bootstrap 5 alert with optional dismiss button.
 
   Attrs:
@@ -7,10 +7,10 @@
     dismissible (optional) — "true" or "false" (default: "true")
 
   Slot: alert message content
-#}
+{% endcomment %}
 {% cotton:vars type="info" dismissible="true" %}
 
-{# Resolve Bootstrap variant: Django "error" tag → Bootstrap "danger". #}
+{% comment %} Resolve Bootstrap variant: Django "error" tag → Bootstrap "danger". {% endcomment %}
 {% if type == "error" or type == "danger" %}{% with bs_type="danger" %}
 <div class="alert alert-{{ bs_type }}{% if dismissible == 'true' %} alert-dismissible fade show{% endif %}" role="alert">
   {{ slot }}

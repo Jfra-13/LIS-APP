@@ -1,11 +1,11 @@
-{# LIS Sidebar — role-scoped navigation panel. #}
-{# Rendered only when nav_items is non-empty. Hidden/off-canvas on mobile, fixed on desktop. #}
+{% comment %} LIS Sidebar — role-scoped navigation panel. {% endcomment %}
+{% comment %} Rendered only when nav_items is non-empty. Hidden/off-canvas on mobile, fixed on desktop. {% endcomment %}
 {% if nav_items %}
 <aside class="lis-sidebar"
        :class="{ 'lis-sidebar--open': sidebarOpen }"
        @click.outside="sidebarOpen = false">
 
-  {# Mobile overlay close button #}
+  {% comment %} Mobile overlay close button {% endcomment %}
   <button class="lis-sidebar__close d-lg-none"
           type="button"
           @click="sidebarOpen = false"
@@ -29,7 +29,7 @@
   </nav>
 </aside>
 
-{# Mobile overlay backdrop #}
+{% comment %} Mobile overlay backdrop {% endcomment %}
 <div class="lis-sidebar__backdrop d-lg-none"
      x-show="sidebarOpen"
      @click="sidebarOpen = false"

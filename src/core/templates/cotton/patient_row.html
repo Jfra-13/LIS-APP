@@ -1,4 +1,4 @@
-{#
+{% comment %}
   c-patient-row — Reusable <tr> for patient / queue tables.
 
   Expected attrs (pass directly or via :paciente binding):
@@ -15,7 +15,7 @@
   The caller controls which columns exist in the parent <thead>; this component
   provides: priority badge | name + detail | DNI | wait time | actions.
   Omit columns by not passing the relevant attr.
-#}
+{% endcomment %}
 <tr class="{{ row_class }}">
   {% if nivel %}
   <td class="ps-4">

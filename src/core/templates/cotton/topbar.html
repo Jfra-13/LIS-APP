@@ -1,8 +1,8 @@
 {% load static %}
-{# LIS Topbar — white bar with brand, mobile hamburger, user info, and logout. #}
+{% comment %} LIS Topbar — white bar with brand, mobile hamburger, user info, and logout. {% endcomment %}
 <header class="lis-topbar">
   <div class="lis-topbar__brand">
-    {# Hamburger: only relevant on mobile; triggers Alpine sidebar toggle on the parent layout. #}
+    {% comment %} Hamburger: only relevant on mobile; triggers Alpine sidebar toggle on the parent layout. {% endcomment %}
     <button class="lis-topbar__hamburger d-lg-none"
             type="button"
             @click="sidebarOpen = !sidebarOpen"
