@@ -17,6 +17,7 @@ from .forms import NotaMedicaForm
 from .models import NotaMedica
 from .services.cie_lookup import search as cie_search
 from .services.med_lookup import search as med_search
+from medico.models import ColaEstado
 from triage.models import Triaje
 
 
@@ -81,6 +82,29 @@ class NotaMedicaCreateView(ConsultaPermissionMixin, CreateView):
     def form_valid(self, form):
         form.instance.medico = self.request.user
         response = super().form_valid(form)
+        # Finalizar la cola de atención: guardar la nota cierra la consulta del
+        # paciente. La FSM ColaEstado tiene el estado FINALIZADO pero nada lo
+        # disparaba, así que el paciente quedaba EN_CONSULTORIO para siempre y
+        # la cola nunca lo soltaba. Efecto secundario tolerante: si la nota no
+        # vino del flujo de cola o la transición no aplica, la nota ya quedó
+        # guardada y la pantalla no se rompe.
+        triaje = self.object.triaje
+        if triaje is not None:
+            try:
+                cola_estado = triaje.cola_estado
+            except ColaEstado.DoesNotExist:
+                cola_estado = None
+            if cola_estado is not None:
+                try:
+                    cola_estado.set_estado(ColaEstado.EstadoChoices.FINALIZADO)
+                except ValueError:
+                    logger.warning(
+                        "No se pudo finalizar la cola tras guardar la nota",
+                        extra={
+                            "nota_id": str(self.object.id),
+                            "cola_estado": cola_estado.estado,
+                        },
+                    )
         # Disparar el procesamiento NLP en segundo plano (RF-06). Es un efecto
         # secundario fire-and-forget: si falla, la nota ya quedó guardada y la
         # pantalla del médico nunca se bloquea esperando la IA.
