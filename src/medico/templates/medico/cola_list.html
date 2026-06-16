@@ -15,7 +15,8 @@
            hx-get="{% url 'medico:cola_atencion' %}"
            hx-trigger="sse:cola-update"
            hx-select="#cola-table-body"
-           hx-target="#cola-table-body">
+           hx-target="#cola-table-body"
+           hx-swap="outerHTML">
       <thead class="table-light">
         <tr>
           <th class="ps-3">Prioridad</th>
