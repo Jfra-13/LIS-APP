@@ -13,8 +13,8 @@
       class="table table-hover align-middle mb-0"
       hx-get="{% url 'triage:triage_list' %}"
       hx-trigger="every 10s"
-      hx-select="#triage-table-body"
       hx-target="#triage-table-body"
+      hx-swap="innerHTML"
     >
       <thead class="table-light">
         <tr>
@@ -27,47 +27,7 @@
         </tr>
       </thead>
       <tbody id="triage-table-body">
-        {% for triaje in triajes %}
-        <tr>
-          <td class="ps-3">
-            <c-badge-manchester level="{{ triaje.nivel_prioridad }}" label="Nivel {{ triaje.nivel_prioridad }}" />
-          </td>
-          <td>
-            <div class="fw-semibold">{{ triaje.paciente.nombres }} {{ triaje.paciente.apellidos }}</div>
-            <div class="text-muted small">Registrado: {{ triaje.created_at|date:"H:i" }}</div>
-          </td>
-          <td class="text-muted small d-none d-md-table-cell">{{ triaje.paciente.dni }}</td>
-          <td class="d-none d-lg-table-cell">
-            <small class="d-block text-muted">SpO2: <span class="fw-semibold">{{ triaje.spo2 }}%</span></small>
-            <small class="d-block text-muted">FC: <span class="fw-semibold">{{ triaje.frecuencia_cardiaca }} lpm</span></small>
-            <small class="d-block text-muted">Temp: <span class="fw-semibold">{{ triaje.temperatura }}°C</span></small>
-          </td>
-          <td class="d-none d-md-table-cell">
-            {% if triaje.cola_estado.estado == 'EN_ESPERA' %}
-              <span class="text-warning"><i class="bi bi-clock me-1" aria-hidden="true"></i>En espera</span>
-            {% elif triaje.cola_estado.estado == 'EN_CONSULTORIO' %}
-              <span class="text-primary"><i class="bi bi-person-workspace me-1" aria-hidden="true"></i>En consulta</span>
-            {% endif %}
-          </td>
-          <td class="text-end pe-3">
-            <div class="btn-group">
-              <a href="{% url 'triage:paciente_triaje_history' triaje.paciente.pk %}"
-                 class="btn btn-sm btn-outline-primary"
-                 aria-label="Ver triajes de {{ triaje.paciente.nombres }} {{ triaje.paciente.apellidos }}">Ver Triajes</a>
-              <a href="{% url 'admision:paciente_detail' triaje.paciente.pk %}"
-                 class="btn btn-sm btn-outline-secondary"
-                 aria-label="Historia clínica de {{ triaje.paciente.nombres }} {{ triaje.paciente.apellidos }}">Historia Clínica</a>
-            </div>
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="6" class="p-0 border-0">
-            <c-empty-state icon="bi-inbox" message="No hay pacientes en cola de espera.">
-            </c-empty-state>
-          </td>
-        </tr>
-        {% endfor %}
+        {% include 'triage/_triage_rows.html' %}
       </tbody>
     </table>
   </div>

@@ -283,3 +283,37 @@ class TriajeModelAndViewTests(TestCase):
         triaje.temperatura = Decimal("39.0")
         with self.assertRaises(RN01ImmutableTriageError):
             triaje.save()
+
+    def test_triage_list_hx_request_devuelve_solo_fragmento(self):
+        """El poll HTMX devuelve solo las filas (sin <thead>) para swap innerHTML.
+
+        Evita el bug del <tbody> anidado: si devolviéramos la página completa y
+        la inyectáramos en el tbody, se apelmazaban las celdas.
+        """
+        from django.contrib.auth.models import Permission
+
+        self.enfermeria_user.user_permissions.add(
+            Permission.objects.get(codename="view_triaje")
+        )
+        Triaje.objects.create(
+            paciente=self.paciente,
+            spo2=98,
+            frecuencia_cardiaca=82,
+            temperatura=Decimal("36.7"),
+            red_flag=Triaje.RedFlagChoices.NONE,
+            nivel_prioridad=4,
+            usuario_enfermeria=self.enfermeria_user,
+        )
+
+        full = self.client.get(reverse("triage:triage_list"))
+        fragment = self.client.get(
+            reverse("triage:triage_list"), HTTP_HX_REQUEST="true"
+        )
+
+        self.assertEqual(full.status_code, 200)
+        self.assertEqual(fragment.status_code, 200)
+        # La página completa trae la tabla con cabecera; el fragmento no.
+        self.assertContains(full, "<thead")
+        self.assertNotContains(fragment, "<thead")
+        # Ambos muestran al paciente en cola.
+        self.assertContains(fragment, self.paciente.apellidos)

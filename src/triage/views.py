@@ -61,6 +61,14 @@ class TriajeListView(TriagePermissionMixin, ListView):
         )
         return context
 
+    def get_template_names(self):
+        # En el poll HTMX (cada 10 s) devolvemos solo el fragmento de filas, que
+        # entra por innerHTML al <tbody>. Evita anidar un <tbody> dentro de otro
+        # (HTML inválido que apelmazaba las celdas a la izquierda).
+        if self.request.headers.get("HX-Request"):
+            return ["triage/_triage_rows.html"]
+        return ["triage/triage_list.html"]
+
 
 class PacienteTriajeHistoryView(TriagePermissionMixin, ListView):
     model = Triaje
