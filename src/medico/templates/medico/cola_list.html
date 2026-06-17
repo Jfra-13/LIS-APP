@@ -14,9 +14,8 @@
     <table class="table table-hover align-middle mb-0"
            hx-get="{% url 'medico:cola_atencion' %}"
            hx-trigger="sse:cola-update"
-           hx-select="#cola-table-body"
            hx-target="#cola-table-body"
-           hx-swap="outerHTML">
+           hx-swap="innerHTML">
       <thead class="table-light">
         <tr>
           <th class="ps-3">Prioridad</th>
@@ -28,49 +27,7 @@
         </tr>
       </thead>
       <tbody id="cola-table-body">
-        {% for item in pacientes_cola %}
-        <tr class="{% if item.estado == 'EN_CONSULTORIO' %}table-primary{% endif %}">
-          <td class="ps-3">
-            <c-badge-manchester :level="item.triaje.nivel_prioridad" label="Nivel {{ item.triaje.nivel_prioridad }}" />
-          </td>
-          <td>
-            <div class="fw-semibold">{{ item.triaje.paciente.nombres }} {{ item.triaje.paciente.apellidos }}</div>
-            <small class="text-muted">Triaje: {{ item.triaje.usuario_enfermeria.get_full_name|default:item.triaje.usuario_enfermeria.username }}</small>
-          </td>
-          <td class="text-muted d-none d-md-table-cell">{{ item.triaje.paciente.dni }}</td>
-          <td class="text-muted d-none d-md-table-cell">{{ item.created_at|timesince }}</td>
-          <td class="d-none d-md-table-cell">
-            {% if item.estado == 'EN_ESPERA' %}
-              <span class="badge bg-secondary">Pendiente</span>
-            {% elif item.estado == 'EN_CONSULTORIO' %}
-              <span class="badge bg-primary pulsate">En Consultorio</span>
-            {% endif %}
-          </td>
-          <td class="text-end pe-3">
-            {% if item.estado == 'EN_ESPERA' %}
-              <form action="{% url 'medico:llamar_paciente' item.pk %}" method="post" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-outline-primary"
-                        aria-label="Llamar a {{ item.triaje.paciente.nombres }} {{ item.triaje.paciente.apellidos }}">
-                  Llamar
-                </button>
-              </form>
-            {% elif item.estado == 'EN_CONSULTORIO' %}
-              <a href="{% url 'consulta:nota_create' %}?paciente={{ item.triaje.paciente.pk }}&triaje={{ item.triaje.pk }}"
-                 class="btn btn-sm btn-primary"
-                 aria-label="Atender a {{ item.triaje.paciente.nombres }} {{ item.triaje.paciente.apellidos }}">
-                Atender
-              </a>
-            {% endif %}
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="6" class="p-0 border-0">
-            <c-empty-state icon="bi-check2-circle" message="No hay pacientes pendientes en la cola." />
-          </td>
-        </tr>
-        {% endfor %}
+        {% include 'medico/_cola_rows.html' %}
       </tbody>
     </table>
   </div>

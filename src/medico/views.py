@@ -43,6 +43,14 @@ class ColaAtencionListView(MedicoPermissionMixin, ListView):
             .order_by("triaje__nivel_prioridad", "created_at")
         )
 
+    def get_template_names(self):
+        # En refrescos HTMX (evento SSE cola-update) devolvemos solo el fragmento
+        # de filas, que entra por innerHTML al <tbody>. Así nunca anidamos un
+        # <tbody> dentro de otro (HTML inválido que descuadraba la tabla).
+        if self.request.headers.get("HX-Request"):
+            return ["medico/_cola_rows.html"]
+        return ["medico/cola_list.html"]
+
 
 class LlamarPacienteView(MedicoPermissionMixin, View):
     permission_required = "medico.change_colaestado"
@@ -54,6 +62,23 @@ class LlamarPacienteView(MedicoPermissionMixin, View):
             messages.success(
                 request,
                 f"Paciente {cola_item.triaje.paciente.dni} llamado a consultorio.",
+            )
+        except ValueError as e:
+            messages.error(request, str(e))
+
+        return redirect("medico:cola_atencion")
+
+
+class FinalizarAtencionView(MedicoPermissionMixin, View):
+    permission_required = "medico.change_colaestado"
+
+    def post(self, request, pk):
+        cola_item = get_object_or_404(ColaEstado, pk=pk)
+        try:
+            cola_item.set_estado(ColaEstado.EstadoChoices.FINALIZADO)
+            messages.success(
+                request,
+                f"Atención de {cola_item.triaje.paciente.dni} finalizada.",
             )
         except ValueError as e:
             messages.error(request, str(e))
