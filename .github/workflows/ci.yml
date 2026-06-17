@@ -60,7 +60,8 @@ jobs:
       - name: Django checks
         run: |
           python src/manage.py check
-          cd src && pytest --cov=admision --cov=core --cov-fail-under=80
+          # Coverage scope and the >=80% gate live in pytest.ini (single source of truth).
+          cd src && pytest
 
   e2e:
     runs-on: ubuntu-latest
