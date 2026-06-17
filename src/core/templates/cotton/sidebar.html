@@ -13,7 +13,12 @@
     <i class="bi bi-x-lg"></i>
   </button>
 
-  <nav aria-label="Navegación principal">
+  {% comment %} Brand header — only shown in the sidebar-only (staff) shell where the topbar is gone. {% endcomment %}
+  <a class="lis-sidebar__brand" href="{% url 'home' %}">
+    <i class="bi bi-heart-pulse-fill me-2"></i>LIS
+  </a>
+
+  <nav aria-label="Navegación principal" class="lis-sidebar__navwrap">
     <ul class="lis-sidebar__nav">
       {% for item in nav_items %}
       <li class="lis-sidebar__item">
@@ -27,6 +32,24 @@
       {% endfor %}
     </ul>
   </nav>
+
+  {% comment %} User footer — name, role chip and logout, pinned to the bottom. {% endcomment %}
+  {% if user.is_authenticated %}
+  <div class="lis-sidebar__user">
+    <div class="lis-sidebar__user-info">
+      <span class="lis-sidebar__user-name">{{ user.get_full_name|default:user.username }}</span>
+      {% if current_role_label %}
+        <span class="lis-sidebar__role-chip">{{ current_role_label }}</span>
+      {% endif %}
+    </div>
+    <form action="{% url 'logout' %}" method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+        <i class="bi bi-box-arrow-right me-1"></i>Salir
+      </button>
+    </form>
+  </div>
+  {% endif %}
 </aside>
 
 {% comment %} Mobile overlay backdrop {% endcomment %}

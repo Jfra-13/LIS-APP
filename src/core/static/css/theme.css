@@ -331,6 +331,102 @@ textarea:focus-visible,
 
 
 /* =====================================================================
+ * Sidebar-only shell (staff): no topbar, brand + user inside the sidebar
+ * ===================================================================== */
+
+/* Sidebar spans the full viewport height and lays out as a column:
+   brand (top) · nav (grows) · user footer (bottom). */
+.lis-app-shell--sidebar-only .lis-sidebar {
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-top: 0;
+}
+
+/* No topbar to offset against, so content uses the full height. */
+.lis-app-shell--sidebar-only .lis-content {
+  min-height: 100vh;
+}
+
+/* Brand header inside the sidebar */
+.lis-sidebar__brand {
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--lis-primary);
+  text-decoration: none;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--lis-border);
+  margin-bottom: 0.5rem;
+}
+
+.lis-sidebar__brand:hover {
+  color: var(--lis-primary);
+  opacity: 0.85;
+}
+
+/* Nav wrapper grows so the user block is pushed to the bottom. */
+.lis-sidebar__navwrap {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* User footer pinned at the bottom of the sidebar. */
+.lis-sidebar__user {
+  margin-top: auto;
+  border-top: 1px solid var(--lis-border);
+  padding: 0.875rem 1rem;
+}
+
+.lis-sidebar__user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.625rem;
+}
+
+.lis-sidebar__user-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--lis-nav-text);
+}
+
+/* Role chip inside the sidebar user block (mirrors the old topbar chip). */
+.lis-sidebar__role-chip {
+  align-self: flex-start;
+  padding: 0.2rem 0.65rem;
+  background-color: var(--lis-primary-tint);
+  color: var(--lis-primary);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Floating menu toggle — replaces the topbar hamburger on mobile (staff shell). */
+.lis-floating-toggle {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 1035;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid var(--lis-border);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  color: var(--lis-nav-text);
+  cursor: pointer;
+}
+
+
+/* =====================================================================
  * Flash messages bar
  * ===================================================================== */
 

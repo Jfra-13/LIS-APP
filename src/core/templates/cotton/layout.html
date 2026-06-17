@@ -1,8 +1,19 @@
 {% comment %} LIS Layout shell — topbar + optional sidebar + main content. {% endcomment %}
 {% comment %} is_patient_shell (from context processor) switches to a lighter full-width layout. {% endcomment %}
-<div class="lis-app-shell" x-data="{ sidebarOpen: false }">
+{% comment %} Staff shell (sidebar present): no topbar — brand + user live inside the sidebar. {% endcomment %}
+<div class="lis-app-shell {% if not is_patient_shell and nav_items %}lis-app-shell--sidebar-only{% endif %}" x-data="{ sidebarOpen: false }">
 
-  <c-topbar />
+  {% if is_patient_shell or not nav_items %}
+    <c-topbar />
+  {% else %}
+    {% comment %} Mobile-only floating toggle (replaces the topbar hamburger). {% endcomment %}
+    <button class="lis-floating-toggle d-lg-none"
+            type="button"
+            @click="sidebarOpen = true"
+            aria-label="Abrir menú">
+      <i class="bi bi-list fs-4"></i>
+    </button>
+  {% endif %}
 
   <div class="lis-body {% if not is_patient_shell and nav_items %}lis-body--with-sidebar{% endif %}">
 
