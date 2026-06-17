@@ -1,8 +1,13 @@
 # Estado Actual — app-LIS (Triaje Hospitalario Inteligente)
 
 > Auditoría técnica del proyecto contrastada contra los requerimientos de
-> `ContextClaude/contexto.txt`. Fecha de revisión: 2026-06-05.
+> `ContextClaude/contexto.txt`. Fecha de revisión: 2026-06-17.
 > Rama: `master`.
+>
+> **Nota de revisión (2026-06-17):** este documento se actualizó tras cerrar las
+> Fases 0–3 y la mayor parte de la 5. El detalle histórico de §5 (bugs) refleja
+> el estado del 2026-06-05 y se conserva como registro; ver el estado vigente en
+> §1 y en `PLAN_PENDIENTES.md` (tabla "Estado de las fases").
 
 ## 1. Resumen ejecutivo
 
@@ -13,27 +18,26 @@ triaje, inmutabilidad clínica, UUIDs, historización). La **UI es de buena
 calidad** (Bootstrap 5 + HTMX + Alpine.js, colores Manchester, formularios
 reactivos).
 
-El gran faltante es la **arquitectura asíncrona de IA (RF-06 / RF-07)**: la
-infraestructura (RabbitMQ + Celery + worker + spaCy) está presente y declarada,
-pero el flujo NLP que debía dispararse al guardar la nota médica **no está
-cableado** y queda roto silenciosamente. El sistema funciona hoy gracias a un
-motor determinístico CIE-10 síncrono (que es, de hecho, lo que pide la sección
-"Resultados Esperados"), pero eso contradice la arquitectura asíncrona prometida
-en RF-06.
+La **arquitectura asíncrona de IA (RF-06 / RF-07)** ya está cerrada (Fase 1):
+existe `consulta/tasks.py` (`process_clinical_note`, idempotente con reintentos),
+`NotaMedica` tiene campo `estado_ia` (PENDIENTE/PROCESANDO/LISTO/ERROR) +
+migración 0004, la nota dispara el procesamiento al guardarse y la UI lee el
+estado por polling. El motor de diagnóstico sigue siendo el catálogo
+determinístico CIE-10 (coherente con "Resultados Esperados"); spaCy queda como
+opcional.
 
-Estado de pruebas: **59 pasan / 17 fallan / 1 omitida**. Los 17 fallos se
-concentran en pruebas de vistas y tienen causa raíz acotada (inconsistencia de
-nombres de grupos de permisos + aserciones de contenido obsoletas).
+Estado de pruebas: **suite verde** (última corrida: 141 passed, 1 skipped). La
+regresión de grupos de permisos y aserciones obsoletas (Fase 0) está resuelta.
 
 | Capa | Estado | Nota |
 |------|--------|------|
 | Modelado de datos / dominio | 🟢 Sólido | UUIDs, SOLID, inmutabilidad, historial |
-| UI / UX (código) | 🟢 Buena | Bootstrap + HTMX + Alpine; bugs menores |
+| UI / UX (código) | 🟢 Buena | Cotton design system; rediseño D0–E completo |
 | Backend transaccional | 🟢 Funcional | Admisión, triaje, cola, consulta operan |
-| Arquitectura asíncrona NLP | 🔴 Rota | `consulta/tasks.py` ausente, RF-06/07 sin cerrar |
-| Conexiones (broker/cache/db) | 🟡 Parcial | Broker OK; falta Redis/CACHES para el handoff IA |
+| Arquitectura asíncrona NLP | 🟢 Cerrada | `consulta/tasks.py` + `estado_ia`; RF-06/07 cableados (Fase 1) |
+| Cola en tiempo real | 🟢 SSE | `medico:cola_stream`; transición manual (único dueño) |
 | Contenerización / DevOps | 🟢 Presente | Docker, Compose, CI workflows, Jenkinsfile |
-| Calidad / Tests | 🟡 Regresión | 17 fallos por desalineación grupos/tests |
+| Calidad / Tests | 🟢 Verde | 141 passed, 1 skipped; cobertura en cierre (Fase 5) |
 
 Leyenda: 🟢 cumple · 🟡 parcial · 🔴 falta / roto.
 
@@ -58,18 +62,18 @@ Leyenda: 🟢 cumple · 🟡 parcial · 🔴 falta / roto.
 | ID | Requerimiento | Estado | Evidencia / Brecha |
 |----|---------------|--------|--------------------|
 | RF-01 | Registro de pacientes (DNI + UUID) | 🟢 | `admision.Paciente`, CRUD CBV, validación DNI/PAS/CE, soft delete, UUID PK |
-| RF-02 | Captura de biometría | 🟡 | `triage.Triaje` captura SpO2, FC, Temperatura y bandera roja. **Falta Presión Arterial**, que la spec lista explícitamente |
+| RF-02 | Captura de biometría | 🟢 | `triage.Triaje` captura SpO2, FC, Temperatura, bandera roja **y presión arterial** (sistólica/diastólica, Fase 2) |
 | RF-03 | Cálculo algorítmico + bloqueo del nivel | 🟢 | `TriageCalculatorService` (OCP: `RuleEngine`, `BasicVitalSignsRule`, `RedFlagRule`); `nivel_prioridad` con `editable=False` |
-| RF-04 | Cola dinámica en tiempo real | 🟡 | Backend `medico.ColaEstado` ordenado por prioridad; frontend con **HTMX polling cada 15s**, no "tiempo real / milisegundos" como promete el contexto (sin WebSocket/SSE) |
-| RF-05 | Historia clínica narrativa | 🟡 | `consulta.NotaMedica.contenido` (TextField) + `motivo_consulta`. Es textarea plano, **no editor enriquecido** ("texto libre enriquecido") |
-| RF-06 | Disparador NLP por Signal + estado "Procesando IA" | 🔴 | `consulta/views.py` intenta `from .tasks import process_clinical_note` pero **`consulta/tasks.py` no existe**; el import falla y se traga la excepción. No hay campo de estado "Procesando IA" |
-| RF-07 | Sugerencia CIE-10 por agente autónomo | 🟡 | Motor determinístico `cie_lookup.py` funciona en modo **síncrono** (autocompletado HTMX manual + en vivo al escribir). El **agente autónomo asíncrono** que escribe la sugerencia tras procesar no está implementado; `get_ai_suggestions` lee de un cache que nadie escribe |
+| RF-04 | Cola dinámica en tiempo real | 🟢 | `medico.ColaEstado` ordenado por prioridad; frontend con **SSE** (`medico:cola_stream`) que re-pide la tabla solo ante cambios (Fase 3) |
+| RF-05 | Historia clínica narrativa | 🟡 | `consulta.NotaMedica.contenido` (TextField) + `motivo_consulta`; textarea plano. Decisión pendiente: texto plano vs editor enriquecido. Existe vista de **historia clínica unificada** (`consulta:historia_clinica`) |
+| RF-06 | Disparador NLP por Signal + estado "Procesando IA" | 🟢 | `consulta/tasks.py::process_clinical_note` + campo `NotaMedica.estado_ia` (migración 0004); la UI refleja el estado por polling (Fase 1) |
+| RF-07 | Sugerencia CIE-10 por agente autónomo | 🟢 | Flujo asíncrono cableado: el task procesa la nota y persiste la sugerencia; el motor es el catálogo determinístico `cie_lookup.py` (spaCy opcional) |
 
 ### Requerimientos No Funcionales
 
 | ID | Requerimiento | Estado | Evidencia / Brecha |
 |----|---------------|--------|--------------------|
-| RNF-01 | Arquitectura asíncrona (RabbitMQ + Celery) | 🟡 | Infra completa y un task real (`medico.tasks.send_triaje_to_queue`), pero el caso de uso NLP no está conectado; el task existente solo transiciona estado |
+| RNF-01 | Arquitectura asíncrona (RabbitMQ + Celery) | 🟢 | Infra completa + dos tasks reales: `medico.tasks.send_triaje_to_queue` y `consulta.tasks.process_clinical_note` (NLP), ambos idempotentes con reintentos |
 | RNF-02 | CRUD < 1.5s | 🟢 (no medido) | `select_related`/managers optimizados, índices en modelos. Falta prueba de performance que lo verifique |
 | RNF-03 | Contenerización | 🟢 | `Dockerfile`, `Dockerfile.worker`, `docker-compose.yml` (db, web, rabbitmq, worker) |
 | RNF-04 | PKs UUIDv4 en tablas críticas | 🟢 | `core.AbstractBaseModel` (UUID) en Paciente, Triaje, NotaMedica, User. `ColaEstado` usa PK entera (estado operativo, no transaccional crítico) |

@@ -12,6 +12,17 @@ Cada fase tiene **Objetivo**, **Tareas**, **Archivos afectados** y **Criterio de
 aceptación** (cómo sabés que terminó). El esfuerzo es una estimación relativa,
 no un compromiso.
 
+## Estado de las fases (revisión 2026-06-17)
+
+| Fase | Estado | Nota |
+|------|--------|------|
+| Fase 0 — Estabilización | ✅ Completa | Suite verde (141 passed, 1 skipped); sin `src/src/`; typo CELERY corregido; README reescrito |
+| Fase 1 — Async IA (RF-06/07) | ✅ Completa | `consulta/tasks.py`, campo `estado_ia`, migración 0004, `test_tasks.py`; checkbox `cie_accepted` ya usa `id_cie_accepted` (sin typo) |
+| Fase 2 — Captura clínica | 🟢 Mayormente | Presión arterial (sistólica/diastólica) en `Triaje`; RF-05 pendiente decisión texto plano vs editor |
+| Fase 3 — Cola tiempo real (RF-04) | ✅ Completa | SSE (`medico:cola_stream`); transición de cola manual (único dueño) |
+| Fase 4 — Hardening | 🟡 Parcial | WhiteNoise OK; falta split de settings (`base/dev/prod`) y validar `manage.py check --deploy` |
+| Fase 5 — Calidad/CI | 🟠 En curso | `--cov` ampliado a las 7 apps; falta alinear `ci.yml`, perf RNF-02 y E2E completo |
+
 ---
 
 ## Fase 0 — Estabilización y limpieza (bloqueante)
