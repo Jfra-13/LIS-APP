@@ -21,7 +21,8 @@ no un compromiso.
 | Fase 2 — Captura clínica | 🟢 Mayormente | Presión arterial (sistólica/diastólica) en `Triaje`; RF-05 pendiente decisión texto plano vs editor |
 | Fase 3 — Cola tiempo real (RF-04) | ✅ Completa | SSE (`medico:cola_stream`); transición de cola manual (único dueño) |
 | Fase 4 — Hardening | 🟡 Parcial | WhiteNoise OK; falta split de settings (`base/dev/prod`) y validar `manage.py check --deploy` |
-| Fase 5 — Calidad/CI | 🟠 En curso | `--cov` ampliado a las 7 apps; falta alinear `ci.yml`, perf RNF-02 y E2E completo |
+| **HACER ANTES DEL 5** — UX y datos | 🔲 Pendiente | P1 sidebar colapsable · P2 hover/activo · P3 área del médico · P4 403 en contexto · P5 catálogo+receta horizontal |
+| Fase 5 — Calidad/CI | 🟠 En curso | `--cov` ya cubre las 7 apps (90% total) y `ci.yml` usa fuente única; falta perf RNF-02 y E2E completo |
 
 ---
 
@@ -171,6 +172,234 @@ contexto, hoy resuelto con polling cada 15s.
 **Criterio de aceptación:**
 - `python manage.py check --deploy` sin warnings críticos.
 - Despliegue a staging reproducible.
+
+---
+
+# HACER ANTES DEL 5 — Correcciones de UX y datos clínicos
+
+> Bloque de trabajo solicitado tras probar el sistema (`nuevos_detalles.txt`).
+> Son ajustes de experiencia de usuario y de datos que deben cerrarse **antes**
+> de blindar calidad/CI (Fase 5), porque cambian plantillas, vistas, CSS y
+> seeds que la Fase 5 luego tiene que cubrir con tests. Orden recomendado:
+> P1 → P2 (CSS, base visual), luego P3/P4/P5 en paralelo.
+>
+> Cada sub-fase indica **Problema**, **Qué hacer**, **Decisión técnica**
+> (alternativa elegida y por qué), **Archivos** y **Criterio de aceptación**.
+
+## Fase P1 — Sidebar colapsable, expandible y fijable (todos los roles)
+
+**Problema:** la barra lateral no se puede contraer. El usuario quiere poder
+contraerla, expandirla y **fijarla** (que quede en un estado y se recuerde).
+En estado contraído solo deben verse los **iconos** de cada ítem (logo LIS,
+icono de dashboard, icono de paciente, etc.) y, abajo, el bloque de usuario
+reducido a su icono más el botón de salir.
+
+**Qué hacer:**
+1. Añadir un control en la esquina superior derecha del sidebar con icono que
+   alterne **expandir / contraer** (p. ej. `bi-chevron-double-left` /
+   `bi-chevron-double-right`) y un segundo control de **fijar** (p. ej.
+   `bi-pin-angle` ↔ `bi-pin-fill`).
+2. Estado contraído (`lis-sidebar--collapsed`): ancho reducido (~64px), se
+   ocultan los textos (`span`/labels) y solo quedan los iconos centrados;
+   tooltip nativo (`title=`) por ítem para conservar el significado.
+3. Persistir la preferencia (colapsado y fijado) por usuario.
+
+**Decisión técnica (elegida):**
+- **Estado en el cliente con Alpine.js + `localStorage`**, no en backend.
+  *Por qué:* es instantáneo (sin round-trip), no requiere migración ni columna
+  nueva en `User`, y la preferencia de layout es puramente de presentación.
+  Escala sin tocar la BD. El `x-data` ya existe en `cotton/layout.html`; se
+  extiende con `collapsed` y `pinned` inicializados desde `localStorage`
+  (`$persist` del plugin de Alpine o lectura manual en `init()`).
+- **Iconos garantizados por ítem:** el `nav_items` del context processor debe
+  exponer un campo `icon` por ítem (clase Bootstrap Icons). Hoy los iconos
+  viven en la plantilla; se centralizan en el backend de navegación para que el
+  modo contraído siempre tenga icono. *Por qué:* fuente única, evita ítems sin
+  icono al contraer.
+- **Diferencia con "fijar":** sin fijar, el sidebar puede colapsar/expandir al
+  pasar el mouse (hover-expand) y vuelve a su estado; fijado, queda en el estado
+  elegido y el contenido principal reserva ese ancho. En móvil el comportamiento
+  off-canvas actual no cambia (el colapso aplica solo a `≥992px`).
+
+**Archivos:** `src/core/templates/cotton/sidebar.html`,
+`src/core/templates/cotton/layout.html`, `src/core/static/css/theme.css`
+(`.lis-sidebar--collapsed`, anchos, ocultar labels), context processor de
+navegación en `src/core/` (campo `icon` por ítem).
+
+**Criterio de aceptación:**
+- En cualquier rol, el sidebar contrae/expande y el estado persiste al recargar.
+- Contraído muestra solo iconos + botón salir; con tooltip por ítem.
+- El ancho del contenido principal se ajusta sin saltos al fijar/contraer.
+
+## Fase P2 — Hover y estado activo uniformes en la navegación
+
+**Problema:** el ítem activo se ve como un bloque **verde oscuro fijo** que no
+gusta; el hover del resto de ítems es **gris**. El usuario quiere que el hover
+sea un **verde más claro para todos los ítems** y que el activo no parezca
+"pegado"/permanente con verde oscuro. Aplica a admisión, enfermería y médico.
+
+**Qué hacer:**
+1. Cambiar `.lis-sidebar__link:hover` para que use un **tinte verde claro**
+   (no el gris `--lis-bg` actual).
+2. Suavizar `.lis-sidebar__link--active`: mantener un indicador sutil
+   (borde izquierdo + texto en color primario) pero **sin** relleno verde
+   saturado; usar el mismo tinte claro o uno apenas más marcado que el hover.
+3. Unificar: el mismo criterio de hover/activo en los tres roles (es un único
+   componente, así que se corrige una vez).
+
+**Decisión técnica (elegida):**
+- Introducir un token CSS `--lis-nav-hover` (verde claro derivado de
+  `--lis-primary`, ~8–12% de opacidad) y usarlo tanto en hover como, un poco
+  más intenso, en activo. *Por qué:* tokenizar mantiene coherencia con el
+  design system existente (un solo acento teal) y permite ajustar el tono en un
+  solo lugar; evita colores mágicos dispersos.
+- El estado activo conserva el **borde izquierdo** como señal de "dónde estoy"
+  (accesible, no depende solo del color de fondo).
+
+**Archivos:** `src/core/static/css/theme.css` (tokens + reglas
+`.lis-sidebar__link:hover` y `--active`).
+
+**Criterio de aceptación:**
+- Hover verde claro idéntico en todos los ítems y roles; sin hover gris.
+- El ítem activo se distingue por borde + color, sin bloque verde oscuro.
+
+## Fase P3 — Reestructurar el área del médico (de "lista de notas" a flujo por paciente)
+
+**Problema:** hoy "Notas clínicas" (`NotaMedicaListView` → `consulta/list.html`)
+es una lista plana de todas las notas, en desorden percibido. El médico no
+tiene un lugar donde ver **sus pacientes ordenados** y desde ahí entrar a las
+notas de cada uno. Se piden 3 vistas.
+
+**Qué hacer (3 vistas):**
+1. **"Mis pacientes"** — pacientes que el médico atendió, ordenados por
+   atención **más reciente → más antigua**, con buscador y contador de notas.
+   Cada fila enlaza a la vista 2.
+2. **Notas por paciente** — al entrar a un paciente, sus notas clínicas
+   ordenadas de la **más reciente a la más antigua**.
+3. **"Mi día" (mejora libre elegida)** — panel resumen del médico: pacientes en
+   cola ahora, atendidos hoy, y accesos rápidos a la cola y a "Mis pacientes".
+
+**Decisión técnica (elegida):**
+- **Vista 2 reutiliza la `HistoriaClinicaView` existente**
+  (`consulta:historia_clinica`, que ya combina notas + triajes por paciente,
+  recientes primero). *Por qué:* ya está construida y testeada; evita duplicar
+  lógica. Si se quiere una vista "solo notas del médico", se agrega un filtro,
+  pero la historia unificada es más útil clínicamente.
+- **Vista 1 ("Mis pacientes")**: nueva `ListView` que agrupa por paciente las
+  `NotaMedica` del médico autenticado. Consulta eficiente:
+  `Paciente.objects.filter(notamedica__medico=request.user).annotate(
+  ultima=Max('notamedica__created_at'), n=Count('notamedica')).order_by(
+  '-ultima')`. *Por qué:* agrupar en BD (no en Python) escala y respeta RNF-02.
+- **Vista 3 ("Mi día")**: `TemplateView` que reúne KPIs ya disponibles
+  (cola `ColaEstado`, notas del día). *Por qué:* da al médico contexto operativo
+  sin inventar modelos nuevos; reusa datos existentes.
+- **Navegación:** los 3 entran como ítems del rol médico en el context
+  processor de navegación. "Notas clínicas" plano se mantiene o se reemplaza por
+  "Mis pacientes" como entrada principal.
+
+**Archivos:** `src/consulta/views.py` (nuevas vistas), `src/consulta/urls.py`,
+`src/consulta/templates/consulta/` (nuevas plantillas: `mis_pacientes.html`,
+`mi_dia.html`; reusar `historia_clinica.html`), context processor de navegación
+en `src/core/`, tests en `src/consulta/tests/`.
+
+**Criterio de aceptación:**
+- El médico ve "Mis pacientes" ordenados por atención reciente y entra a las
+  notas/historia de cada uno.
+- "Mi día" muestra cola actual y atendidos de hoy con accesos rápidos.
+- Las consultas usan agregación en BD (sin N+1).
+
+## Fase P4 — Acceso denegado en contexto (no expulsar al home)
+
+**Problema:** al no tener permiso, algunas vistas **redirigen al home (302)** con
+un mensaje arriba, sacando al usuario de donde estaba. Otras devuelven 403. El
+usuario quiere: ver el aviso **donde está** (sin redirección automática) y que
+el botón de volver lo lleve a **la página anterior** (de donde hizo clic), no
+siempre al inicio.
+
+**Qué hacer:**
+1. Unificar el comportamiento de los mixins de permiso para **renderizar una
+   página 403 en contexto** en lugar de redirigir al home.
+2. La página 403 muestra el mensaje y un botón **"Volver"** que usa la URL
+   anterior (`HTTP_REFERER`), con fallback al home solo si no hay referer.
+
+**Decisión técnica (elegida):**
+- **Estandarizar en `403` con `raise_exception=True`** en todos los mixins
+  (`MedicoPermissionMixin`, `AdmisionPermissionMixin`, `TriagePermissionMixin`,
+  `ConsultaPermissionMixin`) y un `handler403` global con plantilla propia.
+  *Por qué:* es el patrón correcto de Django (no inventar redirecciones), es
+  consistente, ya hay tests que esperan 403 (`CrossRole403Tests`,
+  `test_cola_stream`) — esto los **alinea** en vez de romperlos. Los mixins que
+  hoy hacen `redirect("home")` (medico/admision/triage) se cambian a 403.
+- **Botón "Volver" con `HTTP_REFERER`** saneado (validar que sea del mismo host
+  con `url_has_allowed_host_and_scheme`) para no introducir open-redirect.
+  *Por qué:* seguridad — un referer externo no debe usarse a ciegas.
+- *Riesgo a verificar:* algún test podría esperar el `redirect("home")` actual;
+  hay que actualizar esas aserciones al nuevo 403 en contexto.
+
+**Archivos:** `src/medico/views.py`, `src/admision/views.py`,
+`src/triage/views.py`, `src/consulta/views.py` (mixins), `src/config/urls.py`
+(`handler403`), plantilla `403.html` (en `core/templates/` o equivalente),
+tests afectados en cada app.
+
+**Criterio de aceptación:**
+- Sin permiso, la vista responde 403 y se ve el aviso **sin** redirigir al home.
+- El botón "Volver" regresa a la página anterior del mismo sitio; fallback home.
+- Suite verde con las aserciones de permisos actualizadas.
+
+## Fase P5 — Catálogo de medicamentos ampliado y receta horizontal inferior
+
+**Problema:** (a) el catálogo de medicamentos es chico — `medicamentos.json`
+tiene 8 ítems; el mapa CIE→medicamentos (`cie_med_map.json`, 30 diagnósticos ×
+2) resuelve 29/30 pero hay poca variedad y falta sembrar "Sales de
+rehidratación oral". (b) En la consulta, el bloque de medicamentos está en la
+columna derecha; el usuario lo quiere **abajo, horizontal, a todo el ancho**,
+con buscador y sugerencias (como se diseñó).
+
+> Estado parcial ya hecho: `cie10.json` reducido a 30 diagnósticos generales y
+> `cie_med_map.json` con 2 medicamentos por diagnóstico (commit `d2ecf05`).
+> Esta fase **amplía variedad y reorganiza el layout**, no parte de cero.
+
+**Qué hacer:**
+1. **Ampliar `medicamentos.json`** con más variedad (tabletas, jarabes,
+   cremas/ungüentos, etc.), incluyendo el faltante "Sales de rehidratación
+   oral", y asegurar que todo nombre referenciado por `cie_med_map.json` exista
+   como `Medicamento` tras `cargar_medicamentos`.
+2. **Mover el bloque de receta** a una fila inferior a todo el ancho
+   (`col-12`), fuera de la columna derecha. Distribución horizontal de cada
+   fila de prescripción (medicamento · dosis · frecuencia · duración ·
+   instrucciones · quitar) en una sola línea responsive.
+3. Mantener el **buscador** (`med_suggest`) y las **sugerencias por diagnóstico**
+   (`med_suggest_by_cie`) ya implementadas; al elegir un CIE, precargar
+   sugerencias en el bloque inferior.
+
+**Decisión técnica (elegida):**
+- **Seguir usando JSON seed + comando `cargar_medicamentos`** como fuente del
+  catálogo (no hardcodear en migración). *Por qué:* el catálogo es dato, no
+  esquema; el comando es idempotente y reejecutable, y mantiene los pks UUID
+  reales que la receta necesita (`med_suggest` ya devuelve el pk de la BD, no el
+  id del JSON).
+- **Layout:** reestructurar `form.html` a dos zonas: arriba 2 columnas
+  (nota + asistente CIE), abajo una **tarjeta full-width** para la receta con
+  filas horizontales (Bootstrap grid `row`/`col`), conservando el inline
+  formset (`PrescripcionFormSet`) y el JS de clonado de filas. *Por qué:* da más
+  espacio horizontal a la receta (mejor lectura/edición) sin romper el formset
+  ni los endpoints HTMX existentes.
+- **Sugerencias por CIE:** cablear `med_suggest_by_cie` al evento de selección
+  de diagnóstico para poblar `#med-results` en el bloque inferior. *Por qué:*
+  cierra el flujo "diagnóstico → medicación sugerida" sin búsqueda manual.
+
+**Archivos:** `src/consulta/data/medicamentos.json` (ampliar),
+`src/consulta/data/cie_med_map.json` (ajustar variedad si hace falta),
+`src/consulta/management/commands/cargar_medicamentos.py` (verificar carga),
+`src/consulta/templates/consulta/form.html` (layout receta),
+`src/core/static/css/theme.css` (estilos de fila horizontal), tests en
+`src/consulta/tests/`.
+
+**Criterio de aceptación:**
+- Todo medicamento del mapa CIE→meds existe en la BD tras `cargar_medicamentos`
+  (sin nombres sin resolver) y el catálogo tiene variedad real.
+- En la consulta, la receta aparece abajo a todo el ancho, en horizontal, con
+  buscador funcionando y sugerencias por diagnóstico.
 
 ---
 
