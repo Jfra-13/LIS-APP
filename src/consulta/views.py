@@ -1,11 +1,14 @@
+import json
 import logging
+from functools import lru_cache
+from pathlib import Path
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.http import JsonResponse, HttpResponse
 from django.db import models
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView, ListView
+from django.views.generic import CreateView, DetailView, ListView, TemplateView
 from datetime import datetime, time, timedelta
 from django.db.models import Avg, Count
 from django.db.models.functions import TruncDate
@@ -13,10 +16,10 @@ from django.utils import timezone
 from django.views import View
 from django.shortcuts import get_object_or_404
 
-from .forms import NotaMedicaForm
-from .models import NotaMedica
+from .forms import NotaMedicaForm, PrescripcionFormSet
+from .models import Medicamento, NotaMedica
 from .services.cie_lookup import search as cie_search
-from .services.med_lookup import search as med_search
+from admision.models import Paciente
 from medico.models import ColaEstado
 from triage.models import Triaje
 
@@ -79,9 +82,33 @@ class NotaMedicaCreateView(ConsultaPermissionMixin, CreateView):
             initial["triaje"] = triaje_id
         return initial
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if "prescripcion_formset" not in context:
+            if self.request.method == "POST":
+                context["prescripcion_formset"] = PrescripcionFormSet(self.request.POST)
+            else:
+                context["prescripcion_formset"] = PrescripcionFormSet()
+        return context
+
     def form_valid(self, form):
+        # Las prescripciones llegan como un inline formset. El template siempre
+        # incluye su management form; si no vino (POST sin bloque de receta) no
+        # hay nada que procesar. Validamos ANTES de guardar la nota: si una
+        # receta es inválida, no persistimos nada y re-renderizamos con errores.
+        formset = None
+        if "prescripciones-TOTAL_FORMS" in self.request.POST:
+            formset = PrescripcionFormSet(self.request.POST)
+            if not formset.is_valid():
+                return self.render_to_response(
+                    self.get_context_data(form=form, prescripcion_formset=formset)
+                )
+
         form.instance.medico = self.request.user
         response = super().form_valid(form)
+        if formset is not None:
+            formset.instance = self.object
+            formset.save()
         # Finalizar la cola de atención: guardar la nota cierra la consulta del
         # paciente. La FSM ColaEstado tiene el estado FINALIZADO pero nada lo
         # disparaba, así que el paciente quedaba EN_CONSULTORIO para siempre y
@@ -127,6 +154,35 @@ class NotaMedicaDetailView(ConsultaPermissionMixin, DetailView):
     context_object_name = "nota"
 
 
+class HistoriaClinicaView(ConsultaPermissionMixin, TemplateView):
+    """Historia clínica unificada de un paciente.
+
+    Combina en una sola línea de tiempo los encuentros clínicos: notas del
+    médico y triajes del enfermero, ordenados del más reciente al más antiguo.
+    La admisión NO es un evento (es registro/demografía); va en la cabecera.
+    """
+
+    permission_required = "consulta.view_notamedica"
+    template_name = "consulta/historia_clinica.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        paciente = get_object_or_404(Paciente, pk=kwargs["paciente_pk"])
+
+        notas = NotaMedica.objects.filter(paciente=paciente).select_related("medico")
+        triajes = Triaje.objects.filter(paciente=paciente).select_related(
+            "usuario_enfermeria"
+        )
+
+        eventos = [{"tipo": "consulta", "fecha": n.created_at, "nota": n} for n in notas]
+        eventos += [{"tipo": "triaje", "fecha": t.created_at, "triaje": t} for t in triajes]
+        eventos.sort(key=lambda e: e["fecha"], reverse=True)
+
+        context["paciente"] = paciente
+        context["eventos"] = eventos
+        return context
+
+
 @login_required
 def cie_suggest(request):
     """Endpoint JSON para sugerencias CIE-10. Soporta HTMX."""
@@ -165,38 +221,97 @@ def cie_suggest(request):
     return JsonResponse({"query": q, "count": len(payload), "results": payload})
 
 
-@login_required
-def med_suggest(request):
-    """Endpoint JSON para búsqueda de medicamentos. Soporta HTMX."""
-    q = request.GET.get("q", "")
-    results = med_search(q, limit=10)
+def _render_med_buttons(meds, empty_message: str) -> str:
+    """HTML de botones `.med-item` para el typeahead/sugerencias de receta.
 
-    if request.headers.get('HX-Request'):
-        html = ""
-        for item in results:
-            html += f"""
-            <button type="button" class="list-group-item list-group-item-action med-item border-0 small" 
-                    data-id="{item.get('id')}" 
-                    data-nombre="{item.get('nombre')}">
-                <div class="fw-bold">{item.get('nombre')}</div>
-                <div class="text-muted small">{item.get('presentacion')} - {item.get('concentracion')}</div>
+    El `data-id` es el pk UUID real del Medicamento; el JS del form lo usa para
+    agregar la fila de prescripción ligada al FK correcto.
+    """
+    html = ""
+    for med in meds:
+        html += f"""
+            <button type="button" class="list-group-item list-group-item-action med-item border-0 small"
+                    data-id="{med.pk}"
+                    data-nombre="{med.nombre}"
+                    data-presentacion="{med.presentacion}"
+                    data-concentracion="{med.concentracion}">
+                <div class="fw-bold">{med.nombre}</div>
+                <div class="text-muted small">{med.presentacion} - {med.concentracion}</div>
             </button>
             """
-        if not html:
-            html = '<div class="p-3 text-muted small">No se encontraron medicamentos.</div>'
-        return HttpResponse(html)
+    if not html:
+        html = f'<div class="p-3 text-muted small">{empty_message}</div>'
+    return html
+
+
+@lru_cache(maxsize=1)
+def _load_cie_med_map() -> dict[str, list[str]]:
+    """Mapa CIE-10 -> nombres de medicamentos típicos (catálogo curado)."""
+    data_file = Path(__file__).resolve().parent / "data" / "cie_med_map.json"
+    if not data_file.exists():
+        return {}
+    with data_file.open("r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+@login_required
+def med_suggest(request):
+    """Endpoint de búsqueda de medicamentos sobre la tabla `Medicamento`.
+
+    Busca contra la BD (no el JSON) para devolver el pk REAL (UUID) de cada
+    medicamento: ese id es el que liga la `Prescripcion.medicamento`. El JSON
+    solo sirve de semilla (`cargar_medicamentos`); su id entero no existe como
+    pk y por eso no se puede usar para guardar la receta.
+    """
+    q = (request.GET.get("q") or "").strip()
+    if not q:
+        results = Medicamento.objects.none()
+    else:
+        results = Medicamento.objects.filter(
+            models.Q(nombre__icontains=q) | models.Q(presentacion__icontains=q)
+        ).order_by("nombre")[:10]
+
+    if request.headers.get('HX-Request'):
+        return HttpResponse(
+            _render_med_buttons(results, "No se encontraron medicamentos.")
+        )
 
     payload = [
         {
-            "id": item.get("id"),
-            "nombre": item.get("nombre"),
-            "presentacion": item.get("presentacion"),
-            "concentracion": item.get("concentracion"),
-            "label": f"{item.get('nombre')} ({item.get('presentacion')} - {item.get('concentracion')})"
+            "id": str(med.pk),
+            "nombre": med.nombre,
+            "presentacion": med.presentacion,
+            "concentracion": med.concentracion,
+            "label": f"{med.nombre} ({med.presentacion} - {med.concentracion})",
         }
-        for item in results
+        for med in results
     ]
     return JsonResponse({"query": q, "count": len(payload), "results": payload})
+
+
+@login_required
+def med_suggest_by_cie(request):
+    """Medicamentos sugeridos para el diagnóstico CIE seleccionado.
+
+    Resuelve los nombres curados del mapa CIE->meds contra la BD para devolver
+    el pk UUID real. Nombres que no existen en `Medicamento` se omiten (la receta
+    solo puede ligar medicamentos cargados). Devuelve los mismos botones
+    `.med-item` que `med_suggest`, así el JS del form los agrega igual.
+    """
+    cie = (request.GET.get("cie") or "").strip()
+    nombres = _load_cie_med_map().get(cie, []) if cie else []
+
+    meds = []
+    seen = set()
+    for nombre in nombres:
+        med = Medicamento.objects.filter(nombre__icontains=nombre).order_by("nombre").first()
+        if med and med.pk not in seen:
+            meds.append(med)
+            seen.add(med.pk)
+
+    return HttpResponse(
+        _render_med_buttons(meds, "Sin sugerencias para este diagnóstico.")
+    )
 
 
 def _ai_status(estado: str) -> str:

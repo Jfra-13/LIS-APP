@@ -1,0 +1,74 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Historia Clínica | LIS{% endblock %}
+
+{% block content %}
+
+<c-page-header
+  title="Historia Clínica"
+  subtitle="{{ paciente.nombres }} {{ paciente.apellidos }} — DNI: {{ paciente.dni }} — {{ paciente.get_edad }} años">
+  <c-slot name="actions">
+    <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Volver
+    </a>
+  </c-slot>
+</c-page-header>
+
+<c-card title="Línea de tiempo del paciente">
+
+  {% if eventos %}
+    <div class="lis-timeline">
+      {% for evento in eventos %}
+        <div class="lis-timeline__item">
+          <div class="lis-timeline__dot"></div>
+
+          {% if evento.tipo == 'consulta' %}
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+              <div>
+                <p class="text-muted small mb-1">{{ evento.fecha|date:"d M Y, H:i" }}</p>
+                <h4 class="mb-1">Consulta médica</h4>
+                <p class="mb-0">
+                  <strong>Médico:</strong>
+                  {{ evento.nota.medico.get_full_name|default:evento.nota.medico.username|default:"—" }}<br>
+                  {% if evento.nota.motivo_consulta %}
+                    <strong>Motivo:</strong> {{ evento.nota.motivo_consulta }}<br>
+                  {% endif %}
+                  <strong>Diagnóstico:</strong>
+                  {% if evento.nota.cie_code %}
+                    {{ evento.nota.cie_code }} &mdash; {{ evento.nota.cie_short_description }}
+                  {% else %}
+                    <span class="text-muted">Sin codificar</span>
+                  {% endif %}
+                </p>
+              </div>
+              <a href="{% url 'consulta:nota_detail' evento.nota.pk %}" class="btn btn-outline-primary btn-sm flex-shrink-0">
+                Ver consulta
+              </a>
+            </div>
+          {% elif evento.tipo == 'triaje' %}
+            <div>
+              <p class="text-muted small mb-1">{{ evento.fecha|date:"d M Y, H:i" }}</p>
+              <h4 class="mb-1">
+                Triaje
+                <c-badge-manchester level="{{ evento.triaje.nivel_prioridad }}" label="Nivel {{ evento.triaje.nivel_prioridad }}" />
+              </h4>
+              <p class="mb-0">
+                <strong>Enfermero/a:</strong>
+                {{ evento.triaje.usuario_enfermeria.get_full_name|default:evento.triaje.usuario_enfermeria.username|default:"—" }}<br>
+                <strong>Signos:</strong>
+                SpO2 {{ evento.triaje.spo2 }}% ·
+                FC {{ evento.triaje.frecuencia_cardiaca }} lpm ·
+                Temp {{ evento.triaje.temperatura }}°C
+              </p>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <c-empty-state icon="bi-clipboard-pulse" message="Este paciente no tiene atenciones registradas." />
+  {% endif %}
+
+</c-card>
+
+{% endblock %}

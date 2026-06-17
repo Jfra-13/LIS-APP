@@ -12,6 +12,10 @@
       <i class="bi bi-arrow-left me-1"></i>
       Volver al listado
     </a>
+    <a href="{% url 'consulta:historia_clinica' paciente.id %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-clipboard-pulse me-1"></i>
+      Historia clínica
+    </a>
     <a href="{% url 'admision:paciente_update' paciente.id %}" class="btn btn-outline-secondary btn-sm">
       <i class="bi bi-pencil me-1"></i>
       Editar

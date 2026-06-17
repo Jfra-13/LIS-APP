@@ -92,7 +92,13 @@
       {# Prescription #}
       <c-card title="Receta Médica">
 
-        <p class="text-muted small mb-3">Agregue medicamentos a la receta.</p>
+        <p class="text-muted small mb-3">Busque un medicamento y haga clic para agregarlo a la receta.</p>
+
+        {# Medicamentos sugeridos para el diagnóstico CIE seleccionado (Fase 2). #}
+        <div id="med-suggeridos-wrap" class="mb-3 d-none">
+          <p class="form-label fw-semibold mb-1 small">Sugeridos para el diagnóstico</p>
+          <div id="med-suggeridos" class="list-group list-group-flush"></div>
+        </div>
 
         <div class="position-relative">
           <input type="text" class="form-control form-control-sm mb-2"
@@ -107,7 +113,46 @@
                 class="htmx-indicator spinner-border spinner-border-sm text-secondary position-absolute top-50 end-0 translate-middle-y me-2"
                 aria-hidden="true"></span>
         </div>
-        <div id="med-results" class="list-group list-group-flush"></div>
+        <div id="med-results" class="list-group list-group-flush mb-3"></div>
+
+        {{ prescripcion_formset.management_form }}
+        <div id="prescripcion-rows">
+          {% for pform in prescripcion_formset %}
+            <div class="lis-prescripcion-row border rounded p-2 mb-2">
+              {{ pform.id }}
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small fw-semibold">Medicamento</span>
+                <button type="button" class="btn-close btn-sm lis-remove-prescripcion" aria-label="Quitar medicamento"></button>
+              </div>
+              {{ pform.medicamento }}
+              <div class="row g-2 mt-1">
+                <div class="col-6">{{ pform.dosis }}</div>
+                <div class="col-6">{{ pform.frecuencia }}</div>
+                <div class="col-6">{{ pform.duracion }}</div>
+                <div class="col-6">{{ pform.instrucciones_adicionales }}</div>
+              </div>
+              <div class="d-none">{{ pform.DELETE }}</div>
+            </div>
+          {% endfor %}
+        </div>
+
+        {# Plantilla de fila vacía que el JS clona al elegir un medicamento. #}
+        <template id="prescripcion-empty-form">
+          <div class="lis-prescripcion-row border rounded p-2 mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="small fw-semibold">Medicamento</span>
+              <button type="button" class="btn-close btn-sm lis-remove-prescripcion" aria-label="Quitar medicamento"></button>
+            </div>
+            {{ prescripcion_formset.empty_form.medicamento }}
+            <div class="row g-2 mt-1">
+              <div class="col-6">{{ prescripcion_formset.empty_form.dosis }}</div>
+              <div class="col-6">{{ prescripcion_formset.empty_form.frecuencia }}</div>
+              <div class="col-6">{{ prescripcion_formset.empty_form.duracion }}</div>
+              <div class="col-6">{{ prescripcion_formset.empty_form.instrucciones_adicionales }}</div>
+            </div>
+            <div class="d-none">{{ prescripcion_formset.empty_form.DELETE }}</div>
+          </div>
+        </template>
 
       </c-card>
 
@@ -137,6 +182,16 @@
 
       document.getElementById('selected-cie-text').textContent = '[' + code + '] ' + desc;
       document.getElementById('cie-selection-display').classList.remove('lis-cie-selection--hidden');
+
+      // Cargar medicamentos sugeridos para el diagnóstico elegido.
+      const wrap = document.getElementById('med-suggeridos-wrap');
+      if (wrap && window.htmx) {
+        wrap.classList.remove('d-none');
+        htmx.ajax('GET', "{% url 'consulta:med_suggest_cie' %}?cie=" + encodeURIComponent(code), {
+          target: '#med-suggeridos',
+          swap: 'innerHTML',
+        });
+      }
     }
   });
 
@@ -145,9 +200,61 @@
     document.getElementById('id_cie_short_description').value = '';
     document.getElementById('id_cie_accepted').value = 'false';
     document.getElementById('cie-selection-display').classList.add('lis-cie-selection--hidden');
+
+    const wrap = document.getElementById('med-suggeridos-wrap');
+    if (wrap) {
+      wrap.classList.add('d-none');
+      document.getElementById('med-suggeridos').innerHTML = '';
+    }
   });
 
   // Hide the CIE selection panel on initial load (no selection yet).
   document.getElementById('cie-selection-display').classList.add('lis-cie-selection--hidden');
+</script>
+
+<script>
+  // Prescription rows: clicking a med suggestion clones a hidden formset row,
+  // preselects the chosen medicamento and bumps the management form counter.
+  (function () {
+    const totalForms = document.getElementById('id_prescripciones-TOTAL_FORMS');
+    const rowsContainer = document.getElementById('prescripcion-rows');
+    const emptyTemplate = document.getElementById('prescripcion-empty-form');
+
+    function addPrescripcionRow(medId) {
+      if (!totalForms || !emptyTemplate || !rowsContainer) return;
+      const index = parseInt(totalForms.value, 10);
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = emptyTemplate.innerHTML.replace(/__prefix__/g, index).trim();
+      const row = wrapper.firstElementChild;
+      const select = row.querySelector('select');
+      if (select && medId) {
+        select.value = medId;
+      }
+      rowsContainer.appendChild(row);
+      totalForms.value = index + 1;
+      const dosis = row.querySelector('input[name$="-dosis"]');
+      if (dosis) dosis.focus();
+    }
+
+    document.body.addEventListener('click', function (evt) {
+      const medItem = evt.target.closest('.med-item');
+      if (medItem) {
+        evt.preventDefault();
+        addPrescripcionRow(medItem.dataset.id);
+        return;
+      }
+      const removeBtn = evt.target.closest('.lis-remove-prescripcion');
+      if (removeBtn) {
+        const row = removeBtn.closest('.lis-prescripcion-row');
+        const del = row.querySelector('input[name$="-DELETE"]');
+        if (del) {
+          del.checked = true;
+          row.classList.add('d-none');
+        } else {
+          row.remove();
+        }
+      }
+    });
+  })();
 </script>
 {% endblock %}

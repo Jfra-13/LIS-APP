@@ -59,8 +59,23 @@ class PrescripcionForm(forms.ModelForm):
     class Meta:
         model = Prescripcion
         fields = ["medicamento", "dosis", "frecuencia", "duracion", "instrucciones_adicionales"]
+        widgets = {
+            "medicamento": forms.Select(attrs={"class": "form-select form-select-sm"}),
+            "dosis": forms.TextInput(
+                attrs={"class": "form-control form-control-sm", "placeholder": "Dosis (ej. 1 comprimido)"}
+            ),
+            "frecuencia": forms.TextInput(
+                attrs={"class": "form-control form-control-sm", "placeholder": "Frecuencia (ej. cada 8 h)"}
+            ),
+            "duracion": forms.TextInput(
+                attrs={"class": "form-control form-control-sm", "placeholder": "Duración (ej. 5 días)"}
+            ),
+            "instrucciones_adicionales": forms.TextInput(
+                attrs={"class": "form-control form-control-sm", "placeholder": "Instrucciones (opcional)"}
+            ),
+        }
 
 
 PrescripcionFormSet = forms.inlineformset_factory(
-    NotaMedica, Prescripcion, form=PrescripcionForm, extra=1, can_delete=True
+    NotaMedica, Prescripcion, form=PrescripcionForm, extra=0, can_delete=True
 )
