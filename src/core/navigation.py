@@ -44,8 +44,9 @@ def nav_items_for(role, request) -> list:
     if role == Role.MEDICO:
         return [
             _item("Dashboard", reverse("dashboard_medico"), "bi-speedometer2", request),
+            _item("Mi día", reverse("consulta:mi_dia"), "bi-calendar-day", request),
             _item("Cola de atención", reverse("medico:cola_atencion"), "bi-megaphone", request),
-            _item("Notas clínicas", reverse("consulta:nota_list"), "bi-journal-medical", request),
+            _item("Mis pacientes", reverse("consulta:mis_pacientes"), "bi-people", request),
         ]
 
     if role == Role.ENFERMERO:

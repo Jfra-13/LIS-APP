@@ -1,7 +1,16 @@
 {% comment %} LIS Layout shell — topbar + optional sidebar + main content. {% endcomment %}
 {% comment %} is_patient_shell (from context processor) switches to a lighter full-width layout. {% endcomment %}
 {% comment %} Staff shell (sidebar present): no topbar — brand + user live inside the sidebar. {% endcomment %}
-<div class="lis-app-shell {% if not is_patient_shell and nav_items %}lis-app-shell--sidebar-only{% endif %}" x-data="{ sidebarOpen: false }">
+<div class="lis-app-shell {% if not is_patient_shell and nav_items %}lis-app-shell--sidebar-only{% endif %}"
+     x-data="{
+       sidebarOpen: false,
+       hovering: false,
+       pinned: localStorage.getItem('lis_sidebar_pinned') === '1',
+       togglePinned() {
+         this.pinned = !this.pinned;
+         localStorage.setItem('lis_sidebar_pinned', this.pinned ? '1' : '0');
+       }
+     }">
 
   {% if is_patient_shell or not nav_items %}
     <c-topbar />

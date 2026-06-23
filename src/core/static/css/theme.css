@@ -10,7 +10,10 @@
   --lis-primary-tint:   #e6f3f1;   /* Active nav item background tint */
   --lis-primary-rgb:    15, 118, 110;
   --lis-bg:             #f8f9fa;
-  --lis-sidebar-width:  240px;
+  --lis-nav-hover:      rgba(15, 118, 110, 0.08);  /* Light teal — nav hover */
+  --lis-nav-active:     rgba(15, 118, 110, 0.14);  /* Slightly stronger — active */
+  --lis-sidebar-width:  210px;
+  --lis-sidebar-width-collapsed: 64px;
   --lis-topbar-height:  56px;
   --lis-border:         #dee2e6;
   --lis-text-muted:     #6c757d;
@@ -85,6 +88,27 @@ textarea:focus-visible,
   --bs-btn-disabled-color: var(--lis-primary);
   --bs-btn-disabled-border-color: var(--lis-primary);
   --bs-btn-focus-shadow-rgb: var(--lis-primary-rgb);
+}
+
+/* Quick-action buttons (dashboards / "Mi día"): neutral by default, fill teal
+   with white text on hover. Same look in every role. */
+.lis-action-btn {
+  background: #ffffff;
+  border: 1px solid var(--lis-border);
+  color: var(--lis-nav-text);
+}
+
+.lis-action-btn:hover,
+.lis-action-btn:focus {
+  background: var(--lis-primary);
+  border-color: var(--lis-primary);
+  color: #ffffff;
+}
+
+/* Inner subtitle turns light so it stays legible on the teal hover fill. */
+.lis-action-btn:hover .text-muted,
+.lis-action-btn:focus .text-muted {
+  color: rgba(255, 255, 255, 0.85) !important;
 }
 
 .form-control:focus,
@@ -244,17 +268,23 @@ textarea:focus-visible,
 }
 
 .lis-sidebar__link:hover {
-  background: var(--lis-bg);
+  background: var(--lis-nav-hover);
   color: var(--lis-primary);
 }
 
-/* Active nav item: blue accent + left border + tinted background */
+/* Active nav item: NO filled block. The "where am I" cue is a left border +
+   teal bold text; the background stays transparent so it never looks "pegado".
+   Hover still gives a light tint, so active and hover read differently. */
 .lis-sidebar__link--active {
-  background: var(--lis-primary-tint);
+  background: transparent;
   color: var(--lis-primary);
   font-weight: 600;
   border-left: 3px solid var(--lis-primary);
   padding-left: calc(0.875rem - 3px);
+}
+
+.lis-sidebar__link--active:hover {
+  background: var(--lis-nav-hover);
 }
 
 .lis-sidebar__icon {
@@ -349,22 +379,63 @@ textarea:focus-visible,
   min-height: 100vh;
 }
 
+/* Head row: brand on the left, collapse/pin controls on the right. */
+.lis-sidebar__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--lis-border);
+  margin-bottom: 0.5rem;
+}
+
 /* Brand header inside the sidebar */
 .lis-sidebar__brand {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   font-weight: 700;
   font-size: 1.125rem;
   color: var(--lis-primary);
   text-decoration: none;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--lis-border);
-  margin-bottom: 0.5rem;
+  min-width: 0;
 }
 
 .lis-sidebar__brand:hover {
   color: var(--lis-primary);
   opacity: 0.85;
+}
+
+/* Collapse / pin controls */
+.lis-sidebar__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.lis-sidebar__ctrl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  color: var(--lis-text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.lis-sidebar__ctrl:hover {
+  background: var(--lis-nav-hover);
+  color: var(--lis-primary);
+}
+
+.lis-sidebar__ctrl--on {
+  color: var(--lis-primary);
 }
 
 /* Nav wrapper grows so the user block is pushed to the bottom. */
@@ -378,14 +449,27 @@ textarea:focus-visible,
 .lis-sidebar__user {
   margin-top: auto;
   border-top: 1px solid var(--lis-border);
-  padding: 0.875rem 1rem;
+  padding: 0.625rem 0.875rem;
 }
 
+.lis-sidebar__logout button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.85rem;
+}
+
+/* Cargo + nombre en una fila (chip primero). */
 .lis-sidebar__user-info {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-bottom: 0.625rem;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-bottom: 0.5rem;
+  min-width: 0;
 }
 
 .lis-sidebar__user-name {
@@ -404,6 +488,77 @@ textarea:focus-visible,
   font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
+}
+
+/* =====================================================================
+ * Collapsed sidebar (desktop ≥992px) — icon-only rail
+ * ===================================================================== */
+
+.lis-sidebar {
+  transition: width 0.2s ease, transform 0.25s ease;
+}
+
+@media (min-width: 992px) {
+  .lis-sidebar--collapsed {
+    width: var(--lis-sidebar-width-collapsed);
+  }
+
+  /* Hide every text label; only icons remain. */
+  .lis-sidebar--collapsed .lis-sidebar__label,
+  .lis-sidebar--collapsed .lis-sidebar__brand-text,
+  .lis-sidebar--collapsed .lis-sidebar__user-name,
+  .lis-sidebar--collapsed .lis-sidebar__role-chip {
+    display: none;
+  }
+
+  /* Collapsed: hide the pin control entirely (only visible when expanded).
+     !important overrides Bootstrap's `.d-lg-flex { display: flex !important }`
+     on the controls element. */
+  .lis-sidebar--collapsed .lis-sidebar__controls {
+    display: none !important;
+  }
+
+  /* Head centers the brand icon when collapsed. */
+  .lis-sidebar--collapsed .lis-sidebar__head {
+    justify-content: center;
+    padding: 0.75rem 0;
+  }
+
+  .lis-sidebar--collapsed .lis-sidebar__brand {
+    justify-content: center;
+    font-size: 1.35rem;
+  }
+
+  /* Nav items: center the icon, drop the label gap. */
+  .lis-sidebar--collapsed .lis-sidebar__item {
+    margin: 0 0.375rem 0.125rem;
+  }
+
+  .lis-sidebar--collapsed .lis-sidebar__link {
+    justify-content: center;
+    gap: 0;
+    padding: 0.6rem 0;
+  }
+
+  .lis-sidebar--collapsed .lis-sidebar__link--active {
+    border-left: none;
+    padding-left: 0;
+    border-right: 3px solid var(--lis-primary);
+  }
+
+  /* User footer: avatar + logout icon centered, no text. */
+  .lis-sidebar--collapsed .lis-sidebar__user {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .lis-sidebar--collapsed .lis-sidebar__user-info {
+    justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .lis-sidebar--collapsed .lis-sidebar__logout .lis-sidebar__label {
+    display: none;
+  }
 }
 
 /* Floating menu toggle — replaces the topbar hamburger on mobile (staff shell). */

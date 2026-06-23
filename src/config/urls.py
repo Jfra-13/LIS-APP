@@ -11,3 +11,7 @@ urlpatterns = [
     path("auth-paciente/", include("autenticacion_paciente.urls", namespace="autenticacion_paciente")),
     path("medico/", include("medico.urls")),
 ]
+
+# 403 en contexto: muestra el aviso donde está el usuario con un botón "Volver"
+# a la página anterior, en lugar de expulsarlo al home.
+handler403 = "core.views.permission_denied"

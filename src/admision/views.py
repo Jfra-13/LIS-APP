@@ -19,17 +19,14 @@ from .models import Paciente
 class AdmisionPermissionMixin(PermissionRequiredMixin):
     """
     Verifica los permisos para el módulo de admisión.
-    Redirige a 'home' con un mensaje de error si no tiene permisos.
+
+    Usa el comportamiento estándar de Django (AccessMixin):
+    - Usuario anónimo: redirección a login (302).
+    - Usuario autenticado sin permiso: 403 Forbidden renderizado en contexto
+      (handler403 global), sin sacarlo de donde estaba.
     """
 
-    def handle_no_permission(self):
-        """Redirigir si el usuario no tiene permisos."""
-        if self.request.user.is_authenticated:
-            messages.error(
-                self.request,
-                "No tiene los permisos necesarios para acceder a esta función de admisión.",
-            )
-        return redirect("home")
+    pass
 
 
 class PacienteListView(AdmisionPermissionMixin, ListView):

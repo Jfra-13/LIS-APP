@@ -183,6 +183,78 @@ class HistoriaClinicaView(ConsultaPermissionMixin, TemplateView):
         return context
 
 
+class MisPacientesView(ConsultaPermissionMixin, ListView):
+    """Pacientes atendidos por el médico autenticado.
+
+    Ordenados por atención más reciente. La última atención y el conteo de
+    notas se calculan con agregación en BD (filtrada al médico actual) para
+    respetar RNF-02 y evitar N+1.
+    """
+
+    model = Paciente
+    permission_required = "consulta.view_notamedica"
+    template_name = "consulta/mis_pacientes.html"
+    context_object_name = "pacientes"
+    paginate_by = 20
+
+    def get_queryset(self):
+        medico = self.request.user
+        solo_mias = models.Q(notas_medicas__medico=medico)
+        queryset = (
+            Paciente.objects.filter(solo_mias)
+            .annotate(
+                ultima_atencion=models.Max(
+                    "notas_medicas__created_at", filter=solo_mias
+                ),
+                num_notas=models.Count(
+                    "notas_medicas", filter=solo_mias, distinct=True
+                ),
+            )
+            .order_by("-ultima_atencion")
+            .distinct()
+        )
+        q = self.request.GET.get("q", "").strip()
+        if q:
+            queryset = queryset.filter(
+                models.Q(dni__icontains=q)
+                | models.Q(nombres__icontains=q)
+                | models.Q(apellidos__icontains=q)
+            )
+        return queryset
+
+
+class MiDiaView(ConsultaPermissionMixin, TemplateView):
+    """Resumen operativo del médico: cola actual, atendidos hoy y accesos rápidos."""
+
+    permission_required = "consulta.view_notamedica"
+    template_name = "consulta/mi_dia.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        medico = self.request.user
+        today = timezone.localdate()
+        atendidos_hoy = NotaMedica.objects.filter(
+            medico=medico, created_at__date=today
+        )
+
+        context["en_espera"] = ColaEstado.objects.filter(
+            estado=ColaEstado.EstadoChoices.EN_ESPERA
+        ).count()
+        context["en_consultorio"] = ColaEstado.objects.filter(
+            estado=ColaEstado.EstadoChoices.EN_CONSULTORIO
+        ).count()
+        context["notas_hoy"] = atendidos_hoy.count()
+        context["pacientes_hoy"] = (
+            atendidos_hoy.values("paciente").distinct().count()
+        )
+        context["notas_recientes"] = (
+            NotaMedica.objects.filter(medico=medico)
+            .select_related("paciente")
+            .order_by("-created_at")[:5]
+        )
+        return context
+
+
 @login_required
 def cie_suggest(request):
     """Endpoint JSON para sugerencias CIE-10. Soporta HTMX."""

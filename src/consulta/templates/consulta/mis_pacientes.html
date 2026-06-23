@@ -1,0 +1,80 @@
+{% extends "core/base.html" %}
+
+{% block title %}Mis Pacientes | LIS{% endblock %}
+
+{% block content %}
+
+<c-page-header title="Mis Pacientes" subtitle="Pacientes que atendió, ordenados por atención más reciente." />
+
+<div class="mb-3">
+  <form method="get">
+    <input type="search" name="q" value="{{ request.GET.q }}"
+           class="form-control"
+           placeholder="Buscar por nombre o DNI…"
+           aria-label="Buscar paciente">
+  </form>
+</div>
+
+<c-card title="Listado">
+
+  {% if pacientes %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Paciente</th>
+            <th class="d-none d-md-table-cell">DNI</th>
+            <th class="d-none d-md-table-cell">Última atención</th>
+            <th class="text-center">Notas</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for paciente in pacientes %}
+          <tr>
+            <td>
+              <a href="{% url 'consulta:historia_clinica' paciente.pk %}" class="fw-semibold text-decoration-none">
+                {{ paciente.apellidos }}, {{ paciente.nombres }}
+              </a>
+            </td>
+            <td class="text-muted d-none d-md-table-cell">{{ paciente.dni }}</td>
+            <td class="text-muted small d-none d-md-table-cell">{{ paciente.ultima_atencion|date:"d/m/Y H:i" }}</td>
+            <td class="text-center">
+              <span class="badge bg-primary bg-opacity-10 text-primary">{{ paciente.num_notas }}</span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if is_paginated %}
+    <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-2 px-1">
+      <small class="text-muted">
+        Página <strong>{{ page_obj.number }}</strong> de <strong>{{ page_obj.paginator.num_pages }}</strong>
+      </small>
+      <nav aria-label="Paginación">
+        <ul class="pagination pagination-sm mb-0">
+          {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Anterior</a>
+          </li>
+          {% endif %}
+          {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Siguiente</a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+    {% endif %}
+
+  {% else %}
+    <c-empty-state icon="bi-people" message="Aún no atendió pacientes.">
+      <a href="{% url 'medico:cola_atencion' %}" class="btn btn-primary btn-sm">Ir a la cola de atención</a>
+    </c-empty-state>
+  {% endif %}
+
+</c-card>
+
+{% endblock %}

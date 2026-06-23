@@ -1,10 +1,37 @@
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
 from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET
 
 from .roles import ROLE_HOME, Role, get_role, role_required
+
+
+def permission_denied(request, exception=None):
+    """handler403 global — renderiza el 403 en contexto (sin redirigir al home).
+
+    El botón "Volver" usa el ``HTTP_REFERER`` (la página desde donde se hizo
+    clic) sólo si pertenece al mismo host; así un referer externo no puede
+    inducir un open-redirect. Sin referer válido, cae al home.
+    """
+    referer = request.META.get("HTTP_REFERER")
+    back_url = None
+    if referer and url_has_allowed_host_and_scheme(
+        referer,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        back_url = referer
+
+    html = render_to_string(
+        "403.html",
+        {"back_url": back_url, "exception": str(exception) if exception else ""},
+        request=request,
+    )
+    return HttpResponseForbidden(html)
 
 
 @require_GET

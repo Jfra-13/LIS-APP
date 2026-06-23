@@ -281,10 +281,12 @@ class NavigationContextTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Cola de atención")
 
-    def test_medico_nav_contains_notas_clinicas(self):
+    def test_medico_nav_contains_mis_pacientes_y_mi_dia(self):
         user = make_user("med3", groups=("Medicos",))
         response = self._get_dashboard(user, "dashboard_medico")
-        self.assertContains(response, "Notas clínicas")
+        # El médico entra a sus pacientes (orden por atención) y a "Mi día".
+        self.assertContains(response, "Mis pacientes")
+        self.assertContains(response, "Mi día")
 
     def test_medico_nav_does_not_contain_admision_item(self):
         user = make_user("med4", groups=("Medicos",))

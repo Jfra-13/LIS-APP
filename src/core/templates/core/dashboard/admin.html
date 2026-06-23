@@ -27,19 +27,19 @@
   <div class="col-md-6">
     <c-card title="Acceso rápido">
       <div class="d-flex flex-column gap-2">
-        <a href="/admin/" class="btn btn-outline-secondary text-start">
+        <a href="/admin/" class="btn lis-action-btn text-start">
           <i class="bi bi-shield-lock me-2"></i>Django Admin
           <span class="d-block text-muted small fw-normal">Usuarios, grupos y configuración del sistema</span>
         </a>
-        <a href="{% url 'admision:paciente_list' %}" class="btn btn-outline-secondary text-start">
+        <a href="{% url 'admision:paciente_list' %}" class="btn lis-action-btn text-start">
           <i class="bi bi-people me-2"></i>Pacientes
           <span class="d-block text-muted small fw-normal">Listado completo del registro de pacientes</span>
         </a>
-        <a href="{% url 'triage:triage_list' %}" class="btn btn-outline-secondary text-start">
+        <a href="{% url 'triage:triage_list' %}" class="btn lis-action-btn text-start">
           <i class="bi bi-heart-pulse me-2"></i>Triaje
           <span class="d-block text-muted small fw-normal">Historial de triajes y clasificación Manchester</span>
         </a>
-        <a href="{% url 'medico:cola_atencion' %}" class="btn btn-outline-secondary text-start">
+        <a href="{% url 'medico:cola_atencion' %}" class="btn lis-action-btn text-start">
           <i class="bi bi-list-ul me-2"></i>Cola de atención
           <span class="d-block text-muted small fw-normal">Estado actual de la cola</span>
         </a>

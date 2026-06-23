@@ -267,7 +267,8 @@ class TriajeModelAndViewTests(TestCase):
     def test_non_enfermeria_user_cannot_access_triaje(self):
         self.client.force_login(self.other_user)
         response = self.client.get(reverse("triage:triage_create", kwargs={"paciente_pk": self.paciente.pk}))
-        self.assertEqual(response.status_code, 302)
+        # 403 en contexto (no se redirige al home al usuario autenticado sin permiso).
+        self.assertEqual(response.status_code, 403)
 
     def test_model_is_immutable_after_creation(self):
         triaje = Triaje.objects.create(

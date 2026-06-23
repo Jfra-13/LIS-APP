@@ -17,12 +17,14 @@ COLA_STREAM_POLL_SECONDS = 2.0
 class MedicoPermissionMixin(PermissionRequiredMixin):
     """
     Verifica los permisos para el módulo de médico.
-    Redirige a 'home' con un mensaje de error si no tiene permisos.
+
+    Usa el comportamiento estándar de Django (AccessMixin):
+    - Usuario anónimo: redirección a login (302).
+    - Usuario autenticado sin permiso: 403 Forbidden renderizado en contexto
+      (handler403 global), sin sacarlo de donde estaba.
     """
 
-    def handle_no_permission(self):
-        messages.error(self.request, "Acceso restringido a personal médico.")
-        return redirect("home")
+    pass
 
 
 class ColaAtencionListView(MedicoPermissionMixin, ListView):

@@ -15,44 +15,191 @@
   },
   {
     "id": 3,
+    "nombre": "Naproxeno",
+    "presentacion": "Tabletas",
+    "concentracion": "550mg",
+    "keywords": ["dolor", "antiinflamatorio", "cefalea", "articular"]
+  },
+  {
+    "id": 4,
     "nombre": "Amoxicilina",
     "presentacion": "Capsulas",
     "concentracion": "500mg",
     "keywords": ["antibiotico", "infeccion", "bacterias"]
   },
   {
-    "id": 4,
+    "id": 5,
+    "nombre": "Ciprofloxacino",
+    "presentacion": "Tabletas",
+    "concentracion": "500mg",
+    "keywords": ["antibiotico", "infeccion urinaria", "cistitis"]
+  },
+  {
+    "id": 6,
+    "nombre": "Sulfametoxazol/Trimetoprima",
+    "presentacion": "Tabletas",
+    "concentracion": "800mg/160mg",
+    "keywords": ["antibiotico", "infeccion urinaria", "cotrimoxazol"]
+  },
+  {
+    "id": 7,
     "nombre": "Salbutamol",
     "presentacion": "Inhalador",
     "concentracion": "100mcg/dosis",
     "keywords": ["asma", "broncodilatador", "respiracion", "sibilancias"]
   },
   {
-    "id": 5,
+    "id": 8,
+    "nombre": "Budesonida",
+    "presentacion": "Spray nasal",
+    "concentracion": "64mcg/dosis",
+    "keywords": ["asma", "rinitis", "corticoide", "alergia"]
+  },
+  {
+    "id": 9,
     "nombre": "Loratadina",
     "presentacion": "Tabletas",
     "concentracion": "10mg",
     "keywords": ["alergia", "antihistaminico", "picazon", "estornudos"]
   },
   {
-    "id": 6,
+    "id": 10,
+    "nombre": "Hidroxicina",
+    "presentacion": "Tabletas",
+    "concentracion": "25mg",
+    "keywords": ["antihistaminico", "ansiedad", "prurito", "alergia"]
+  },
+  {
+    "id": 11,
+    "nombre": "Dextrometorfano",
+    "presentacion": "Jarabe",
+    "concentracion": "15mg/5ml",
+    "keywords": ["tos", "antitusivo", "tos seca"]
+  },
+  {
+    "id": 12,
+    "nombre": "Ambroxol",
+    "presentacion": "Jarabe",
+    "concentracion": "30mg/5ml",
+    "keywords": ["tos", "mucolitico", "flema", "bronquitis"]
+  },
+  {
+    "id": 13,
+    "nombre": "Suero Fisiologico Nasal",
+    "presentacion": "Spray nasal",
+    "concentracion": "0.9%",
+    "keywords": ["congestion", "resfriado", "descongestionante", "nasal"]
+  },
+  {
+    "id": 14,
     "nombre": "Omeprazol",
     "presentacion": "Capsulas",
     "concentracion": "20mg",
     "keywords": ["gastritis", "reflujo", "acidez", "estomago"]
   },
   {
-    "id": 7,
+    "id": 15,
+    "nombre": "Famotidina",
+    "presentacion": "Tabletas",
+    "concentracion": "40mg",
+    "keywords": ["gastritis", "acidez", "dispepsia", "estomago"]
+  },
+  {
+    "id": 16,
+    "nombre": "Sales de Rehidratacion Oral",
+    "presentacion": "Sobres",
+    "concentracion": "20.5g/L",
+    "keywords": ["diarrea", "deshidratacion", "electrolitos", "gastroenteritis"]
+  },
+  {
+    "id": 17,
+    "nombre": "Loperamida",
+    "presentacion": "Capsulas",
+    "concentracion": "2mg",
+    "keywords": ["diarrea", "antidiarreico"]
+  },
+  {
+    "id": 18,
+    "nombre": "Lactulosa",
+    "presentacion": "Jarabe",
+    "concentracion": "667mg/ml",
+    "keywords": ["estreñimiento", "laxante"]
+  },
+  {
+    "id": 19,
     "nombre": "Metformina",
     "presentacion": "Tabletas",
     "concentracion": "850mg",
     "keywords": ["diabetes", "glucosa", "azucar"]
   },
   {
-    "id": 8,
+    "id": 20,
+    "nombre": "Glibenclamida",
+    "presentacion": "Tabletas",
+    "concentracion": "5mg",
+    "keywords": ["diabetes", "glucosa", "hipoglucemiante"]
+  },
+  {
+    "id": 21,
     "nombre": "Enalapril",
     "presentacion": "Tabletas",
     "concentracion": "10mg",
     "keywords": ["hipertension", "presion alta", "corazon"]
+  },
+  {
+    "id": 22,
+    "nombre": "Losartan",
+    "presentacion": "Tabletas",
+    "concentracion": "50mg",
+    "keywords": ["hipertension", "presion alta", "corazon"]
+  },
+  {
+    "id": 23,
+    "nombre": "Sertralina",
+    "presentacion": "Tabletas",
+    "concentracion": "50mg",
+    "keywords": ["depresion", "ansiedad", "antidepresivo"]
+  },
+  {
+    "id": 24,
+    "nombre": "Fluoxetina",
+    "presentacion": "Capsulas",
+    "concentracion": "20mg",
+    "keywords": ["depresion", "antidepresivo"]
+  },
+  {
+    "id": 25,
+    "nombre": "Hidrocortisona",
+    "presentacion": "Crema",
+    "concentracion": "1%",
+    "keywords": ["dermatitis", "picazon", "corticoide", "piel", "eccema"]
+  },
+  {
+    "id": 26,
+    "nombre": "Diclofenaco",
+    "presentacion": "Gel",
+    "concentracion": "1%",
+    "keywords": ["dolor muscular", "antiinflamatorio", "articular", "topico"]
+  },
+  {
+    "id": 27,
+    "nombre": "Lagrimas Artificiales",
+    "presentacion": "Gotas oftalmicas",
+    "concentracion": "0.5%",
+    "keywords": ["ojo seco", "conjuntivitis", "irritacion ocular"]
+  },
+  {
+    "id": 28,
+    "nombre": "Tobramicina",
+    "presentacion": "Gotas oftalmicas",
+    "concentracion": "0.3%",
+    "keywords": ["conjuntivitis", "antibiotico", "infeccion ocular"]
+  },
+  {
+    "id": 29,
+    "nombre": "Multivitaminico",
+    "presentacion": "Tabletas",
+    "concentracion": "Complejo B + C",
+    "keywords": ["vitaminas", "suplemento", "prevencion", "control"]
   }
 ]

@@ -21,7 +21,7 @@ no un compromiso.
 | Fase 2 — Captura clínica | 🟢 Mayormente | Presión arterial (sistólica/diastólica) en `Triaje`; RF-05 pendiente decisión texto plano vs editor |
 | Fase 3 — Cola tiempo real (RF-04) | ✅ Completa | SSE (`medico:cola_stream`); transición de cola manual (único dueño) |
 | Fase 4 — Hardening | 🟡 Parcial | WhiteNoise OK; falta split de settings (`base/dev/prod`) y validar `manage.py check --deploy` |
-| **HACER ANTES DEL 5** — UX y datos | 🔲 Pendiente | P1 sidebar colapsable · P2 hover/activo · P3 área del médico · P4 403 en contexto · P5 catálogo+receta horizontal |
+| **HACER ANTES DEL 5** — UX y datos | ✅ Completa | P1 sidebar colapsable/fijable (Alpine+localStorage) · P2 hover/activo verde claro · P3 Mi día + Mis pacientes · P4 403 en contexto (handler403 + Volver) · P5 catálogo ampliado (29 meds) + receta horizontal. Ver `COMO_PROBAR.md` |
 | Fase 5 — Calidad/CI | 🟠 En curso | `--cov` ya cubre las 7 apps (90% total) y `ci.yml` usa fuente única; falta perf RNF-02 y E2E completo |
 
 ---

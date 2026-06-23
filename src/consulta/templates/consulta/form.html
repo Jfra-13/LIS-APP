@@ -16,7 +16,7 @@
   <div class="row g-4">
 
     {# Left column: clinical history fields #}
-    <div class="col-md-7">
+    <div class="col-lg-7">
       <c-card title="Historia Clínica">
 
         {% for field in form %}
@@ -29,18 +29,11 @@
         {{ form.paciente }}
         {{ form.triaje }}
 
-        <div class="d-flex gap-2 mt-3 pt-3 border-top">
-          <button type="submit" class="btn btn-primary">Guardar Consulta</button>
-          <a href="{% url 'medico:cola_atencion' %}" class="btn btn-outline-secondary">Cancelar</a>
-        </div>
-
       </c-card>
     </div>
 
-    {# Right column: AI assistant and prescription #}
-    <div class="col-md-5 d-flex flex-column gap-4">
-
-      {# AI Diagnostic assistant #}
+    {# Right column: AI diagnostic assistant #}
+    <div class="col-lg-5">
       <c-card title="Asistente de Diagnóstico (IA)">
 
         <p class="text-muted small mb-3">La IA analiza el texto en tiempo real para sugerir diagnósticos CIE-10.</p>
@@ -88,48 +81,72 @@
         </div>
 
       </c-card>
+    </div>
+  </div>
 
-      {# Prescription #}
+  {# Prescription — full-width bottom row, horizontal layout #}
+  <div class="row g-4 mt-1">
+    <div class="col-12">
       <c-card title="Receta Médica">
 
-        <p class="text-muted small mb-3">Busque un medicamento y haga clic para agregarlo a la receta.</p>
+        <div class="row g-3 mb-3">
+          {# Search #}
+          <div class="col-md-6">
+            <p class="text-muted small mb-2">Busque un medicamento y haga clic para agregarlo a la receta.</p>
+            <div class="position-relative">
+              <input type="text" class="form-control form-control-sm"
+                     placeholder="Buscar medicamento…"
+                     hx-get="{% url 'consulta:med_suggest' %}"
+                     hx-trigger="keyup changed delay:500ms"
+                     hx-target="#med-results"
+                     hx-indicator="#med-spinner"
+                     name="q"
+                     aria-label="Buscar medicamento">
+              <span id="med-spinner"
+                    class="htmx-indicator spinner-border spinner-border-sm text-secondary position-absolute top-50 end-0 translate-middle-y me-2"
+                    aria-hidden="true"></span>
+            </div>
+            <div id="med-results" class="list-group list-group-flush mt-2"></div>
+          </div>
 
-        {# Medicamentos sugeridos para el diagnóstico CIE seleccionado (Fase 2). #}
-        <div id="med-suggeridos-wrap" class="mb-3 d-none">
-          <p class="form-label fw-semibold mb-1 small">Sugeridos para el diagnóstico</p>
-          <div id="med-suggeridos" class="list-group list-group-flush"></div>
+          {# Suggestions for the selected CIE #}
+          <div class="col-md-6">
+            <div id="med-suggeridos-wrap" class="d-none">
+              <p class="form-label fw-semibold mb-2 small">Sugeridos para el diagnóstico</p>
+              <div id="med-suggeridos" class="list-group list-group-flush"></div>
+            </div>
+          </div>
         </div>
-
-        <div class="position-relative">
-          <input type="text" class="form-control form-control-sm mb-2"
-                 placeholder="Buscar medicamento…"
-                 hx-get="{% url 'consulta:med_suggest' %}"
-                 hx-trigger="keyup changed delay:500ms"
-                 hx-target="#med-results"
-                 hx-indicator="#med-spinner"
-                 name="q"
-                 aria-label="Buscar medicamento">
-          <span id="med-spinner"
-                class="htmx-indicator spinner-border spinner-border-sm text-secondary position-absolute top-50 end-0 translate-middle-y me-2"
-                aria-hidden="true"></span>
-        </div>
-        <div id="med-results" class="list-group list-group-flush mb-3"></div>
 
         {{ prescripcion_formset.management_form }}
         <div id="prescripcion-rows">
           {% for pform in prescripcion_formset %}
             <div class="lis-prescripcion-row border rounded p-2 mb-2">
               {{ pform.id }}
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="small fw-semibold">Medicamento</span>
-                <button type="button" class="btn-close btn-sm lis-remove-prescripcion" aria-label="Quitar medicamento"></button>
-              </div>
-              {{ pform.medicamento }}
-              <div class="row g-2 mt-1">
-                <div class="col-6">{{ pform.dosis }}</div>
-                <div class="col-6">{{ pform.frecuencia }}</div>
-                <div class="col-6">{{ pform.duracion }}</div>
-                <div class="col-6">{{ pform.instrucciones_adicionales }}</div>
+              <div class="row g-2 align-items-end">
+                <div class="col-12 col-lg-3">
+                  <label class="form-label small mb-1">Medicamento</label>
+                  {{ pform.medicamento }}
+                </div>
+                <div class="col-6 col-lg-2">
+                  <label class="form-label small mb-1">Dosis</label>
+                  {{ pform.dosis }}
+                </div>
+                <div class="col-6 col-lg-2">
+                  <label class="form-label small mb-1">Frecuencia</label>
+                  {{ pform.frecuencia }}
+                </div>
+                <div class="col-6 col-lg-2">
+                  <label class="form-label small mb-1">Duración</label>
+                  {{ pform.duracion }}
+                </div>
+                <div class="col-6 col-lg-2">
+                  <label class="form-label small mb-1">Instrucciones</label>
+                  {{ pform.instrucciones_adicionales }}
+                </div>
+                <div class="col-12 col-lg-1 d-flex justify-content-lg-end justify-content-start">
+                  <button type="button" class="btn-close btn-sm lis-remove-prescripcion" aria-label="Quitar medicamento"></button>
+                </div>
               </div>
               <div class="d-none">{{ pform.DELETE }}</div>
             </div>
@@ -139,23 +156,41 @@
         {# Plantilla de fila vacía que el JS clona al elegir un medicamento. #}
         <template id="prescripcion-empty-form">
           <div class="lis-prescripcion-row border rounded p-2 mb-2">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="small fw-semibold">Medicamento</span>
-              <button type="button" class="btn-close btn-sm lis-remove-prescripcion" aria-label="Quitar medicamento"></button>
-            </div>
-            {{ prescripcion_formset.empty_form.medicamento }}
-            <div class="row g-2 mt-1">
-              <div class="col-6">{{ prescripcion_formset.empty_form.dosis }}</div>
-              <div class="col-6">{{ prescripcion_formset.empty_form.frecuencia }}</div>
-              <div class="col-6">{{ prescripcion_formset.empty_form.duracion }}</div>
-              <div class="col-6">{{ prescripcion_formset.empty_form.instrucciones_adicionales }}</div>
+            <div class="row g-2 align-items-end">
+              <div class="col-12 col-lg-3">
+                <label class="form-label small mb-1">Medicamento</label>
+                {{ prescripcion_formset.empty_form.medicamento }}
+              </div>
+              <div class="col-6 col-lg-2">
+                <label class="form-label small mb-1">Dosis</label>
+                {{ prescripcion_formset.empty_form.dosis }}
+              </div>
+              <div class="col-6 col-lg-2">
+                <label class="form-label small mb-1">Frecuencia</label>
+                {{ prescripcion_formset.empty_form.frecuencia }}
+              </div>
+              <div class="col-6 col-lg-2">
+                <label class="form-label small mb-1">Duración</label>
+                {{ prescripcion_formset.empty_form.duracion }}
+              </div>
+              <div class="col-6 col-lg-2">
+                <label class="form-label small mb-1">Instrucciones</label>
+                {{ prescripcion_formset.empty_form.instrucciones_adicionales }}
+              </div>
+              <div class="col-12 col-lg-1 d-flex justify-content-lg-end justify-content-start">
+                <button type="button" class="btn-close btn-sm lis-remove-prescripcion" aria-label="Quitar medicamento"></button>
+              </div>
             </div>
             <div class="d-none">{{ prescripcion_formset.empty_form.DELETE }}</div>
           </div>
         </template>
 
-      </c-card>
+        <div class="d-flex gap-2 mt-4 pt-3 border-top">
+          <button type="submit" class="btn btn-primary">Guardar Consulta</button>
+          <a href="{% url 'medico:cola_atencion' %}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
 
+      </c-card>
     </div>
   </div>
 

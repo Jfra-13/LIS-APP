@@ -1,8 +1,12 @@
 {% comment %} LIS Sidebar — role-scoped navigation panel. {% endcomment %}
-{% comment %} Rendered only when nav_items is non-empty. Hidden/off-canvas on mobile, fixed on desktop. {% endcomment %}
+{% comment %} Rendered only when nav_items is non-empty. Hidden/off-canvas on mobile, fixed on desktop.
+   Collapse / pin state lives in the shell's Alpine scope (layout.html) and is
+   persisted to localStorage so the preference survives reloads. {% endcomment %}
 {% if nav_items %}
 <aside class="lis-sidebar"
-       :class="{ 'lis-sidebar--open': sidebarOpen }"
+       :class="{ 'lis-sidebar--open': sidebarOpen, 'lis-sidebar--collapsed': !pinned && !hovering }"
+       @mouseenter="hovering = true"
+       @mouseleave="hovering = false"
        @click.outside="sidebarOpen = false">
 
   {% comment %} Mobile overlay close button {% endcomment %}
@@ -13,10 +17,24 @@
     <i class="bi bi-x-lg"></i>
   </button>
 
-  {% comment %} Brand header — only shown in the sidebar-only (staff) shell where the topbar is gone. {% endcomment %}
-  <a class="lis-sidebar__brand" href="{% url 'home' %}">
-    <i class="bi bi-heart-pulse-fill me-2"></i>LIS
-  </a>
+  {% comment %} Brand header + desktop collapse/pin controls. {% endcomment %}
+  <div class="lis-sidebar__head">
+    <a class="lis-sidebar__brand" href="{% url 'home' %}" title="LIS">
+      <i class="bi bi-heart-pulse-fill"></i>
+      <span class="lis-sidebar__brand-text">LIS</span>
+    </a>
+    <div class="lis-sidebar__controls d-none d-lg-flex">
+      <button type="button"
+              class="lis-sidebar__ctrl"
+              @click="togglePinned()"
+              :class="{ 'lis-sidebar__ctrl--on': pinned }"
+              :title="pinned ? 'Desfijar barra' : 'Fijar barra'"
+              :aria-pressed="pinned"
+              aria-label="Fijar barra lateral">
+        <i class="bi" :class="pinned ? 'bi-pin-fill' : 'bi-pin-angle'"></i>
+      </button>
+    </div>
+  </div>
 
   <nav aria-label="Navegación principal" class="lis-sidebar__navwrap">
     <ul class="lis-sidebar__nav">
@@ -24,28 +42,31 @@
       <li class="lis-sidebar__item">
         <a href="{{ item.url }}"
            class="lis-sidebar__link {% if item.active %}lis-sidebar__link--active{% endif %}"
+           title="{{ item.label }}"
            {% if item.active %}aria-current="page"{% endif %}>
           <i class="bi {{ item.icon }} lis-sidebar__icon" aria-hidden="true"></i>
-          <span>{{ item.label }}</span>
+          <span class="lis-sidebar__label">{{ item.label }}</span>
         </a>
       </li>
       {% endfor %}
     </ul>
   </nav>
 
-  {% comment %} User footer — name, role chip and logout, pinned to the bottom. {% endcomment %}
+  {% comment %} User footer — avatar + name/role and logout, pinned to the bottom.
+     Collapsed: only the avatar and the logout icon remain. {% endcomment %}
   {% if user.is_authenticated %}
   <div class="lis-sidebar__user">
     <div class="lis-sidebar__user-info">
-      <span class="lis-sidebar__user-name">{{ user.get_full_name|default:user.username }}</span>
       {% if current_role_label %}
         <span class="lis-sidebar__role-chip">{{ current_role_label }}</span>
       {% endif %}
+      <span class="lis-sidebar__user-name">{{ user.get_full_name|default:user.username }}</span>
     </div>
-    <form action="{% url 'logout' %}" method="post">
+    <form action="{% url 'logout' %}" method="post" class="lis-sidebar__logout">
       {% csrf_token %}
-      <button type="submit" class="btn btn-sm btn-outline-danger w-100">
-        <i class="bi bi-box-arrow-right me-1"></i>Salir
+      <button type="submit" class="btn btn-sm btn-outline-danger w-100" title="Salir">
+        <i class="bi bi-box-arrow-right"></i>
+        <span class="lis-sidebar__label">Salir</span>
       </button>
     </form>
   </div>

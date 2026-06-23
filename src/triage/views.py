@@ -14,15 +14,14 @@ from .models import Triaje
 class TriagePermissionMixin(PermissionRequiredMixin):
     """
     Verifica los permisos para el módulo de triage.
-    Redirige a 'home' con un mensaje de error si no tiene permisos.
+
+    Usa el comportamiento estándar de Django (AccessMixin):
+    - Usuario anónimo: redirección a login (302).
+    - Usuario autenticado sin permiso: 403 Forbidden renderizado en contexto
+      (handler403 global), sin sacarlo de donde estaba.
     """
 
-    def handle_no_permission(self):
-        messages.error(
-            self.request,
-            "No tiene los permisos necesarios para acceder a esta función de triaje.",
-        )
-        return redirect("home")
+    pass
 
 
 class TriajeListView(TriagePermissionMixin, ListView):
@@ -125,7 +124,14 @@ class TriajeCreateView(TriagePermissionMixin, CreateView):
         return redirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse("admision:paciente_detail", kwargs={"pk": self.paciente.pk})
+        # Tras registrar el triaje, el enfermero vuelve al historial de triajes
+        # del paciente (su dominio). Antes apuntaba a `admision:paciente_detail`,
+        # una vista de Admisión que el enfermero no puede ver: con el 403 en
+        # contexto (P4) eso lo dejaba en un acceso denegado tras una acción
+        # exitosa. El historial es accesible y muestra el triaje recién creado.
+        return reverse(
+            "triage:paciente_triaje_history", kwargs={"paciente_pk": self.paciente.pk}
+        )
 
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(form=form), status=400)
