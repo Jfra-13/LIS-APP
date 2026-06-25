@@ -37,6 +37,16 @@ jobs:
             ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
             ${{ env.IMAGE_NAME }}:staging-latest
 
+      - name: Build and push worker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.worker
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}-worker:${{ env.IMAGE_TAG }}
+            ${{ env.IMAGE_NAME }}-worker:staging-latest
+
       - name: Deploy to staging host via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
