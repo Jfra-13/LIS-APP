@@ -4,9 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Error interno | LIS</title>
-  {# Self-contained on purpose: the 500 handler must not depend on the static
-     manifest ({% static %} with ManifestStaticFilesStorage raises if the
-     manifest is missing/corrupt, which would break this page too). #}
+  {% comment %}
+    Self-contained on purpose: the 500 handler must not depend on the static
+    manifest (the static tag with ManifestStaticFilesStorage raises if the
+    manifest is missing/corrupt, which would break this page too).
+  {% endcomment %}
   <style>
     body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
            background: #f8f9fa; color: #212529; }

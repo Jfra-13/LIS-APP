@@ -62,6 +62,9 @@ jobs:
       - name: Django checks
         run: |
           python src/manage.py check
+          # ManifestStaticFilesStorage requires the manifest to exist, so build
+          # it before tests render templates that use {% static %}.
+          python src/manage.py collectstatic --noinput
           # Coverage scope and the >=80% gate live in pytest.ini (single source of truth).
           cd src && pytest
 

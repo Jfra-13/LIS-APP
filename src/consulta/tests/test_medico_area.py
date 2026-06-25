@@ -1,7 +1,10 @@
 """Tests para el área del médico (P3): Mis pacientes y Mi día."""
+from datetime import timedelta
+
 import pytest
 from django.contrib.auth.models import Group
 from django.urls import reverse
+from django.utils import timezone
 
 from admision.models import Paciente
 from core.models import User
@@ -32,9 +35,14 @@ def test_mis_pacientes_ordena_por_atencion_reciente(client):
     p_viejo = _paciente("10000001", apellidos="Antiguo")
     p_nuevo = _paciente("10000002", apellidos="Reciente")
 
-    # Dos notas del mismo médico; la del paciente "nuevo" se crea después.
-    NotaMedica.objects.create(paciente=p_viejo, medico=medico, contenido="x")
-    NotaMedica.objects.create(paciente=p_nuevo, medico=medico, contenido="y")
+    # Dos notas del mismo médico con timestamps explícitos y separados, para
+    # que el orden no dependa de la resolución del reloj ni del motor de BD
+    # (created_at usa auto_now_add, así que se fuerza con update()).
+    now = timezone.now()
+    nota_vieja = NotaMedica.objects.create(paciente=p_viejo, medico=medico, contenido="x")
+    nota_nueva = NotaMedica.objects.create(paciente=p_nuevo, medico=medico, contenido="y")
+    NotaMedica.objects.filter(pk=nota_vieja.pk).update(created_at=now - timedelta(hours=1))
+    NotaMedica.objects.filter(pk=nota_nueva.pk).update(created_at=now)
 
     client.login(username="medico_mp", password="p")
     response = client.get(reverse("consulta:mis_pacientes"))
