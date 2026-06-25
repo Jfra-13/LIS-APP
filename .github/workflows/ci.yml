@@ -118,6 +118,9 @@ jobs:
           pip install -r requirements.txt
 
       - name: E2E tests
+        # --no-cov: this job runs a single file, so the global 80% coverage
+        # gate in pytest.ini would always fail it. Coverage is enforced by the
+        # unit job, not here.
         run: |
-          cd src && pytest tests/e2e/test_triaje_queue.py
+          cd src && pytest tests/e2e/test_triaje_queue.py --no-cov
 
