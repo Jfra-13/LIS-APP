@@ -2,49 +2,206 @@
 
 {% block title %}Mi Historial | Portal del Paciente{% endblock %}
 
+{% block extra_css %}
+<style>
+  /* Patient portal — solid, high-contrast layout (no glass). */
+  .pp-grid { align-items: stretch; }
+  .pp-col { display: flex; }
+
+  .pp-panel {
+    background: #ffffff;
+    border: 1px solid #d7dee5;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .pp-panel__header {
+    padding: 1rem 1.25rem;
+    background: #f1f5f9;
+    border-bottom: 1px solid #d7dee5;
+    font-weight: 600;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .pp-panel__body { padding: 1.25rem; flex: 1 1 auto; min-height: 0; }
+
+  /* Timeline panel scrolls internally so the chat stays aligned. */
+  .pp-timeline-body { overflow-y: auto; max-height: 70vh; }
+
+  /* Chat fills its panel and the log grows to push the form to the bottom. */
+  .pp-chat-body { display: flex; flex-direction: column; min-height: 60vh; }
+  #ai-chat-log { flex: 1 1 auto; overflow-y: auto; }
+
+  .pp-bubble { max-width: 85%; border-radius: 14px; padding: .55rem .85rem; line-height: 1.45; }
+  .pp-bubble--user { align-self: flex-end; background: var(--lis-primary, #0f766e); color: #fff; }
+  .pp-bubble--ai { align-self: flex-start; background: #eef2f6; border: 1px solid #d7dee5; color: #0f172a; }
+
+  /* Live indicator + daily question counter. */
+  .pp-dot {
+    width: .6rem; height: .6rem; border-radius: 50%; background: #22c55e;
+    animation: pp-pulse 1.6s infinite; flex-shrink: 0;
+  }
+  @keyframes pp-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(34, 197, 94, .5); }
+    70%  { box-shadow: 0 0 0 .4rem rgba(34, 197, 94, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+  }
+  .pp-counter {
+    font-size: .8rem; font-weight: 600; color: #475569;
+    background: #fff; border: 1px solid #d7dee5; border-radius: 999px; padding: .15rem .6rem;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 
 <c-page-header
   title="Bienvenido, {{ paciente.nombres }}"
-  subtitle="DNI: {{ paciente.dni }} &mdash; {{ paciente.get_edad }} años">
-  <c-slot name="actions">
-    <a href="{% url 'portal_paciente:logout' %}" class="btn btn-outline-secondary btn-sm">Cerrar Sesión</a>
-  </c-slot>
-</c-page-header>
+  subtitle="DNI: {{ paciente.dni }} &mdash; {{ paciente.get_edad }} años" />
 
-<c-card title="Mi Línea de Tiempo">
+<div class="row g-3 pp-grid">
 
-  {% if notas %}
-    <div class="lis-timeline">
-      {% for nota in notas %}
-        <div class="lis-timeline__item">
-          <div class="lis-timeline__dot"></div>
+  <!-- Timeline — left -->
+  <div class="col-12 col-lg-6 pp-col">
+    <section class="pp-panel">
+      <div class="pp-panel__header"><i class="bi bi-clock-history"></i> Mi Línea de Tiempo</div>
+      <div class="pp-panel__body pp-timeline-body">
+        {% if notas %}
+          <div class="lis-timeline">
+            {% for nota in notas %}
+              <div class="lis-timeline__item">
+                <div class="lis-timeline__dot"></div>
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                  <div>
+                    <p class="text-muted small mb-1">{{ nota.created_at|date:"d M Y, h:i a" }}</p>
+                    <h4 class="mb-1">Consulta Médica</h4>
+                    <p class="mb-0">
+                      <strong>Médico:</strong> Dr. {{ nota.medico.first_name }} {{ nota.medico.last_name }}<br>
+                      <strong>Diagnóstico:</strong>
+                      {% if nota.cie_code %}
+                        {{ nota.cie_code }} &mdash; {{ nota.cie_short_description }}
+                      {% else %}
+                        <span class="text-muted">Pendiente de codificación</span>
+                      {% endif %}
+                    </p>
+                  </div>
+                  <a href="{% url 'portal_paciente:receta_detail' nota.receta_id %}" class="btn btn-outline-primary btn-sm flex-shrink-0">
+                    Ver Receta
+                  </a>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <c-empty-state icon="bi-clipboard-pulse" message="Aún no tenés atenciones registradas." />
+        {% endif %}
+      </div>
+    </section>
+  </div>
 
-          <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
-            <div>
-              <p class="text-muted small mb-1">{{ nota.created_at|date:"d M Y, h:i a" }}</p>
-              <h4 class="mb-1">Consulta Médica</h4>
-              <p class="mb-0">
-                <strong>Médico:</strong> Dr. {{ nota.medico.first_name }} {{ nota.medico.last_name }}<br>
-                <strong>Diagnóstico:</strong>
-                {% if nota.cie_code %}
-                  {{ nota.cie_code }} &mdash; {{ nota.cie_short_description }}
-                {% else %}
-                  <span class="text-muted">Pendiente de codificación</span>
-                {% endif %}
-              </p>
-            </div>
-            <a href="{% url 'portal_paciente:receta_detail' nota.receta_id %}" class="btn btn-outline-primary btn-sm flex-shrink-0">
-              Ver Receta
-            </a>
+  <!-- Chat — right -->
+  <div class="col-12 col-lg-6 pp-col">
+    <section class="pp-panel">
+      <div class="pp-panel__header">
+        <i class="bi bi-robot"></i> Doctor Online Groq
+        <span class="d-flex align-items-center gap-2 ms-auto">
+          <span class="pp-dot" title="Asistente activo"></span>
+          <span class="pp-counter" id="ai-counter"
+                data-remaining="{{ ai_questions_remaining }}" data-max="{{ ai_max_questions }}">
+            {{ ai_questions_remaining }}/{{ ai_max_questions }}
+          </span>
+        </span>
+      </div>
+      <div class="pp-panel__body pp-chat-body">
+        <div id="ai-chat-log" class="d-flex flex-column gap-2 mb-3">
+          <div class="pp-bubble pp-bubble--ai">
+            ¡Hola! Soy tu Doctor Online Groq, disponible 24&nbsp;hs. Para aprovechar mejor la consulta,
+            empezá preguntando algo relevante sobre tu salud, síntomas o diagnóstico.
+            Tenés un máximo de {{ ai_max_questions }} preguntas por día.
           </div>
         </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <c-empty-state icon="bi-clipboard-pulse" message="Aún no tenés atenciones registradas." />
-  {% endif %}
 
-</c-card>
+        <form id="ai-chat-form" class="d-flex gap-2">
+          {% csrf_token %}
+          <input type="text" id="ai-chat-input" class="form-control" maxlength="500"
+                 placeholder="Escribí tu consulta..." autocomplete="off" required
+                 {% if ai_questions_remaining == 0 %}disabled{% endif %}>
+          <button type="submit" id="ai-chat-send" class="btn btn-primary flex-shrink-0"
+                  {% if ai_questions_remaining == 0 %}disabled{% endif %}>Enviar</button>
+        </form>
+      </div>
+    </section>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  const form = document.getElementById('ai-chat-form');
+  const input = document.getElementById('ai-chat-input');
+  const sendBtn = document.getElementById('ai-chat-send');
+  const log = document.getElementById('ai-chat-log');
+  const counter = document.getElementById('ai-counter');
+  const csrf = form.querySelector('[name=csrfmiddlewaretoken]').value;
+  const endpoint = "{% url 'portal_paciente:ai_chat' %}";
+
+  function updateCounter(remaining) {
+    if (remaining === undefined || remaining === null) return;
+    const max = counter.dataset.max;
+    counter.textContent = remaining + '/' + max;
+    if (remaining <= 0) {
+      input.disabled = sendBtn.disabled = true;
+      input.placeholder = 'Alcanzaste el límite de hoy. Volvé mañana.';
+    }
+  }
+
+  function bubble(text, who) {
+    const el = document.createElement('div');
+    el.className = 'pp-bubble ' + (who === 'user' ? 'pp-bubble--user' : 'pp-bubble--ai');
+    el.textContent = text;
+    log.appendChild(el);
+    log.scrollTop = log.scrollHeight;
+    return el;
+  }
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const message = input.value.trim();
+    if (!message) return;
+
+    bubble(message, 'user');
+    input.value = '';
+    input.disabled = sendBtn.disabled = true;
+    const pending = bubble('Pensando...', 'ai');
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrf,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({ message }),
+      });
+      const data = await res.json();
+      pending.textContent = data.response || data.error || 'Sin respuesta.';
+      updateCounter(data.remaining);
+    } catch (err) {
+      pending.textContent = 'Error de conexión. Intentá de nuevo.';
+    } finally {
+      // Re-enable input unless updateCounter already locked it at the daily limit.
+      if (!input.disabled || parseInt(counter.textContent) > 0) {
+        input.disabled = sendBtn.disabled = false;
+        input.focus();
+      }
+    }
+  });
+})();
+</script>
 
 {% endblock %}

@@ -5,7 +5,33 @@ from django.urls import reverse
 from admision.models import Paciente
 from consulta.models import NotaMedica
 from consulta.tasks import process_clinical_note
+from consulta.views import _render_ai_panel
 from core.models import User
+
+
+class _StubNota:
+    """Stub liviano para _render_ai_panel (no toca la BD)."""
+
+    def __init__(self, **kwargs):
+        self.cie_accepted = kwargs.get("cie_accepted", False)
+        self.cie_code = kwargs.get("cie_code")
+        self.cie_short_description = kwargs.get("cie_short_description")
+        self.estado_ia = kwargs.get("estado_ia", NotaMedica.EstadoIA.LISTO)
+        self.cie_suggestions = kwargs.get("cie_suggestions", [])
+
+
+def test_ai_panel_muestra_cie_establecido_no_sugerencias():
+    """Con CIE aceptado, el panel muestra solo el establecido (T4.a)."""
+    nota = _StubNota(
+        cie_accepted=True,
+        cie_code="J00",
+        cie_short_description="Resfriado común",
+        cie_suggestions=[{"code": "R51", "short_description": "Cefalea"}],
+    )
+    html = _render_ai_panel(nota)
+    assert "CIE-10 establecido" in html
+    assert "J00" in html
+    assert "R51" not in html  # las sugerencias no se muestran
 
 
 def _paciente(dni: str = "60000001") -> Paciente:

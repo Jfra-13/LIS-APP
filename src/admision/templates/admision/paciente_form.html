@@ -34,7 +34,22 @@
     <c-form-field :field="form.sexo" />
 
     <p class="lis-form-section-heading mt-4">Información de Contacto</p>
-    <c-form-field :field="form.telefono" />
+    <div class="mb-3">
+      <label for="{{ form.telefono.id_for_label }}" class="form-label fw-semibold">
+        {{ form.telefono.label }}
+      </label>
+      <div class="input-group">
+        {{ form.telefono_prefijo }}
+        {{ form.telefono }}
+      </div>
+      {% for error in form.telefono_prefijo.errors %}
+        <div class="invalid-feedback d-block">{{ error }}</div>
+      {% endfor %}
+      {% for error in form.telefono.errors %}
+        <div class="invalid-feedback d-block">{{ error }}</div>
+      {% endfor %}
+      <div class="form-text text-muted">Con prefijo +51 el número es de 9 dígitos.</div>
+    </div>
     <c-form-field :field="form.email" />
     <c-form-field :field="form.direccion" />
 
@@ -52,5 +67,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/admision-form.js' %}"></script>
+<script src="{% static 'js/admision-form.js' %}?v=2"></script>
 {% endblock %}

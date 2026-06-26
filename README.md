@@ -7,12 +7,6 @@ asistida de códigos **CIE-10** y portal del paciente por *magic link*.
 Aplicación **hypermedia** (renderizado en servidor con HTMX + cotton), sin SPA:
 cada rol entra a una vista aislada y propia, con una estética de clínica
 profesional, sobria y densa.
-
-> Documentación complementaria:
-> - **[`ESTADO_ACTUAL.md`](ESTADO_ACTUAL.md)** — auditoría técnica (qué hay hoy).
-> - **[`PLAN_PENDIENTES.md`](PLAN_PENDIENTES.md)** — plan de cierre por fases (backend).
-> - **[`PLAN_UIUX.md`](PLAN_UIUX.md)** — plan de rediseño de interfaz por rol (Fases A–E, completas).
-
 ---
 
 ## Capturas

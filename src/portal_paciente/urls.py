@@ -2,7 +2,7 @@ from django.contrib.auth.views import LogoutView
 from django.urls import path
 from django.views.generic.base import RedirectView
 
-from .views import PatientDashboardView, RecetaDetailView
+from .views import AIChatView, PatientDashboardView, RecetaDetailView
 
 app_name = 'portal_paciente'
 
@@ -22,4 +22,5 @@ urlpatterns = [
     ),
     path('dashboard/', PatientDashboardView.as_view(), name='dashboard'),
     path('receta/<uuid:receta_id>/', RecetaDetailView.as_view(), name='receta_detail'),
+    path('ai-chat/', AIChatView.as_view(), name='ai_chat'),
 ]

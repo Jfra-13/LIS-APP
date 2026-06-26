@@ -9,8 +9,8 @@
             aria-label="Abrir menú">
       <i class="bi bi-list fs-4"></i>
     </button>
-    <a class="lis-topbar__logo" href="{% url 'home' %}">
-      <i class="bi bi-heart-pulse-fill me-2"></i>LIS
+    <a class="lis-topbar__logo" href="{% url 'landing' %}">
+      <img src="{% static 'img/life-star-icon.svg' %}" alt="" class="lis-topbar__logo-img">SmartLIS
     </a>
   </div>
 
@@ -29,8 +29,8 @@
         </button>
       </form>
     {% else %}
-      <a href="{% url 'login' %}" class="btn btn-sm btn-primary">
-        <i class="bi bi-box-arrow-in-right me-1"></i>Ingresar
+      <a href="{% url 'login' %}" class="btn btn-sm btn-primary rounded-pill px-3">
+        <i class="bi bi-box-arrow-in-right me-1"></i>Intranet
       </a>
     {% endif %}
   </div>

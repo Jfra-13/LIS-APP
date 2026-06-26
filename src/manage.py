@@ -2,6 +2,13 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# Load repo-root .env so local runserver/commands see env vars (SMTP creds, etc.).
+# In Docker these come from compose's env_file; this covers the local dev path.
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 
 def main():

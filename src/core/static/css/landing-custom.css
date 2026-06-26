@@ -1,0 +1,108 @@
+/* LIS Landing — public marketing page styles
+ * =====================================================================
+ * Scoped to the landing page only. Loaded via {% block extra_css %}.
+ * Reuses the --lis-primary teal token from theme.css (no new palette).
+ * ===================================================================== */
+
+/* Hero: subtle teal gradient, top-left mint to bottom-right teal tint. */
+.landing-hero {
+  background: linear-gradient(135deg, #f0fdf4 0%, rgba(15, 118, 110, 0.10) 100%);
+  border-radius: 2rem;
+  overflow: hidden;
+}
+
+/* Typographic contrast: extrabold key word + light secondary word. */
+.landing-hero__title {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  line-height: 1.1;
+}
+
+.landing-hero__title .fw-x-light { font-weight: 300; }
+.landing-hero__title .fw-x-bold  { font-weight: 800; color: var(--lis-primary); }
+
+.landing-hero__eyebrow {
+  letter-spacing: 0.15em;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--lis-primary);
+}
+
+/* Image placeholder: open container, no frame, aligned to the bottom. */
+.landing-hero__media {
+  min-height: 360px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.landing-hero__media img {
+  max-height: 420px;
+  width: auto;
+}
+
+/* Floating glassmorphism card bridging hero and services. */
+.landing-floating {
+  margin-top: -3rem;
+  position: relative;
+  z-index: 5;
+  background: rgba(255, 255, 255, 0.40);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 40px rgba(15, 118, 110, 0.08);
+}
+
+.landing-floating__metric {
+  text-align: center;
+  padding: 1.25rem 1rem;
+}
+
+/* Thin translucent vertical separators between metrics (md+ only). */
+@media (min-width: 768px) {
+  .landing-floating__metric:not(:last-child) {
+    border-right: 1px solid rgba(15, 118, 110, 0.15);
+  }
+}
+
+.landing-floating__value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--lis-primary);
+  line-height: 1.1;
+}
+
+/* Services section: very soft mint backdrop so white cards lift off it. */
+.landing-services {
+  background: #f0fdf4;
+  border-radius: 2rem;
+}
+
+.landing-service-card {
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 20px 40px rgba(15, 118, 110, 0.05);
+  height: 100%;
+}
+
+/* 64x64 tinted tile holding a Bootstrap Icon glyph. */
+.landing-service-card__icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  background: rgba(15, 118, 110, 0.10);
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  color: var(--lis-primary);
+}
+
+/* Mobile: drop the negative overlap so cards never collide. */
+@media (max-width: 767.98px) {
+  .landing-floating {
+    margin-top: 1.5rem;
+  }
+}

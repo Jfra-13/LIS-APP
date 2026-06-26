@@ -292,7 +292,7 @@ class PacienteCreateViewTests(TestCase):
             "apellidos": "Pérez",
             "fecha_nacimiento": "1990-01-15",
             "sexo": "M",
-            "telefono": "+34 612 345 678",
+            "telefono": "987654321",
             "email": "juan@example.com",
             "direccion": "Calle Principal 123",
         }
@@ -316,6 +316,15 @@ class PacienteCreateViewTests(TestCase):
         self.client.post(reverse("admision:paciente_create"), self.form_data)
         paciente = Paciente.objects.first()
         self.assertEqual(paciente.usuario_creador, self.user_admin)
+
+    def test_telefono_mas_de_9_digitos_invalido(self):
+        """Teléfono con 10+ dígitos debe rechazarse (T1)."""
+        from admision.forms import PacienteForm
+
+        data = {**self.form_data, "telefono": "9876543210"}
+        form = PacienteForm(data=data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("telefono", form.errors)
 
     def test_crear_dni_duplicado_falla(self):
         """Verificar que DNI duplicado falla."""

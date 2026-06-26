@@ -12,7 +12,7 @@
       <div class="card-body p-4">
 
         <p class="text-muted mb-4">
-          Ingresá tu DNI para recibir un enlace de acceso seguro en tu correo electrónico.
+          Ingresá tu documento para recibir un enlace de acceso seguro en tu correo electrónico.
         </p>
 
         {% if form.errors %}
@@ -27,13 +27,18 @@
         <form method="post">
           {% csrf_token %}
           <div class="mb-3">
-            <label for="{{ form.dni.id_for_label }}" class="form-label fw-semibold">DNI</label>
+            <label for="{{ form.tipo_documento.id_for_label }}" class="form-label fw-semibold">Tipo de documento</label>
+            {{ form.tipo_documento }}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.dni.id_for_label }}" class="form-label fw-semibold">Número de documento</label>
             <input
               type="text"
               id="{{ form.dni.id_for_label }}"
               name="{{ form.dni.name }}"
               class="form-control"
               placeholder="Ej: 12345678"
+              inputmode="numeric"
               required
               autofocus
             />
@@ -44,6 +49,27 @@
             Enviar Enlace de Acceso
           </button>
         </form>
+
+        <script>
+          (function () {
+            var tipo = document.getElementById("{{ form.tipo_documento.id_for_label }}");
+            var doc = document.getElementById("{{ form.dni.id_for_label }}");
+            if (!tipo || !doc) return;
+            function applyLimit() {
+              if (tipo.value === "DNI") {
+                doc.maxLength = 8;
+                doc.value = doc.value.replace(/\D/g, "").slice(0, 8);
+              } else {
+                doc.removeAttribute("maxlength");
+              }
+            }
+            tipo.addEventListener("change", applyLimit);
+            doc.addEventListener("input", function () {
+              if (tipo.value === "DNI") this.value = this.value.replace(/\D/g, "").slice(0, 8);
+            });
+            applyLimit();
+          })();
+        </script>
 
         <div class="text-center mt-4">
           <a href="{% url 'login' %}" class="text-decoration-none small">&larr; Volver al inicio</a>

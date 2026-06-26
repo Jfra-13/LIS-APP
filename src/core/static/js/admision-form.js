@@ -28,6 +28,7 @@
     var tipoDocSelect = document.getElementById("id_tipo_documento");
     var dniInput = document.getElementById("id_dni");
     var telefonoInput = document.getElementById("id_telefono");
+    var prefijoInput = document.getElementById("id_telefono_prefijo");
     var nombresInput = document.getElementById("id_nombres");
     var apellidosInput = document.getElementById("id_apellidos");
 
@@ -52,15 +53,26 @@
       updateDniPlaceholder();
     }
 
-    // --- Phone prefix: initialise with +51 when blank ---
-    if (telefonoInput) {
-      if (!telefonoInput.value) {
-        telefonoInput.value = "+51 ";
+    // --- Phone: national number is digits-only; capped at 9 only when +51 ---
+    function currentPrefijo() {
+      return prefijoInput ? prefijoInput.value.trim() : "+51";
+    }
+    function enforcePhone() {
+      if (!telefonoInput) return;
+      var digits = telefonoInput.value.replace(/\D/g, "");
+      if (currentPrefijo() === "+51") {
+        digits = digits.slice(0, 9);
       }
-      telefonoInput.addEventListener("input", function () {
-        if (!this.value.startsWith("+")) {
-          this.value = "+" + this.value.replace(/[^\d]/g, "");
-        }
+      telefonoInput.value = digits;
+    }
+    if (telefonoInput) {
+      telefonoInput.addEventListener("input", enforcePhone);
+    }
+    if (prefijoInput) {
+      // Keep a leading "+" that can't be deleted; digits after it are editable.
+      prefijoInput.addEventListener("input", function () {
+        this.value = "+" + this.value.replace(/\D/g, "");
+        enforcePhone();
       });
     }
 

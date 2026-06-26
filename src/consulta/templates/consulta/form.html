@@ -15,21 +15,35 @@
 
   <div class="row g-4">
 
-    {# Left column: clinical history fields #}
+    {# Left column: clinical history fields, grouped into sections #}
     <div class="col-lg-7">
-      <c-card title="Historia Clínica">
 
-        {% for field in form %}
-          {% if field.name not in 'cie_code,cie_short_description,cie_accepted,paciente,triaje' %}
-            <c-form-field :field="field" />
-          {% endif %}
-        {% endfor %}
+      <c-card title="Datos de la consulta">
+        <c-form-field :field="form.motivo_consulta" />
 
         {# Hidden fields required by the view #}
         {{ form.paciente }}
         {{ form.triaje }}
-
       </c-card>
+
+      <div class="mt-4">
+        <c-card title="Nota clínica">
+          <c-form-field :field="form.contenido" />
+          <details class="form-text text-muted small mb-3">
+            <summary style="cursor: pointer;">Formato del texto (Markdown)</summary>
+            Soporta Markdown: # encabezados, **negrita**, *cursiva*, - listas.
+            El HTML se ignora por seguridad.
+          </details>
+          <c-form-field :field="form.is_privada" />
+        </c-card>
+      </div>
+
+      <div class="mt-4">
+        <c-card title="Recomendación para el paciente">
+          <c-form-field :field="form.recomendacion_paciente" />
+        </c-card>
+      </div>
+
     </div>
 
     {# Right column: AI diagnostic assistant #}

@@ -1,90 +1,84 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block title %}LIS - Sistema de Información de Laboratorio{% endblock %}
 
-{% block content %}
-<!-- Hero Section -->
-<div class="row align-items-center py-5">
-    <div class="col-lg-6">
-        <h1 class="display-3 fw-bold text-primary mb-3">Gestión de Triage Inteligente</h1>
-        <p class="lead text-muted mb-4">
-            Optimice los flujos de emergencia hospitalaria con nuestro motor de reglas inmutable (Manchester) y asistencia diagnóstica basada en IA de procesamiento de lenguaje natural.
-        </p>
-        <div class="d-grid gap-3 d-md-flex justify-content-md-start mb-5">
-            <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-5 shadow-sm">
-                <i class="bi bi-box-arrow-in-right me-2"></i>Acceso Intranet
-            </a>
-            <a href="#about" class="btn btn-outline-secondary btn-lg px-4">
-                Saber más
-            </a>
-        </div>
-    </div>
-    <div class="col-lg-6 d-none d-lg-block text-center">
-        <img src="https://img.freepik.com/free-vector/doctors-concept-illustration_114360-1515.jpg" alt="Salud" class="img-fluid rounded-4 shadow-lg" style="max-height: 450px;">
-    </div>
-</div>
-
-<!-- Features Section -->
-<div id="about" class="py-5 bg-white rounded-5 shadow-sm mb-5">
-    <div class="container px-4">
-        <div class="row g-4 text-center">
-            <div class="col-md-4">
-                <div class="p-4">
-                    <div class="feature-icon bg-primary bg-gradient text-white rounded-3 mb-3 d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                        <i class="bi bi-heart-pulse fs-3"></i>
-                    </div>
-                    <h3 class="h4 fw-bold">Triage Manchester</h3>
-                    <p class="text-muted">Algoritmo inmutable que garantiza una clasificación matemática del riesgo clínico del 1 al 5.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="p-4 border-start border-end">
-                    <div class="feature-icon bg-info bg-gradient text-white rounded-3 mb-3 d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                        <i class="bi bi-cpu fs-3"></i>
-                    </div>
-                    <h3 class="h4 fw-bold">IA Asíncrona</h3>
-                    <p class="text-muted">Procesamiento NLP con Celery y spaCy para sugerencias de diagnósticos CIE-10 y medicamentos.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="p-4">
-                    <div class="feature-icon bg-success bg-gradient text-white rounded-3 mb-3 d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                        <i class="bi bi-speedometer2 fs-3"></i>
-                    </div>
-                    <h3 class="h4 fw-bold">Eficiencia Operativa</h3>
-                    <p class="text-muted">Arquitectura orientada a eventos con RabbitMQ para tiempos de respuesta menores a 30 segundos.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Stats Section -->
-<div class="row g-4 py-5 mb-5 text-center">
-    <div class="col-6 col-md-3">
-        <div class="p-3">
-            <h2 class="fw-bold text-primary">100%</h2>
-            <p class="text-muted small">Trazabilidad</p>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="p-3">
-            <h2 class="fw-bold text-primary">&lt; 30s</h2>
-            <p class="text-muted small">Interacción Médica</p>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="p-3">
-            <h2 class="fw-bold text-primary">Zero</h2>
-            <p class="text-muted small">Error Humano Triage</p>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="p-3">
-            <h2 class="fw-bold text-primary">CIE-10</h2>
-            <p class="text-muted small">Codificación Auto</p>
-        </div>
-    </div>
-</div>
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/landing-custom.css' %}">
 {% endblock %}
 
+{% block content %}
+<!-- Hero Section -->
+<section class="landing-hero px-4 px-lg-5 pt-5">
+  <div class="row align-items-center g-4">
+    <div class="col-12 col-lg-6 py-4">
+      <p class="landing-hero__eyebrow mb-3">Cuidamos cada minuto que importa</p>
+      <h1 class="landing-hero__title mb-4">
+        <span class="fw-x-bold">Triaje inteligente</span>
+        <span class="fw-x-light">para una emergencia sin fricción</span>
+      </h1>
+      <p class="fs-5 text-secondary mb-0" style="max-width: 34rem;">
+        Clasificación clínica Manchester y asistencia diagnóstica asíncrona,
+        en una plataforma diseñada para que el equipo médico decida más rápido.
+      </p>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="landing-hero__media">
+        <img src="{% static 'img/doctor_hero.svg' %}" alt="Profesional médico del equipo LIS">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Floating trust card (glassmorphism bridge) -->
+<div class="landing-floating mx-3 mx-lg-5">
+  <div class="row g-0">
+    <div class="col-12 col-md-4 landing-floating__metric">
+      <div class="landing-floating__value">24/7</div>
+      <div class="text-secondary small">Atención continua</div>
+    </div>
+    <div class="col-12 col-md-4 landing-floating__metric">
+      <div class="landing-floating__value">+50</div>
+      <div class="text-secondary small">Especialistas</div>
+    </div>
+    <div class="col-12 col-md-4 landing-floating__metric">
+      <div class="landing-floating__value">En línea</div>
+      <div class="text-secondary small">Resultados al instante</div>
+    </div>
+  </div>
+</div>
+
+<!-- Services Section -->
+<section class="landing-services p-4 p-lg-5 mt-5">
+  <div class="row g-4">
+    <div class="col-12 col-md-4">
+      <div class="landing-service-card text-center p-4 p-lg-5">
+        <div class="landing-service-card__icon"><i class="bi bi-clipboard2-pulse"></i></div>
+        <h3 class="h5 fw-bold mb-2">Triaje Manchester</h3>
+        <p class="text-secondary mb-0">
+          Clasificación inmutable del riesgo clínico del 1 al 5.
+        </p>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="landing-service-card text-center p-4 p-lg-5">
+        <div class="landing-service-card__icon"><i class="bi bi-cpu"></i></div>
+        <h3 class="h5 fw-bold mb-2">IA Asíncrona</h3>
+        <p class="text-secondary mb-0">
+          Sugerencias de diagnóstico CIE-10 procesadas en segundo plano.
+        </p>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="landing-service-card text-center p-4 p-lg-5">
+        <div class="landing-service-card__icon"><i class="bi bi-speedometer2"></i></div>
+        <h3 class="h5 fw-bold mb-2">Eficiencia Operativa</h3>
+        <p class="text-secondary mb-0">
+          Arquitectura orientada a eventos con respuesta bajo 30 segundos.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

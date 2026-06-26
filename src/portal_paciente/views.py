@@ -24,8 +24,39 @@ class PatientDashboardView(LoginRequiredMixin, PatientRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['paciente'] = get_object_or_404(Paciente, dni=self.request.user.username)
+        paciente = get_object_or_404(Paciente, dni=self.request.user.username)
+        context['paciente'] = paciente
+        ai_service = AIService()
+        context['ai_questions_remaining'] = ai_service.remaining(paciente)
+        context['ai_max_questions'] = ai_service.max_questions
         return context
+
+
+from django.http import JsonResponse
+from django.views import View
+from .ai_service import AIService
+
+class AIChatView(LoginRequiredMixin, PatientRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        paciente = get_object_or_404(Paciente, dni=request.user.username)
+        user_message = request.POST.get('message')
+        
+        if not user_message:
+            return JsonResponse({'error': 'No se proporcionó mensaje'}, status=400)
+
+        # Obtener el último diagnóstico
+        last_nota = NotaMedica.objects.filter(paciente=paciente).order_by('-created_at').first()
+        last_diagnosis = None
+        if last_nota and last_nota.cie_short_description:
+            last_diagnosis = f"{last_nota.cie_code} - {last_nota.cie_short_description}"
+
+        ai_service = AIService()
+        response = ai_service.get_response(paciente, user_message, last_diagnosis)
+
+        return JsonResponse({
+            'response': response,
+            'remaining': ai_service.remaining(paciente),
+        })
 
 
 class RecetaDetailView(LoginRequiredMixin, PatientRequiredMixin, DetailView):

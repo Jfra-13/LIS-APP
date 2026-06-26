@@ -40,6 +40,13 @@
     </p>
   </div>
 
+  {% if nota.recomendacion_paciente %}
+    <div class="mb-3">
+      <h4 class="mb-2">Recomendaciones</h4>
+      <p class="mb-0">{{ nota.recomendacion_paciente|linebreaksbr }}</p>
+    </div>
+  {% endif %}
+
   <h4 class="mb-2">Prescripciones</h4>
   <div class="table-responsive">
     <table class="table table-bordered table-sm align-middle">

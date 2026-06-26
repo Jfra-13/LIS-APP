@@ -153,6 +153,15 @@ class NotaMedicaDetailView(ConsultaPermissionMixin, DetailView):
     template_name = "consulta/detail.html"
     context_object_name = "nota"
 
+    def get_queryset(self):
+        # prefetch prescripciones + medicamento para evitar N+1 al render de la receta (RNF-02).
+        return (
+            super()
+            .get_queryset()
+            .select_related("paciente", "triaje", "medico")
+            .prefetch_related("prescripciones__medicamento")
+        )
+
 
 class HistoriaClinicaView(ConsultaPermissionMixin, TemplateView):
     """Historia clínica unificada de un paciente.
@@ -396,6 +405,19 @@ def _ai_status(estado: str) -> str:
 
 def _render_ai_panel(nota) -> str:
     """Fragmento HTML del panel de IA para el polling HTMX (detail.html)."""
+    # Si el médico ya estableció un CIE-10, mostrar solo ese (no las sugerencias).
+    # No requiere polling: la selección es definitiva.
+    if nota.cie_accepted and nota.cie_code:
+        return (
+            '<div id="ia-panel">'
+            '<h6 class="fw-bold">CIE-10 establecido</h6>'
+            '<div class="list-group list-group-flush">'
+            '<div class="list-group-item small">'
+            f'<span class="fw-bold">{nota.cie_code}</span> '
+            f'<span class="text-muted">{nota.cie_short_description or ""}</span>'
+            "</div></div></div>"
+        )
+
     if nota.estado_ia == NotaMedica.EstadoIA.LISTO:
         suggestions = nota.cie_suggestions or []
         if not suggestions:

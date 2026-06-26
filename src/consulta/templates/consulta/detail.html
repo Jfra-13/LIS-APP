@@ -45,6 +45,46 @@
       <div class="lis-clinical-note">{{ nota.contenido|markdownify }}</div>
     </c-card>
 
+    {% if nota.recomendacion_paciente %}
+      <c-card title="Recomendación para el paciente">
+        <p class="mb-0">{{ nota.recomendacion_paciente|linebreaksbr }}</p>
+      </c-card>
+    {% endif %}
+
+    <c-card title="Receta">
+      {% if nota.prescripciones.all %}
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Medicamento</th>
+                <th>Dosis</th>
+                <th>Frecuencia</th>
+                <th>Duración</th>
+                <th>Instrucciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for prescripcion in nota.prescripciones.all %}
+                <tr>
+                  <td>
+                    <strong>{{ prescripcion.medicamento.nombre }}</strong><br>
+                    <small class="text-muted">{{ prescripcion.medicamento.presentacion }} &mdash; {{ prescripcion.medicamento.concentracion }}</small>
+                  </td>
+                  <td>{{ prescripcion.dosis }}</td>
+                  <td>{{ prescripcion.frecuencia }}</td>
+                  <td>{{ prescripcion.duracion }}</td>
+                  <td>{{ prescripcion.instrucciones_adicionales|default:"—" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted small mb-0">Sin medicamentos recetados.</p>
+      {% endif %}
+    </c-card>
+
     {# AI suggestions panel — HTMX polling (do not modify hx-* attrs) #}
     <div class="lis-print-hide">
       <c-card title="Sugerencias IA (CIE-10)">

@@ -47,7 +47,7 @@ class AutenticacionPacienteTests(TestCase):
 
     def test_request_link_view_success(self):
         """Prueba que la vista de solicitud cree el usuario y envíe el link."""
-        response = self.client.post(reverse('autenticacion_paciente:request_link'), {'dni': '87654321'})
+        response = self.client.post(reverse('autenticacion_paciente:request_link'), {'tipo_documento': 'DNI', 'dni': '87654321'})
         self.assertEqual(response.status_code, 302) # Redirect to link_sent
         
         # Verificar que el User fue creado
@@ -62,7 +62,7 @@ class AutenticacionPacienteTests(TestCase):
 
     def test_request_link_view_invalid_dni(self):
         """Prueba que la vista muestre error si el DNI no existe en Pacientes."""
-        response = self.client.post(reverse('autenticacion_paciente:request_link'), {'dni': '00000000'})
+        response = self.client.post(reverse('autenticacion_paciente:request_link'), {'tipo_documento': 'DNI', 'dni': '00000000'})
         self.assertEqual(response.status_code, 200)
         # Verificar que el mensaje de error está en el contenido si assertFormError falla
         self.assertContains(response, 'No se encontró un paciente con ese DNI.')

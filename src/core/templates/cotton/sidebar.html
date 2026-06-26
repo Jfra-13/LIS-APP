@@ -1,3 +1,4 @@
+{% load static %}
 {% comment %} LIS Sidebar — role-scoped navigation panel. {% endcomment %}
 {% comment %} Rendered only when nav_items is non-empty. Hidden/off-canvas on mobile, fixed on desktop.
    Collapse / pin state lives in the shell's Alpine scope (layout.html) and is
@@ -19,9 +20,9 @@
 
   {% comment %} Brand header + desktop collapse/pin controls. {% endcomment %}
   <div class="lis-sidebar__head">
-    <a class="lis-sidebar__brand" href="{% url 'home' %}" title="LIS">
-      <i class="bi bi-heart-pulse-fill"></i>
-      <span class="lis-sidebar__brand-text">LIS</span>
+    <a class="lis-sidebar__brand" href="{% url 'home' %}" title="SmartLIS">
+      <img src="{% static 'img/life-star-icon.svg' %}" alt="" class="lis-sidebar__brand-img">
+      <span class="lis-sidebar__brand-text">SmartLIS</span>
     </a>
     <div class="lis-sidebar__controls d-none d-lg-flex">
       <button type="button"

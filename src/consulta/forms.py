@@ -22,6 +22,7 @@ class NotaMedicaForm(forms.ModelForm):
             "triaje",
             "motivo_consulta",
             "contenido",
+            "recomendacion_paciente",
             "is_privada",
             "cie_code",
             "cie_short_description",
@@ -31,11 +32,6 @@ class NotaMedicaForm(forms.ModelForm):
             "cie_code": forms.HiddenInput(attrs={"id": "id_cie_code"}),
             "cie_short_description": forms.HiddenInput(attrs={"id": "id_cie_short_description"}),
             "cie_accepted": BooleanHiddenInput(attrs={"id": "id_cie_accepted", "value": "false"}),
-        }
-        help_texts = {
-            "contenido": (
-                "Soporta Markdown: # encabezados, **negrita**, *cursiva*, " "- listas. El HTML se ignora por seguridad."
-            ),
         }
 
     def clean(self):

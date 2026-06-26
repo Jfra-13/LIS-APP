@@ -161,13 +161,15 @@ textarea:focus-visible,
 
 .lis-topbar {
   height: var(--lis-topbar-height);
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--lis-border);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.25rem;
+  padding: 0 2rem;
   position: sticky;
   top: 0;
   z-index: 1030;
@@ -181,10 +183,18 @@ textarea:focus-visible,
 }
 
 .lis-topbar__logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: 1.75rem;
   color: var(--lis-primary);
   text-decoration: none;
+}
+
+.lis-topbar__logo-img {
+  height: 2rem;
+  width: auto;
 }
 
 .lis-topbar__logo:hover {
@@ -283,8 +293,11 @@ textarea:focus-visible,
   padding-left: calc(0.875rem - 3px);
 }
 
+/* Active item does NOT react to hover: you are already here. Keep it visually
+   stable so the hover affordance only applies to non-active links. */
 .lis-sidebar__link--active:hover {
-  background: var(--lis-nav-hover);
+  background: transparent;
+  color: var(--lis-primary);
 }
 
 .lis-sidebar__icon {
@@ -396,10 +409,16 @@ textarea:focus-visible,
   align-items: center;
   gap: 0.5rem;
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: 1.35rem;
   color: var(--lis-primary);
   text-decoration: none;
   min-width: 0;
+}
+
+.lis-sidebar__brand-img {
+  height: 1.75rem;
+  width: auto;
+  flex-shrink: 0;
 }
 
 .lis-sidebar__brand:hover {

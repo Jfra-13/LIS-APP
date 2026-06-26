@@ -57,6 +57,13 @@ class NotaMedica(AbstractBaseModel):
     contenido = models.TextField(verbose_name="Contenido clínico")
     is_privada = models.BooleanField(default=False, verbose_name="Privada")
 
+    # Texto orientado al paciente: siempre visible en el portal, sin importar is_privada.
+    recomendacion_paciente = models.TextField(
+        blank=True,
+        verbose_name="Recomendación para el paciente",
+        help_text="Indicaciones que el paciente verá en su portal (no es la nota clínica).",
+    )
+
     # Identificador único de receta para el portal del paciente
     receta_id = models.UUIDField(
         default=uuid.uuid4,

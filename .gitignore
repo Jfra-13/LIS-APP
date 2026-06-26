@@ -18,3 +18,7 @@ htmlcov/
 # DB de desarrollo (SQLite)
 db.sqlite3
 src/db.sqlite3
+
+# IDE / tooling
+.idea/
+.atl/
